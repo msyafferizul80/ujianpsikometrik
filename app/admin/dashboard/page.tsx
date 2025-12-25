@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Plus, FileText, Trash2 } from "lucide-react";
+import { Plus, FileText, Trash2, UserCog } from "lucide-react";
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { quizRepository } from "@/utils/supabaseRepository";
+import { createClient } from '@supabase/supabase-js';
 
 interface QuizSet {
     id: string;
@@ -20,33 +22,55 @@ export default function AdminDashboard() {
     const [quizzes, setQuizzes] = useState<QuizSet[]>([]);
     const [loading, setLoading] = useState(true);
 
+    // Check Auth and Fetch Quizzes
     useEffect(() => {
-        // Check Auth
-        const isAdmin = localStorage.getItem("isAdmin");
-        if (!isAdmin) {
-            router.push("/admin/login");
-            return;
-        }
+        const checkAuth = async () => {
+            const supabase = createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            );
+            const { data: { session } } = await supabase.auth.getSession();
 
-        // Fetch existing quizzes from localStorage (Mock + Custom)
-        const customQuizzes = JSON.parse(localStorage.getItem('customQuizzes') || "[]");
-        const defaultQuizzes = [
-            { id: "demo-1", title: "Set Soalan Disember 2025 (Demo)", totalQuestions: 100, createdAt: "2024-12-01" },
-        ];
+            if (!session) {
+                // Double check localStorage just in case (optional, but good for transition)
+                // If strictly Supabase, we remove localStorage check
+                router.push("/admin/login");
+            }
+        };
 
-        setQuizzes([...defaultQuizzes, ...customQuizzes]);
-        setLoading(false);
+        checkAuth();
+
+        const fetchQuizzes = async () => {
+            try {
+                const data: any = await quizRepository.getAllQuizzes();
+                // Map Supabase fields to component state if needed (mostly 1:1 match)
+                setQuizzes(data.map((q: any) => ({
+                    id: q.id,
+                    title: q.title,
+                    totalQuestions: q.total_questions,
+                    createdAt: new Date(q.created_at).toLocaleDateString()
+                })));
+            } catch (err) {
+                console.error("Failed to fetch quizzes", err);
+                alert("Gagal mengambil senarai kuiz.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchQuizzes();
     }, [router]);
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         if (confirm("Adakah anda pasti mahu memadam set soalan ini?")) {
-            // Check if it's a custom quiz
-            const customQuizzes = JSON.parse(localStorage.getItem('customQuizzes') || "[]");
-            const newCustomQuizzes = customQuizzes.filter((q: any) => q.id !== id);
-            localStorage.setItem('customQuizzes', JSON.stringify(newCustomQuizzes));
-
-            // Update state
-            setQuizzes(prev => prev.filter(q => q.id !== id));
+            try {
+                await quizRepository.deleteQuiz(id);
+                // Update state
+                setQuizzes(prev => prev.filter(q => q.id !== id));
+            } catch (err) {
+                console.error("Delete failed", err);
+                alert("Gagal memadam set soalan.");
+            }
         }
     };
 
@@ -59,12 +83,20 @@ export default function AdminDashboard() {
                     <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
                     <p className="text-gray-500">Uruskan set soalan dan upload fail baru.</p>
                 </div>
-                <Link href="/admin/upload">
-                    <Button className="bg-blue-600 hover:bg-blue-700">
-                        <Plus className="mr-2 h-4 w-4" />
-                        Upload Soalan (.docx)
-                    </Button>
-                </Link>
+                <div className="flex flex-col md:flex-row gap-2">
+                    <Link href="/admin/upload">
+                        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Tambah Set Soalan
+                        </Button>
+                    </Link>
+                    <Link href="/admin/users">
+                        <Button variant="outline" className="ml-2 border-blue-200 text-blue-700 hover:bg-blue-50">
+                            <UserCog className="mr-2 h-4 w-4" />
+                            Urus Pengguna
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             <div className="grid gap-6">

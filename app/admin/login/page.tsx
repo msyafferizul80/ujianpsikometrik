@@ -8,22 +8,72 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Lock } from "lucide-react";
 
 export default function AdminLogin() {
-    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [otp, setOtp] = useState("");
+    const [step, setStep] = useState<'email' | 'otp'>('email');
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
 
-    const handleLogin = (e: React.FormEvent) => {
-        e.preventDefault();
+    // Import Supabase client
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
-        // Simple hardcoded check for demo purposes
-        // In a real app, this should be an API call to a secure endpoint
-        if (password === "admin123") {
-            // Set a simple cookie or local storage token
-            document.cookie = "admin_session=valid; path=/";
-            localStorage.setItem("isAdmin", "true");
-            router.push("/admin/dashboard");
-        } else {
-            setError("Katalaluan salah. Sila cuba lagi.");
+    const handleSendOtp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError("");
+
+        try {
+            const { error } = await supabase.auth.signInWithOtp({
+                email: email,
+                options: {
+                    shouldCreateUser: false, // Only allow existing users (admins) implies we need to create them first manually or strictly control this. 
+                    // For this demo, let's allow creation or just assume "shouldCreateUser: true" is default.
+                    // Let's set true for now to allow user to login easily.
+                    shouldCreateUser: true
+                }
+            });
+
+            if (error) {
+                setError(error.message);
+            } else {
+                setStep('otp');
+            }
+        } catch (err: any) {
+            setError(err.message || "Ralat penghantaran OTP.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleVerifyOtp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError("");
+
+        try {
+            const { data: { session }, error } = await supabase.auth.verifyOtp({
+                email,
+                token: otp,
+                type: 'email',
+            });
+
+            if (error) {
+                setError(error.message);
+            } else if (session) {
+                // Success
+                // Set legacy helper for existing components if they check localStorage
+                localStorage.setItem("isAdmin", "true");
+                router.push("/admin/dashboard");
+            }
+        } catch (err: any) {
+            setError(err.message || "Ralat pengesahan OTP.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -34,34 +84,66 @@ export default function AdminLogin() {
                     <div className="mx-auto bg-blue-100 p-3 rounded-full w-fit">
                         <Lock className="h-6 w-6 text-blue-600" />
                     </div>
-                    <CardTitle className="text-2xl font-bold text-gray-800">Admin Login</CardTitle>
+                    <CardTitle className="text-2xl font-bold text-gray-800">Admin Login (OTP)</CardTitle>
                     <CardDescription>
-                        Sila masukkan katalaluan untuk akses panel admin.
+                        {step === 'email'
+                            ? "Masukkan emel untuk menerima kod OTP."
+                            : "Masukkan kod 6-digit yang dihantar ke emel anda."}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleLogin} className="space-y-4">
-                        <div className="space-y-2">
-                            <Input
-                                type="password"
-                                placeholder="Katalaluan"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="text-center text-lg"
-                            />
-                            {error && (
-                                <p className="text-sm text-red-500 text-center font-medium animate-pulse">
-                                    {error}
-                                </p>
-                            )}
-                        </div>
-                        <Button
-                            type="submit"
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
-                        >
-                            Masuk
-                        </Button>
-                    </form>
+                    {step === 'email' ? (
+                        <form onSubmit={handleSendOtp} className="space-y-4">
+                            <div className="space-y-2">
+                                <Input
+                                    type="email"
+                                    placeholder="nama@email.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="text-center text-lg"
+                                    required
+                                />
+                            </div>
+                            {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+                            <Button
+                                type="submit"
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                                disabled={loading}
+                            >
+                                {loading ? "Sedang Menghantar..." : "Hantar OTP"}
+                            </Button>
+                        </form>
+                    ) : (
+                        <form onSubmit={handleVerifyOtp} className="space-y-4">
+                            <div className="space-y-2">
+                                <Input
+                                    type="text"
+                                    placeholder="123456"
+                                    value={otp}
+                                    maxLength={6}
+                                    onChange={(e) => setOtp(e.target.value)}
+                                    className="text-center text-2xl tracking-widest"
+                                    required
+                                />
+                            </div>
+                            {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+                            <Button
+                                type="submit"
+                                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
+                                disabled={loading}
+                            >
+                                {loading ? "Sedang Mengesahkan..." : "Sahkan & Masuk"}
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                className="w-full"
+                                onClick={() => setStep('email')}
+                            >
+                                Tukar Emel
+                            </Button>
+                        </form>
+                    )}
                 </CardContent>
             </Card>
         </div>

@@ -61,16 +61,50 @@ export function Sidebar() {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
     const [streak, setStreak] = useState(0);
-    const [userName, setUserName] = useState("Ahmad Daniel");
+    const [userName, setUserName] = useState("Calon");
+    const [userEmail, setUserEmail] = useState("");
+    const [userRole, setUserRole] = useState("user");
     const [mounted, setMounted] = useState(false);
+
+    // Import Supabase Client
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
     useEffect(() => {
         setMounted(true);
         const stats = getQuizStats();
         setStreak(stats.currentStreak);
 
-        const savedName = localStorage.getItem('userName');
-        if (savedName) setUserName(savedName);
+        const fetchUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                setUserEmail(session.user.email || "");
+                // Prioritize localStorage name if set, else use email part
+                const savedName = localStorage.getItem('userName');
+                setUserName(savedName || session.user.email?.split('@')[0] || "Calon");
+
+                // Fetch Role from 'profiles'
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (profile) {
+                    setUserRole(profile.role);
+                }
+
+                // Fallback for initial admin bootstrap (demo purpose only)
+                // If the email matches the developer/admin email, auto-grant admin in UI state (not DB, DB needs manual update)
+                if (session.user.email === 'sheffi80@gmail.com') { // Hardcode bootstrap
+                    setUserRole('admin');
+                }
+            }
+        };
+        fetchUser();
 
         // Listen for storage changes to update name across tabs/components
         const handleStorageChange = () => {
@@ -142,6 +176,11 @@ export function Sidebar() {
                             const Icon = item.icon;
                             const isActive = pathname === item.href;
 
+                            // Hide Admin panel if not admin
+                            if (item.href.startsWith('/admin') && userRole !== 'admin') {
+                                return null;
+                            }
+
                             return (
                                 <Link
                                     key={item.href}
@@ -177,8 +216,8 @@ export function Sidebar() {
                                 {userName ? getInitials(userName) : "AD"}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate">{userName || "Ahmad Daniel"}</p>
-                                <p className="text-xs text-gray-500 truncate">S5 candidate</p>
+                                <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
+                                <p className="text-xs text-gray-500 truncate">{userEmail || "S5 Candidate"}</p>
                             </div>
                         </div>
                     </Link>

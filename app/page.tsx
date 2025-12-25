@@ -35,9 +35,10 @@ export default function Home() {
 
           <div className="space-y-3">
             {/* Simple login bypass for this demo */}
-            <Link href="/dashboard" className="w-full">
+            {/* Main CTA */}
+            <Link href="/login" className="w-full">
               <Button className="w-full py-6 text-lg font-semibold bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all">
-                Mula Sesi
+                Mula Sesi (Login)
               </Button>
             </Link>
             <div className="text-xs text-center text-gray-400 mt-4">

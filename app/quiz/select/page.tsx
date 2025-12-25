@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, BookOpen, ArrowRight, Star } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 
+import { quizRepository } from "@/utils/supabaseRepository";
+
 // Default/Demo Data
 const DEMO_QUIZ = [
     {
@@ -34,21 +36,34 @@ export default function QuizSelectPage() {
     const router = useRouter();
     const [quizzes, setQuizzes] = useState<any[]>([]);
 
-    useEffect(() => {
-        // Load custom quizzes from localStorage
-        const customQuizzes = JSON.parse(localStorage.getItem('customQuizzes') || "[]").map((q: any) => ({
-            ...q,
-            description: "Set soalan yang dimuat naik oleh admin.",
-            duration: Math.ceil(q.totalQuestions * 0.8), // Estimate duration
-            isNew: true
-        }));
+    // ... imports ...
+    // ... imports ...
 
-        setQuizzes([...DEMO_QUIZ, ...customQuizzes]);
+    // ... inside component ...
+    useEffect(() => {
+        const fetchQuizzes = async () => {
+            try {
+                const data: any = await quizRepository.getAllQuizzes();
+                const formatted = data.map((q: any) => ({
+                    id: q.id,
+                    title: q.title,
+                    description: q.description || "Set soalan latihan ujian psikometrik.",
+                    totalQuestions: q.total_questions,
+                    duration: q.duration_minutes || Math.ceil(q.total_questions * 0.8),
+                    isNew: new Date(q.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // New if created within 7 days
+                }));
+                setQuizzes([...DEMO_QUIZ, ...formatted]);
+            } catch (err) {
+                console.error("Failed to fetch quizzes", err);
+                // Fallback to demo only
+                setQuizzes(DEMO_QUIZ);
+            }
+        };
+
+        fetchQuizzes();
     }, []);
 
     const handleStartQuiz = (quizId: string) => {
-        // In a real app, we'd fetch the specific quiz questions here
-        // For now, if it's a custom quiz, we load it into 'currentQuiz' storage
         const selected = quizzes.find(q => q.id === quizId);
 
         if (selected) {
@@ -56,15 +71,8 @@ export default function QuizSelectPage() {
             localStorage.setItem('activeQuizId', selected.id);
             localStorage.setItem('activeQuizTitle', selected.title);
 
-            // If it has questions (custom quiz), save them to runtime storage for the Quiz Page to consume
-            if (selected.questions && selected.questions.length > 0) {
-                localStorage.setItem('quizQuestions', JSON.stringify(selected.questions));
-            } else {
-                // It's a demo quiz, clear any custom questions so default logic picks up `questions/route` or hardcoded data
-                localStorage.removeItem('quizQuestions');
-            }
-
-            // Reset progress for new quiz
+            // Clean up previous session data
+            localStorage.removeItem('quizQuestions'); // Ensure we don't load stale local questions
             localStorage.removeItem('quizAnswers');
             localStorage.removeItem('currentQuestion');
             localStorage.setItem('quizInProgress', 'true');

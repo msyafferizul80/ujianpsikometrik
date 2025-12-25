@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Upload, FileText, Check, AlertCircle, Save, Loader2, Code } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
+import { quizRepository } from "@/utils/supabaseRepository";
 
 export default function UploadPage() {
     const router = useRouter();
@@ -183,25 +184,39 @@ export default function UploadPage() {
         }
     };
 
-    const handleSaveQuiz = () => {
+
+    // Import repository at the top (added via tool instruction context, but here focusing on the function)
+
+    // ... imports ...
+    // ... imports ...
+
+    // ... inside component ...
+
+    const handleSaveQuiz = async () => {
         if (!quizTitle) {
             setError("Sila masukkan tajuk set soalan.");
             return;
         }
 
-        const newQuiz = {
-            id: Date.now().toString(),
-            title: quizTitle,
-            totalQuestions: questions.length,
-            questions: questions,
-            createdAt: new Date().toISOString()
-        };
+        try {
+            setParsing(true); // Re-use parsing state for loading UI
 
-        const existing = JSON.parse(localStorage.getItem('customQuizzes') || "[]");
-        localStorage.setItem('customQuizzes', JSON.stringify([...existing, newQuiz]));
+            // 1. Create Quiz Entry
+            const quiz = await quizRepository.createQuiz(quizTitle, "Set soalan yang dimuat naik oleh admin.", questions.length);
 
-        alert("Set soalan berjaya disimpan!");
-        router.push('/admin/dashboard');
+            if (quiz && quiz.id) {
+                // 2. Save Questions
+                await quizRepository.saveQuestions(quiz.id, questions);
+
+                alert("Set soalan berjaya disimpan ke database!");
+                router.push('/admin/dashboard');
+            }
+        } catch (err: any) {
+            console.error("Save Error:", err);
+            setError("Gagal menyimpan ke database: " + err.message);
+        } finally {
+            setParsing(false);
+        }
     };
 
     return (

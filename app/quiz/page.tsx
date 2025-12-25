@@ -11,6 +11,8 @@ import { AnswerOption } from "@/components/AnswerOption";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { QuizSkeleton } from "@/components/QuizSkeleton";
 
+import { quizRepository } from "@/utils/supabaseRepository";
+
 interface Question {
     id: number;
     teras: string;
@@ -28,57 +30,51 @@ export default function QuizPage() {
     const router = useRouter();
 
     // Load questions and saved progress
+    // ... imports ...
+    // ... imports ...
+
+    // ... inside component ...
     useEffect(() => {
-        // Load questions
-        fetch('/api/questions')
-            .then(res => res.json())
-            .then(data => {
-                const fetchQuestions = () => {
-                    // Load questions from API
-                    fetch('/api/questions')
-                        .then(res => res.json())
-                        .then(data => {
-                            setQuestions(data);
-                            setLoading(false);
-                        })
-                        .catch(err => {
-                            console.error("Failed to load questions", err);
-                            setLoading(false);
-                        });
-                };
+        const loadQuizData = async () => {
+            const activeQuizId = localStorage.getItem('activeQuizId');
 
-                // Check if custom questions exist in storage
-                const storedQuestions = localStorage.getItem('quizQuestions');
-                if (storedQuestions) {
-                    try {
-                        const parsed = JSON.parse(storedQuestions);
-                        setQuestions(parsed);
-                        setLoading(false); // Ensure loading state is cleared
-                        // Reset/Init logic if needed
-                    } catch (e) {
-                        console.error("Failed to load custom questions", e);
-                        fetchQuestions(); // Fallback to API if stored questions are invalid
+            // 1. Try to load from Supabase if we have an ID (and it's not a demo ID string like "demo-1")
+            if (activeQuizId && !activeQuizId.startsWith('demo-')) {
+                try {
+                    const data = await quizRepository.getQuestionsByQuizId(activeQuizId);
+                    if (data && data.length > 0) {
+                        // Map options correctly if they are complex objects, but repository already maps them
+                        setQuestions(data);
+                        setLoading(false);
+                        return;
                     }
-                } else {
-                    fetchQuestions(); // Load from API if no custom questions are stored
+                } catch (err) {
+                    console.error("Failed to load from Supabase", err);
+                    // If fail, fall through to demo logic
                 }
+            }
 
-                // Load saved state
-                const savedTime = localStorage.getItem('quizTimeLeft'); // Not used in this snippet, but kept as per instruction
-                const savedAnswers = localStorage.getItem('quizAnswers');
-                const savedQuestion = localStorage.getItem('currentQuestion');
+            // 2. Fallback / Default Demo Logic
+            fetch('/api/questions')
+                .then(res => res.json())
+                .then(data => {
+                    setQuestions(data);
+                    setLoading(false);
+                })
+                .catch(err => {
+                    console.error("Failed to load demo questions", err);
+                    setLoading(false);
+                });
 
-                if (savedAnswers) {
-                    setAnswers(JSON.parse(savedAnswers));
-                }
+            // Load saved state (User progress)
+            const savedAnswers = localStorage.getItem('quizAnswers');
+            const savedQuestion = localStorage.getItem('currentQuestion');
+            if (savedAnswers) setAnswers(JSON.parse(savedAnswers));
+            if (savedQuestion) setCurrentIdx(parseInt(savedQuestion));
+            localStorage.setItem('quizInProgress', 'true');
+        };
 
-                if (savedQuestion) {
-                    setCurrentIdx(parseInt(savedQuestion));
-                }
-
-                // Set quiz in progress flag
-                localStorage.setItem('quizInProgress', 'true');
-            });
+        loadQuizData();
     }, []);
 
     // Auto-save functionality
@@ -136,6 +132,20 @@ export default function QuizPage() {
 
         setSubmitting(true);
         try {
+            // 1. Calculate Score (Frontend calculation for immediate feedback)
+            // Simple scoring: 1 point per correct answer (can be enhanced later)
+            const score = questions.reduce((acc, q) => {
+                return acc + (answers[q.id] === q.correctAnswer ? 1 : 0); // Need to ensure q has correctAnswer
+            }, 0);
+
+            // 2. Save to Supabase
+            const activeQuizId = localStorage.getItem('activeQuizId');
+            if (activeQuizId && !activeQuizId.startsWith('demo-')) {
+                // Use a default user name for now since Auth isn't fully enforced on frontend
+                const userName = localStorage.getItem('userName') || 'Anonymous Candidate';
+                await quizRepository.saveAttempt(userName, parseInt(activeQuizId), score * 10, answers); // Assuming 10 points per q or logic
+            }
+
             const res = await fetch('/api/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -143,9 +153,11 @@ export default function QuizPage() {
             });
             const result = await res.json();
 
-            // Save result and clear progress
+            // Save result (User context)
             const resultWithAnswers = { ...result, answers };
             localStorage.setItem('quizResult', JSON.stringify(resultWithAnswers));
+
+            // Clean up
             localStorage.removeItem('quizAnswers');
             localStorage.removeItem('currentQuestion');
             localStorage.removeItem('quizTimeLeft');

@@ -10,18 +10,37 @@ import { User, Save, Trash2, AlertTriangle, Moon, Sun } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function SettingsPage() {
-    const [name, setName] = useState("Ahmad Daniel");
-    const [email, setEmail] = useState("widuribest@gmail.com");
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
     const [saved, setSaved] = useState(false);
 
+    // Import Supabase
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
     useEffect(() => {
-        const savedName = localStorage.getItem('userName');
-        if (savedName) setName(savedName);
+        const fetchUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                setEmail(session.user.email || "");
+                // For now, if we don't have a 'users' table, we can just use email prefix as name or fallback
+                // Or stick to localStorage for 'name' if we want to allow user customization without a DB table for profile yet.
+                // Let's check if we have a name in localStorage, else default to 'Calon'.
+                const savedName = localStorage.getItem('userName');
+                setName(savedName || "Calon");
+            }
+        };
+
+        fetchUser();
     }, []);
 
     const handleSave = () => {
         localStorage.setItem('userName', name);
-        // localStorage.setItem('userEmail', email); // Optional
+        // Dispatch custom event to notify Sidebar (and other components)
+        window.dispatchEvent(new Event('user-profile-update'));
 
         // Dispatch custom event to notify Sidebar (and other components)
         window.dispatchEvent(new Event('user-profile-update'));
