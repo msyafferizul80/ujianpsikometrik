@@ -84,55 +84,79 @@ export default function Dashboard() {
         );
     }
 
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return "Selamat Pagi";
+        if (hour < 18) return "Selamat Petang";
+        return "Selamat Malam";
+    };
+
     return (
         <DashboardLayout>
-            <div className="p-6 max-w-7xl mx-auto">
-                {/* Welcome Section */}
-                <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="p-6 max-w-7xl mx-auto space-y-8">
+                {/* 1. Smart Hero Section (Fokus Hari Ini) */}
+                <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                     <div>
-                        <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                            Selamat Datang, {userName}! 👋
-                        </h2>
-                        <p className="text-gray-600">
-                            Teruskan latihan anda untuk meningkatkan prestasi ujian psikometrik.
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                                Fokus Hari Ini
+                            </span>
+                            <span className="text-gray-400 text-xs">|</span>
+                            <span className="text-gray-500 text-xs font-medium">
+                                {new Date().toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long' })}
+                            </span>
+                        </div>
+                        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
+                            {getGreeting()}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">{userName}</span>.
+                        </h1>
+                        <p className="text-gray-500 mt-2 max-w-xl leading-relaxed">
+                            Momentum anda sedang meningkat! Hari ini disarankan untuk memantapkan <span className="font-semibold text-gray-700">Kompetensi Emosi</span>.
                         </p>
                     </div>
-                    <ShareButton className="bg-green-600 hover:bg-green-700 text-white" text="Kongsi Aplikasi" />
+                    <div className="flex gap-3">
+                        <Link href="/quiz/select?filter=emosi">
+                            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 shadow-md hover:shadow-lg transition-all">
+                                <PlayCircle className="mr-2 h-4 w-4" />
+                                Latih Emosi
+                            </Button>
+                        </Link>
+                        <ShareButton className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm" text="Ajak Kawan" variant="outline" />
+                    </div>
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up">
+                {/* 2. Stats Grid (Rebranded) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 animate-slide-up">
                     <StatCard
-                        title="Kuiz Selesai"
+                        title="Latih Tubi"
                         value={stats.quizzesCompleted}
-                        subtitle="Jumlah set dijawab"
+                        subtitle="Set soalan terjawab"
                         icon={BookOpen}
-                        colorClass="blue"
-                        tooltip="Jumlah keseluruhan set soalan yang telah anda selesaikan."
+                        colorClass="blue" // Keep blue for "Intellectual"
+                        tooltip="Jumlah set latihan yang telah anda selesaikan sepenuhnya."
                     />
                     <StatCard
-                        title="Kesediaan"
+                        title="Indeks Kompetensi"
                         value={`${stats.readinessPercentage}%`}
-                        subtitle="Tahap persediaan"
-                        icon={CheckCircle2}
-                        colorClass="green"
-                        tooltip="Purata skor berdasarkan 3 ujian terkini anda."
+                        subtitle="Tahap penguasaan"
+                        icon={Target} // Changed from CheckCircle to Target for "Aim/Goal"
+                        colorClass="emerald" // Changed to Emerald for "Success/Growth"
+                        tooltip="Skor komposit berdasarkan ketepatan jawapan terkini anda."
                     />
                     <StatCard
-                        title="Streak"
+                        title="Momentum"
                         value={`${stats.currentStreak} Hari`}
-                        subtitle="Konsistensi latihan"
+                        subtitle="Fokus berterusan"
                         icon={Flame}
                         colorClass="orange"
-                        tooltip="Bilangan hari berturut-turut anda telah membuat latihan."
+                        tooltip="Bilangan hari berturut-turut anda aktif membuat latihan."
                     />
                     <StatCard
-                        title="Ranking"
+                        title="Carta Prestasi"
                         value="Top 10%"
-                        subtitle="Dalam kalangan pengguna"
-                        icon={Trophy}
-                        colorClass="purple"
-                        tooltip="Kedudukan anda berbanding pengguna lain berdasarkan skor terkini."
+                        subtitle="Pencapaian semasa"
+                        icon={BarChart3} // Changed from Trophy to BarChart for "Analytics" vibe
+                        colorClass="violet"
+                        tooltip="Kedudukan anda berbanding calon-calon lain."
                     />
                 </div>
 
@@ -192,7 +216,7 @@ export default function Dashboard() {
                                             <p className="text-xs text-gray-500">Ujian sedang berjalan</p>
                                         )}
                                     </div>
-                                    <Link href="/quiz/select">
+                                    <Link href={inProgress ? "/quiz" : "/quiz/select"}>
                                         <Button
                                             size="lg"
                                             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 font-semibold shadow-lg hover:shadow-xl transition-all"

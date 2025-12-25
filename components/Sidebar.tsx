@@ -14,7 +14,8 @@ import {
     X,
     Flame,
     Lock,
-    Library
+    Library,
+    LogOut
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getQuizStats } from "@/utils/stats";
@@ -26,17 +27,17 @@ const menuItems = [
         href: "/dashboard",
     },
     {
-        title: "Katalog Kuiz",
+        title: "Bank Soalan",
         icon: Library,
         href: "/quiz/select",
     },
     {
-        title: "Keputusan",
+        title: "Rekod Latihan",
         icon: Trophy,
         href: "/result",
     },
     {
-        title: "Analisis",
+        title: "Prestasi",
         icon: BarChart3,
         href: "/analytics",
     },
@@ -209,28 +210,44 @@ export function Sidebar() {
                 </nav>
 
                 {/* User Profile Section */}
-                <div className="p-4 border-t border-gray-100">
-                    <Link href="/settings">
-                        <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-gray-50 to-blue-50/50 hover:shadow-sm transition-shadow cursor-pointer">
-                            <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
-                                {userName ? getInitials(userName) : "AD"}
+                <div className="p-4 border-t border-gray-100 space-y-3">
+                    <div className="flex items-center gap-2">
+                        <Link href="/settings" className="flex-1 min-w-0 group">
+                            <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                                <div className="h-9 w-9 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold shadow-md shrink-0">
+                                    {userName ? getInitials(userName) : "AD"}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">{userName}</p>
+                                    <p className="text-xs text-gray-500 truncate">{userEmail || "S5 Candidate"}</p>
+                                </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
-                                <p className="text-xs text-gray-500 truncate">{userEmail || "S5 Candidate"}</p>
-                            </div>
-                        </div>
-                    </Link>
+                        </Link>
+
+                        <button
+                            onClick={async () => {
+                                if (confirm("Log keluar dari sistem?")) {
+                                    await supabase.auth.signOut();
+                                    localStorage.removeItem('quizHistory'); // Optional: clear history if mostly private
+                                    localStorage.removeItem('userProfile');
+                                    // Clear session related items but maybe keep some preferences
+                                    window.location.href = '/';
+                                }
+                            }}
+                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                            title="Log Keluar"
+                        >
+                            <LogOut className="h-5 w-5" />
+                        </button>
+                    </div>
 
                     {/* Streak Badge */}
-                    <div className="mt-3 p-3 rounded-lg bg-gradient-to-r from-orange-50 to-red-50 border border-orange-100">
+                    <div className="p-2.5 rounded-lg bg-gradient-to-r from-orange-50 to-red-50 border border-orange-100 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <Flame className="h-5 w-5 text-orange-500" />
-                            <div>
-                                <p className="text-xs text-gray-600">Streak Semasa</p>
-                                <p className="text-lg font-bold text-orange-600">{streak} hari</p>
-                            </div>
+                            <Flame className="h-4 w-4 text-orange-500" />
+                            <span className="text-xs font-medium text-orange-700">Momentum</span>
                         </div>
+                        <span className="text-sm font-bold text-orange-600">{streak} hari</span>
                     </div>
                 </div>
             </aside>

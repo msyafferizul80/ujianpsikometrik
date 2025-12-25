@@ -85,7 +85,7 @@ export default function QuizSelectPage() {
         <DashboardLayout>
             <div className="p-6 max-w-7xl mx-auto space-y-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Pilih Set Soalan</h1>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Bank Soalan</h1>
                     <p className="text-gray-600">Pilih dari koleksi set soalan terkini untuk memulakan latihan anda.</p>
                 </div>
 

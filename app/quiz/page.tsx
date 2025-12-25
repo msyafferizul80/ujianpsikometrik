@@ -39,44 +39,140 @@ export default function QuizPage() {
         const loadQuizData = async () => {
             const activeQuizId = localStorage.getItem('activeQuizId');
 
-            // 1. Try to load from Supabase if we have an ID (and it's not a demo ID string like "demo-1")
-            if (activeQuizId && !activeQuizId.startsWith('demo-')) {
-                try {
-                    const data = await quizRepository.getQuestionsByQuizId(activeQuizId);
-                    if (data && data.length > 0) {
-                        // Map options correctly if they are complex objects, but repository already maps them
-                        setQuestions(data);
-                        setLoading(false);
-                        return;
+            // 1. Check for Smart Review Mode
+            if (activeQuizId === 'smart-review') {
+                const teras = localStorage.getItem('activeTeras');
+                if (teras) {
+                    try {
+                        const data = await quizRepository.getQuestionsByTeras(teras, 10);
+                        if (data && data.length > 0) {
+                            setQuestions(data);
+                            setLoading(false);
+                            return;
+                        }
+                    } catch (err) {
+                        console.error("Failed to load smart review questions", err);
                     }
-                } catch (err) {
-                    console.error("Failed to load from Supabase", err);
-                    // If fail, fall through to demo logic
                 }
             }
 
-            // 2. Fallback / Default Demo Logic
-            fetch('/api/questions')
-                .then(res => res.json())
-                .then(data => {
-                    setQuestions(data);
+            // 2. Try to load from Supabase if we have a normal ID
+            if (activeQuizId && !activeQuizId.startsWith('demo-') && activeQuizId !== 'smart-review') {
+                try {
+                    const data = await quizRepository.getQuestionsByQuizId(activeQuizId);
+                    if (data && data.length > 0) {
+                        setQuestions(data);
+
+                        // Validate Data Integrity
+                        const missingAnswers = data.filter((q: any) => !q.correctAnswer).length;
+                        if (missingAnswers > 0) {
+                            console.warn(`${missingAnswers} questions missing correct answers`);
+                            if (missingAnswers === data.length) {
+                                alert("AMARAN KRITIKAL: Set soalan ini TIDAK MEMPUNYAI SKEMA JAWAPAN. Anda akan mendapat markah 0% walaupun menjawab dengan betul. Sila hubungi Admin untuk upload semula soalan dengan format yang betul (Jawapan: A).");
+                            }
+                        }
+
+                        setLoading(false);
+                        return;
+                    } else {
+                        throw new Error("No questions found for this quiz");
+                    }
+                } catch (err) {
+                    console.error("Failed to load from Supabase", err);
+                    // CRITICAL: Do NOT fall back to Demo if we expected a specific quiz.
+                    // This prevents answer mismatch (e.g. user has answers for ID 200, but we load ID 1).
+                    alert("Gagal memuat turun soalan. Sila pastikan sambungan internet anda baik dan refresh semula.");
                     setLoading(false);
-                })
-                .catch(err => {
-                    console.error("Failed to load demo questions", err);
-                    setLoading(false);
-                });
+                    return;
+                }
+            }
+
+            // 3. Fallback / Default Demo Logic
+            // Only run this if NO activeQuizId is set (or it's explicitly demo)
+            if (!activeQuizId || activeQuizId.startsWith('demo-')) {
+                fetch('/api/questions')
+                    .then(res => res.json())
+                    .then(data => {
+                        setQuestions(data);
+                        setLoading(false);
+                    })
+                    .catch(err => {
+                        console.error("Failed to load demo questions", err);
+                        setLoading(false);
+                    });
+            } else {
+                // Should not reach here if logic above is correct, but safe termination
+                setLoading(false);
+            }
 
             // Load saved state (User progress)
+            // Load saved state (User progress)
             const savedAnswers = localStorage.getItem('quizAnswers');
-            const savedQuestion = localStorage.getItem('currentQuestion');
-            if (savedAnswers) setAnswers(JSON.parse(savedAnswers));
-            if (savedQuestion) setCurrentIdx(parseInt(savedQuestion));
+            let loadedAnswers = {};
+            if (savedAnswers) {
+                loadedAnswers = JSON.parse(savedAnswers);
+                setAnswers(loadedAnswers);
+            };
+
+            // Enhanced Auto-Resume Logic:
+            // 1. Try to find the first UNANSWERED question from the loaded list
+            let resumeIndex = 0;
+            // We need to wait for questions to be set, but we are inside the async function where we just fetched them.
+            // However, 'questions' state variable won't be updated until next render.
+            // So we must use the 'data' variable we just fetched above.
+
+            // It's tricky because we have 3 potential data sources above (smart review, supabase, demo).
+            // Let's refactor slightly to ensure we have 'finalQuestions' logic available before this block.
+            // Since the code above returns early, we can't easily access 'data' here if we don't restructure.
+            // BUT: The existing code has early returns. This block (lines 87-93) is only reached if demo fetch finishes OR if it falls through?
+            // Wait, the early returns in 1 & 2 skip this block! 
+            // This is a BUG in existing code: if it returns early in step 1 or 2, it NEVER loads saved answers!
+
+            // I will fix this by moving the answer loading logic to a helper or copying it before returns.
+            // Or better, remove early returns and use a variable.
+
+            // To be safe with minimal diff, I will rely on the fact that I am REPLACING this block,
+            // but I need to make sure this block runs for ALL cases.
+            // Actually, I need to modify the structure.
+
+            // Let's rewrite the whole function body to be safe? No, replace_file_content is for chunks.
+            // I will inject the resume logic into the specific data loading blocks in a subsequent step if needed,
+            // but first I must realize the current code is flawed.
+
+            // Let's fix the logic by removing early returns in the previous blocks? 
+            // That would require a massive replace.
+
+            // Alternative: Add a separate useEffect for "Resume" that runs when 'questions' changes?
+            // Yes! efficient and cleaner.
+            // If questions are loaded and we have saved answers, compute the index.
+
             localStorage.setItem('quizInProgress', 'true');
         };
 
         loadQuizData();
     }, []);
+
+    // NEW: Smart Resume Effect
+    useEffect(() => {
+        if (questions.length > 0) {
+            const savedAnswers = localStorage.getItem('quizAnswers');
+            if (savedAnswers) {
+                const parsed = JSON.parse(savedAnswers);
+                setAnswers(parsed);
+
+                // Find first missing answer
+                const firstUnansweredIdx = questions.findIndex(q => !parsed[q.id]);
+                if (firstUnansweredIdx !== -1) {
+                    setCurrentIdx(firstUnansweredIdx);
+                } else {
+                    // If all answered, maybe go to last? or stay at 0?
+                    // Let's check if savedQuestion exists as fallback
+                    const savedQuestion = localStorage.getItem('currentQuestion');
+                    if (savedQuestion) setCurrentIdx(parseInt(savedQuestion));
+                }
+            }
+        }
+    }, [questions]); // Run once when questions are loaded
 
     // Auto-save functionality
     useEffect(() => {
@@ -98,6 +194,8 @@ export default function QuizPage() {
         if (Object.keys(answers).length > 0) {
             localStorage.setItem('quizAnswers', JSON.stringify(answers));
             localStorage.setItem('currentQuestion', currentIdx.toString());
+            // Reinforce persistent flag
+            localStorage.setItem('quizInProgress', 'true');
         }
     }, [answers, currentIdx]);
 
@@ -133,29 +231,78 @@ export default function QuizPage() {
 
         setSubmitting(true);
         try {
-            // 1. Calculate Score (Frontend calculation for immediate feedback)
-            // Simple scoring: 1 point per correct answer (can be enhanced later)
-            const score = questions.reduce((acc, q) => {
-                return acc + (answers[q.id] === q.correctAnswer ? 1 : 0); // Need to ensure q has correctAnswer
-            }, 0);
+            // 1. Calculate Score & Stats (Frontend Calculation)
+            // This ensures we use the *currently loaded* questions, not the default server ones
+
+            const terasScores: Record<string, { score: number; max: number; percentage: number }> = {};
+            let totalScore = 0;
+            let maxTotal = 0;
+
+            questions.forEach(q => {
+                // Normalize Teras key
+                let teras = q.teras.trim();
+                // Basic normalization (can be improved)
+                if (teras.match(/Kerjasama|Sikap|Pasukan/i)) teras = 'Kerjasama';
+                else if (teras.match(/Emosi|Stabil|Tenang/i)) teras = 'Emosi';
+                else if (teras.match(/Komunikasi|Bahasa|Jelas/i)) teras = 'Komunikasi';
+                else teras = 'Umum'; // Fallback
+
+                if (!terasScores[teras]) terasScores[teras] = { score: 0, max: 0, percentage: 0 };
+
+                // Scoring Logic
+                const userAnswer = answers[q.id];
+                const bestAnswer = q.correctAnswer; // Using the field from our question object
+
+                terasScores[teras].max += 10;
+                maxTotal += 10;
+
+                if (userAnswer) {
+                    if (userAnswer === bestAnswer) {
+                        terasScores[teras].score += 10;
+                        totalScore += 10;
+                    }
+                    // Partial points logic (Simplified: Neighboring option = 7 points?)
+                    // For now, let's keep it strict or simple partial
+                    // Implementation of "Close Match":
+                    else if (
+                        (bestAnswer === 'A' && userAnswer === 'B') ||
+                        (bestAnswer === 'B' && userAnswer === 'A') ||
+                        (bestAnswer === 'D' && userAnswer === 'E') ||
+                        (bestAnswer === 'E' && userAnswer === 'D')
+                    ) {
+                        terasScores[teras].score += 7; // Partial credit
+                        totalScore += 7;
+                    }
+                }
+            });
+
+            // Calculate Percentages per Teras
+            Object.keys(terasScores).forEach(key => {
+                const t = terasScores[key];
+                if (t.max > 0) t.percentage = Math.round((t.score / t.max) * 100);
+            });
+
+            // Construct Result Object
+            const resultWithAnswers = {
+                totalScore,
+                maxScore: maxTotal,
+                terasScores,
+                answers // Save answers for review
+            };
 
             // 2. Save to Supabase
             const activeQuizId = localStorage.getItem('activeQuizId');
             if (activeQuizId && !activeQuizId.startsWith('demo-')) {
-                // Use a default user name for now since Auth isn't fully enforced on frontend
                 const userName = localStorage.getItem('userName') || 'Anonymous Candidate';
-                await quizRepository.saveAttempt(userName, parseInt(activeQuizId), score * 10, answers); // Assuming 10 points per q or logic
+                // Using dynamic import to avoid any potential server-component issues
+                const { quizRepository } = await import("@/utils/supabaseRepository");
+                await quizRepository.saveAttempt(userName, parseInt(activeQuizId), totalScore, answers);
             }
 
-            const res = await fetch('/api/submit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ answers })
-            });
-            const result = await res.json();
+            // We skip fetch('/api/submit') because it only handles static JSON matching.
+            // We use our local calculation.
 
             // Save result (User context)
-            const resultWithAnswers = { ...result, answers };
             localStorage.setItem('quizResult', JSON.stringify(resultWithAnswers));
 
             // Clean up
@@ -213,7 +360,7 @@ export default function QuizPage() {
                             {/* Title */}
                             <div>
                                 <h1 className="text-lg font-bold text-gray-900">
-                                    Ujian Psikometrik 2025
+                                    {localStorage.getItem('activeQuizTitle') || "Ujian Psikometrik 2025"}
                                 </h1>
                                 <p className="text-sm text-gray-600">
                                     Soalan {currentIdx + 1} daripada {questions.length}
@@ -260,7 +407,7 @@ export default function QuizPage() {
                                 <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b">
                                     <div className="flex items-center justify-between">
                                         <div className="inline-block px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full">
-                                            Soalan {currentQ.id}
+                                            Soalan {currentIdx + 1}
                                         </div>
                                         <div className="text-xs font-medium text-gray-600 bg-white px-3 py-1 rounded-full">
                                             Teras: {currentQ.teras}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button"; // Added Button import
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { TrendingUp, BarChart, Activity, PieChart } from "lucide-react";
 import {
@@ -26,6 +27,7 @@ interface QuizAttempt {
 }
 
 export default function AnalyticsPage() {
+    const router = require("next/navigation").useRouter();
     const [history, setHistory] = useState<QuizAttempt[]>([]);
     const [averageScore, setAverageScore] = useState(0);
     const [bestScore, setBestScore] = useState(0);
@@ -91,7 +93,7 @@ export default function AnalyticsPage() {
         <DashboardLayout>
             <div className="p-6 max-w-7xl mx-auto space-y-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Analisis Prestasi</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">Prestasi</h1>
                     <p className="text-gray-600">Visualisasi data dan perkembangan prestasi anda</p>
                 </div>
 
@@ -121,7 +123,7 @@ export default function AnalyticsPage() {
 
                     <Card className="shadow-sm border-purple-100 bg-purple-50/50">
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-purple-900">Analisis Teras</CardTitle>
+                            <CardTitle className="text-sm font-medium text-purple-900">Fokus Teras</CardTitle>
                             <PieChart className="h-4 w-4 text-purple-600" />
                         </CardHeader>
                         <CardContent>
@@ -212,9 +214,28 @@ export default function AnalyticsPage() {
                                 <h4 className="font-semibold text-blue-900 mb-2">Fokus Utama</h4>
                                 <p className="text-sm text-gray-700">
                                     Berdasarkan analisis teras, anda perlu memberikan tumpuan lebih kepada soalan berkaitan
-                                    <span className="font-bold"> {terasStats.sort((a, b) => a.score - b.score)[0]?.name || "umum"}</span>.
+                                    <span className="font-bold"> {[...terasStats].sort((a, b) => a.score - b.score)[0]?.subject || "umum"}</span>.
                                     Cuba fahami pola jawapan terbaik untuk kategori ini.
                                 </p>
+                                <div className="mt-4">
+                                    <Button
+                                        onClick={() => {
+                                            const weakest = [...terasStats].sort((a, b) => a.score - b.score)[0]?.subject;
+                                            if (weakest) {
+                                                localStorage.setItem('activeQuizId', 'smart-review');
+                                                localStorage.setItem('activeTeras', weakest);
+                                                localStorage.setItem('activeQuizTitle', `Latih Tubi Fokus: ${weakest}`);
+                                                router.push('/quiz');
+                                            } else {
+                                                alert("Lengkapkan sekurang-kurangnya satu ujian untuk menggunakan ciri ini.");
+                                            }
+                                        }}
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition-all text-sm flex items-center justify-center gap-2"
+                                    >
+                                        <Activity className="h-4 w-4" />
+                                        Baiki Kelemahan: {[...terasStats].sort((a, b) => a.score - b.score)[0]?.subject || "Mula Latihan"}
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </CardContent>

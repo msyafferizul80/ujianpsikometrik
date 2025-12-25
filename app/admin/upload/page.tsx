@@ -96,6 +96,37 @@ export default function UploadPage() {
                 }
             }
 
+            // 4. Detect "Pilihan Jawapan:" header
+            if (/^Pilihan Jawapan[\:\-]/i.test(line)) {
+                parsingState = 'options';
+                continue;
+            }
+
+            // 5. Detect "Cadangan Jawapan Terbaik:" or "Jawapan:"
+            if (/^(Cadangan Jawapan Terbaik|Jawapan|Answer)\s*[\:\-]/i.test(line)) {
+                const match = line.match(/[\:\-]\s*([A-E])/i);
+                if (match) {
+                    currentQuestion.correctAnswer = match[1].toUpperCase();
+                }
+                parsingState = 'meta';
+                continue;
+            }
+
+            // 6. Detect Explanation
+            if (/^(Kenapa soalan ini penting|Penerangan Jawapan|Explanation)[\:\-]/i.test(line)) {
+                parsingState = 'explanation';
+            }
+
+            // --- State Handling ---
+            if (parsingState === 'question_text') {
+                if (/^[A-E] [\–\-\.]/.test(line)) {
+                    parsingState = 'options';
+                    // Fallthrough to handle current line as option
+                } else if (!/^Soalan\s+\d+/i.test(line)) {
+                    currentQuestion.question += (currentQuestion.question ? " " : "") + line;
+                }
+            }
+
             if (parsingState === 'options') {
                 // Match "A – Text", "A. Text", "A) Text"
                 const optMatch = line.match(/^([A-E])\s*[\.\)\-\–]\s+(.*)/i);

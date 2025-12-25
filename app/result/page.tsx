@@ -32,7 +32,7 @@ interface Question {
     teras: string;
     question: string;
     options: { label: string; text: string }[];
-    bestAnswer: string;
+    correctAnswer: string;
     explanation: string;
 }
 
@@ -100,9 +100,48 @@ export default function ResultPage() {
                 });
 
             // Fetch Questions for Review
-            fetch('/api/questions')
-                .then(res => res.json())
-                .then(data => setQuestions(data));
+            const activeQuizId = localStorage.getItem('activeQuizId');
+
+            const fetchQuestions = async () => {
+                let fetchedQuestions: Question[] = [];
+
+                // 1. Smart Review Mode
+                if (activeQuizId === 'smart-review') {
+                    const teras = localStorage.getItem('activeTeras');
+                    if (teras) {
+                        try {
+                            // Dynamic import to avoid server-side issues if any, though "use client" handles it
+                            // We'll use the API route for consistency or import repository if safe
+                            // Since repository uses supabase client which is safe:
+                            const { quizRepository } = await import("@/utils/supabaseRepository");
+                            const data = await quizRepository.getQuestionsByTeras(teras, 10);
+                            if (data) fetchedQuestions = data;
+                        } catch (err) {
+                            console.error("Failed to load smart review questions", err);
+                        }
+                    }
+                }
+                // 2. Supabase Quiz
+                else if (activeQuizId && !activeQuizId.startsWith('demo-')) {
+                    try {
+                        const { quizRepository } = await import("@/utils/supabaseRepository");
+                        const data = await quizRepository.getQuestionsByQuizId(activeQuizId);
+                        if (data) fetchedQuestions = data;
+                    } catch (err) {
+                        console.error("Failed to load quiz questions", err);
+                    }
+                }
+                // 3. Fallback (Demo)
+
+                if (fetchedQuestions.length === 0) {
+                    const res = await fetch('/api/questions');
+                    fetchedQuestions = await res.json();
+                }
+
+                setQuestions(fetchedQuestions);
+            };
+
+            fetchQuestions();
 
         } else {
             router.push('/dashboard');
@@ -123,23 +162,8 @@ export default function ResultPage() {
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const handleDownloadPDF = async () => {
-        if (!resultRef.current) return;
-        setDownloading(true);
-        try {
-            const canvas = await html2canvas(resultRef.current, { scale: 2 });
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save('keputusan-psikometrik.pdf');
-        } catch (error) {
-            console.error("PDF generation failed", error);
-            alert("Gagal memuat turun PDF.");
-        }
-        setDownloading(false);
+    const handlePrint = () => {
+        window.print();
     };
 
     if (!result) return null;
@@ -178,7 +202,7 @@ export default function ResultPage() {
                     {/* Header */}
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Keputusan Ujian</h1>
+                            <h1 className="text-3xl font-bold text-gray-900">Rekod Latihan</h1>
                             <p className="text-gray-600">Analisis Prestasi Psikometrik Anda</p>
                         </div>
                         <div className="flex gap-2 print:hidden">
@@ -186,9 +210,9 @@ export default function ResultPage() {
                                 {copied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
                                 {copied ? "Disalin" : "Salin Skor"}
                             </Button>
-                            <Button variant="outline" onClick={handleDownloadPDF} disabled={downloading}>
-                                {downloading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
-                                PDF
+                            <Button variant="outline" onClick={handlePrint}>
+                                <Download className="h-4 w-4 mr-2" />
+                                Simpan PDF
                             </Button>
                             <Button className="bg-green-600 hover:bg-green-700" onClick={handleShare}>
                                 <Share2 className="h-4 w-4 mr-2" />
@@ -227,7 +251,7 @@ export default function ResultPage() {
                         {/* Radar Chart */}
                         <Card className="border-gray-100 shadow-md">
                             <CardHeader>
-                                <CardTitle>Skor Kesediaan (Radar)</CardTitle>
+                                <CardTitle>Indeks Kompetensi (Radar)</CardTitle>
                                 <CardDescription>Analisis mengikut Teras</CardDescription>
                             </CardHeader>
                             <CardContent className="h-[300px]">

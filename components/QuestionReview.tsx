@@ -11,7 +11,7 @@ interface Question {
     teras: string;
     question: string;
     options: { label: string; text: string }[];
-    bestAnswer: string;
+    correctAnswer: string;
     explanation: string;
 }
 
@@ -26,11 +26,11 @@ export function QuestionReview({ questions, userAnswers }: QuestionReviewProps) 
 
     // Helper to get score quality
     const getAnswerQuality = (q: Question, answer: string) => {
-        if (answer === q.bestAnswer) return 'best';
+        if (answer === q.correctAnswer) return 'best';
 
         // Simple close match logic (matches scoring.ts logic roughly)
         // A<>B, D<>E logic
-        const best = q.bestAnswer;
+        const best = q.correctAnswer;
         if ((best === 'A' && answer === 'B') || (best === 'B' && answer === 'A')) return 'close';
         if ((best === 'D' && answer === 'E') || (best === 'E' && answer === 'D')) return 'close';
 
@@ -108,21 +108,29 @@ export function QuestionReview({ questions, userAnswers }: QuestionReviewProps) 
                                     onClick={() => toggleExpand(q.id)}
                                 >
                                     <div className={`mt-1 ${quality === 'best' ? 'text-green-600' :
-                                            quality === 'close' ? 'text-yellow-600' : 'text-red-500'
+                                        quality === 'close' ? 'text-yellow-600' : 'text-red-500'
                                         }`}>
                                         <StatusIcon className="h-5 w-5" />
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2 mb-1">
                                             <span className="text-xs font-bold uppercase tracking-wider opacity-70">{q.teras}</span>
-                                            <span className="text-xs bg-white/50 px-2 py-0.5 rounded-full border border-black/5">Soalan {q.id}</span>
+                                            <span className="text-xs bg-white/50 px-2 py-0.5 rounded-full border border-black/5">Soalan {questions.findIndex(item => item.id === q.id) + 1}</span>
                                         </div>
                                         <p className="font-medium text-gray-900 text-sm sm:text-base">{q.question}</p>
 
                                         {!isExpanded && (
-                                            <div className="mt-2 text-xs flex items-center gap-2">
-                                                <span className="text-gray-500">Jawapan anda:</span>
-                                                <span className="font-bold">{answer}</span>
+                                            <div className="mt-2 text-xs flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-gray-500">Jawapan anda:</span>
+                                                    <span className={`font-bold ${answer === q.correctAnswer ? 'text-green-600' : 'text-red-500'}`}>{answer}</span>
+                                                </div>
+                                                {answer !== q.correctAnswer && (
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-gray-500">Jawapan Sebenar:</span>
+                                                        <span className="font-bold text-green-600">{q.correctAnswer}</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -136,7 +144,7 @@ export function QuestionReview({ questions, userAnswers }: QuestionReviewProps) 
                                         <div className="mt-4 grid gap-2">
                                             {q.options.map(opt => {
                                                 const isSelected = answer === opt.label;
-                                                const isBest = q.bestAnswer === opt.label;
+                                                const isBest = q.correctAnswer === opt.label;
 
                                                 let optionClass = "p-3 rounded border text-sm flex justify-between items-center ";
                                                 if (isBest) optionClass += "bg-green-100 border-green-300 text-green-900 font-medium ring-1 ring-green-300";

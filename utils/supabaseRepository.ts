@@ -39,12 +39,27 @@ export const quizRepository = {
     },
 
     async deleteQuiz(id: string) {
+        // 1. Delete associated attempts first (Manual Cascade)
+        const { error: attemptError } = await supabase
+            .from('attempts')
+            .delete()
+            .eq('quiz_id', id);
+
+        if (attemptError) {
+            console.error("Error deleting attempts:", attemptError);
+            throw new Error(`Failed to delete attempts: ${attemptError.message} (${attemptError.details})`);
+        }
+
+        // 2. Delete the quiz (Questions will cascade automatically via DB constraint)
         const { error } = await supabase
             .from('quizzes')
             .delete()
             .eq('id', id);
 
-        if (error) throw error;
+        if (error) {
+            console.error("Error deleting quiz:", error);
+            throw new Error(`Failed to delete quiz: ${error.message} (${error.details})`);
+        }
         return true;
     },
 
@@ -78,6 +93,26 @@ export const quizRepository = {
         if (error) throw error;
 
         // Map back to app structure
+        return data.map((q: any) => ({
+            id: q.id,
+            question: q.question_text,
+            options: q.options,
+            correctAnswer: q.correct_answer,
+            teras: q.teras,
+            explanation: q.explanation
+        }));
+    },
+
+    async getQuestionsByTeras(teras: string, limit: number = 10) {
+        // Fetch random questions for specific Teras
+        const { data, error } = await supabase
+            .from('questions')
+            .select('*')
+            .ilike('teras', `%${teras}%`) // Flexible match
+            .limit(limit);
+
+        if (error) throw error;
+
         return data.map((q: any) => ({
             id: q.id,
             question: q.question_text,

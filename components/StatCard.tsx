@@ -9,7 +9,7 @@ interface StatCardProps {
     value: string | number;
     subtitle: string;
     icon: LucideIcon;
-    colorClass: "blue" | "green" | "orange" | "purple";
+    colorClass: "blue" | "green" | "orange" | "purple" | "emerald" | "violet";
     tooltip?: string;
 }
 
@@ -45,6 +45,22 @@ const colorStyles = {
         value: "text-purple-700",
         subtitle: "text-purple-600/80",
         icon: "text-purple-600"
+    },
+    emerald: {
+        bg: "bg-emerald-50/50",
+        border: "border-emerald-100",
+        text: "text-emerald-900",
+        value: "text-emerald-700",
+        subtitle: "text-emerald-600/80",
+        icon: "text-emerald-600"
+    },
+    violet: {
+        bg: "bg-violet-50/50",
+        border: "border-violet-100",
+        text: "text-violet-900",
+        value: "text-violet-700",
+        subtitle: "text-violet-600/80",
+        icon: "text-violet-600"
     }
 };
 

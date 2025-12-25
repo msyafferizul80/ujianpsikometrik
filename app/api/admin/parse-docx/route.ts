@@ -126,24 +126,53 @@ export async function POST(request: Request) {
             // --- State Handling ---
 
             if (parsingState === 'question_text') {
-                // If line looks like an option, switch state (fallback)
+                // Check if "Pilihan Jawapan" is hidden inside the question text line
+                const inlineSplit = line.match(/(.*)(Pilihan Jawapan[\:\-]\s*.*)/i);
+                if (inlineSplit) {
+                    // Split found! Part 1 is question text
+                    if (inlineSplit[1].trim()) {
+                        currentQuestion.text += (currentQuestion.text ? " " : "") + inlineSplit[1].trim();
+                    }
+
+                    // Part 2 contains the options header and potentially options themselves
+                    const remainder = inlineSplit[2];
+                    parsingState = 'options';
+
+                    // Process the remainder line for options immediately
+                    // e.g., "Pilihan Jawapan: A Sangat Setuju B Setuju..."
+                    const optionMatches = remainder.matchAll(/([A-E])\s+(.*?)(?=(?:[A-E]\s+)|$)/g);
+                    for (const match of optionMatches) {
+                        currentQuestion.options.push({
+                            label: match[1].toUpperCase(),
+                            text: match[2].trim().replace(/^(Cadangan|Kenapa).*/i, '') // Safety trim
+                        });
+                    }
+                    continue;
+                }
+
+                // If line looks like an option (A. Text), switch state
                 if (/^[A-E] [\–\-\.]/.test(line)) {
                     parsingState = 'options';
                     // Fallthrough to options handler
-                } else if (!/^Soalan\s+\d+/i.test(line)) { // Avoid appending next question header
+                } else if (!/^Soalan\s+\d+/i.test(line)) {
                     currentQuestion.text += (currentQuestion.text ? " " : "") + line;
                 }
             }
 
             if (parsingState === 'options') {
+                // Handle standard multiline options
                 // Match "A – Text", "A. Text", "A) Text"
-                // The user format uses "A – Sangat Setuju" (en dash or hyphen)
                 const optMatch = line.match(/^([A-E])\s*[\.\)\-\–]\s+(.*)/i);
                 if (optMatch) {
                     currentQuestion.options.push({
                         label: optMatch[1].toUpperCase(),
                         text: optMatch[2].trim()
                     });
+                }
+                // Handle inline options if they spill over (e.g. "A Setuju B Tidak Setuju")
+                else if (/([A-E])\s+/.test(line) && line.length < 50) {
+                    // Simple heuristic for short option lines that might be "B Setuju" without bullet
+                    // This is risky, so we keep it strict to A-E start
                 }
             }
 
