@@ -18,6 +18,7 @@ interface Question {
     teras: string;
     question: string;
     options: { label: string; text: string }[];
+    correctAnswer?: string;
 }
 
 export default function QuizPage() {

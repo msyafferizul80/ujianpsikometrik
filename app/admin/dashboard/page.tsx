@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Plus, FileText, Trash2, UserCog } from "lucide-react";
+import { Plus, FileText, Trash2, User } from "lucide-react";
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { quizRepository } from "@/utils/supabaseRepository";
@@ -92,7 +92,7 @@ export default function AdminDashboard() {
                     </Link>
                     <Link href="/admin/users">
                         <Button variant="outline" className="ml-2 border-blue-200 text-blue-700 hover:bg-blue-50">
-                            <UserCog className="mr-2 h-4 w-4" />
+                            <User className="mr-2 h-4 w-4" />
                             Urus Pengguna
                         </Button>
                     </Link>

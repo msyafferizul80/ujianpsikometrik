@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { quizRepository } from "@/utils/supabaseRepository";
-import { Loader2, Shield, ShieldAlert, UserCog, Ban, CheckCircle } from "lucide-react";
+import { Loader2, Shield, User, Ban, CheckCircle } from "lucide-react";
 
 export default function UserManagementPage() {
     const [users, setUsers] = useState<any[]>([]);
@@ -61,7 +61,7 @@ export default function UserManagementPage() {
             <div className="p-6 max-w-7xl mx-auto space-y-6">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                        <UserCog className="h-8 w-8 text-blue-600" />
+                        <User className="h-8 w-8 text-blue-600" />
                         Pengurusan Pengguna
                     </h1>
                     <p className="text-gray-600">Urus akses dan status pengguna sistem.</p>

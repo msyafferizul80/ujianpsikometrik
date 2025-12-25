@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Lock } from "lucide-react";
+import { createClient } from '@supabase/supabase-js';
 
 export default function AdminLogin() {
     const [email, setEmail] = useState("");
@@ -16,7 +17,6 @@ export default function AdminLogin() {
     const router = useRouter();
 
     // Import Supabase client
-    const { createClient } = require('@supabase/supabase-js');
     const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -31,9 +31,6 @@ export default function AdminLogin() {
             const { error } = await supabase.auth.signInWithOtp({
                 email: email,
                 options: {
-                    shouldCreateUser: false, // Only allow existing users (admins) implies we need to create them first manually or strictly control this. 
-                    // For this demo, let's allow creation or just assume "shouldCreateUser: true" is default.
-                    // Let's set true for now to allow user to login easily.
                     shouldCreateUser: true
                 }
             });
