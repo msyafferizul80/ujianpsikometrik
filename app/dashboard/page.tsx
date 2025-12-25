@@ -12,6 +12,7 @@ import { TipsSection } from "@/components/TipsSection";
 import { RecentActivity } from "@/components/RecentActivity";
 import { DashboardSkeleton } from "@/components/DashboardSkeleton";
 import { ShareButton } from "@/components/ShareButton";
+import { createClient } from '@supabase/supabase-js';
 import { getQuizStats, hasInProgressQuiz } from "@/utils/stats";
 
 export default function Dashboard() {
@@ -23,8 +24,37 @@ export default function Dashboard() {
         lastQuizDate: null as string | null
     });
     const [inProgress, setInProgress] = useState(false);
+    const [userName, setUserName] = useState("Calon");
+
+    // Import Supabase Client
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
     useEffect(() => {
+        // Fetch User
+        const fetchUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                // Try to get explicit profile name first
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('full_name')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (profile && profile.full_name) {
+                    setUserName(profile.full_name);
+                } else {
+                    // Fallback to name in localStorage or Email prefix
+                    const savedName = localStorage.getItem('userName');
+                    setUserName(savedName || session.user.email?.split('@')[0] || "Calon");
+                }
+            }
+        };
+        fetchUser();
+
         // Simulate network delay for verification of skeleton
         const timer = setTimeout(() => {
             const quizStats = getQuizStats();
@@ -61,7 +91,7 @@ export default function Dashboard() {
                 <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                            Selamat Datang, Ahmad! 👋
+                            Selamat Datang, {userName}! 👋
                         </h2>
                         <p className="text-gray-600">
                             Teruskan latihan anda untuk meningkatkan prestasi ujian psikometrik.
@@ -185,6 +215,6 @@ export default function Dashboard() {
                 {/* Tips Section */}
                 <TipsSection />
             </div>
-        </DashboardLayout>
+        </DashboardLayout >
     );
 }
