@@ -1,0 +1,2902 @@
+[
+  {
+    "id": 1,
+    "teras": "Kerjasama",
+    "question": "Saya mudah menyesuaikan diri dengan kumpulan yang mempunyai gaya kerja berbeza daripada saya.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat fleksibel, mudah serasi dengan kumpulan.\nB) Baik, tetapi adaptasi mungkin mengambil masa.\nC) Tidak pasti bergabung dengan kumpulan berbeza.\nD) Sukar menyesuaikan diri.\nE) Cenderung individualistik.\n"
+  },
+  {
+    "id": 2,
+    "teras": "Emosi",
+    "question": "Saya tidak mudah marah apabila peserta program belia memberikan komen yang kasar atau tidak sopan.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu kebal sehingga mungkin tidak responsif.\nB) Stabil dan mampu kawal emosi.\nC) Tidak pasti kawalan diri.\nD) Mudah marah.\nE) Sangat reaktif — risiko konflik.\n"
+  },
+  {
+    "id": 3,
+    "teras": "Komunikasi",
+    "question": "Saya mampu menerangkan sesuatu arahan dengan bahasa yang sesuai mengikut tahap kefahaman peserta.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat efektif dan mesra audiens.\nB) Baik tetapi masih perlu penambahbaikan.\nC) Tidak pasti.\nD) Arahan berisiko mengelirukan.\nE) Tidak peka pada keperluan audiens.\n"
+  },
+  {
+    "id": 4,
+    "teras": "Kerjasama",
+    "question": "Saya selesa bekerja dengan rakan sekerja yang lebih muda atau lebih berpengalaman daripada saya.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Terbuka dan mudah bekerjasama.\nB) Umumnya selesa.\nC) Bergantung keadaan.\nD) Kurang selesa.\nE) Tidak boleh bekerja dengan perbezaan.\n"
+  },
+  {
+    "id": 5,
+    "teras": "Emosi",
+    "question": "Saya tidak cepat berputus asa apabila sesuatu aktiviti belia tidak berjalan seperti dirancang.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Tabah dan fleksibel.\nB) Stabil.\nC) Tidak pasti.\nD) Cepat kecewa.\nE) Mudah menyerah.\n"
+  },
+  {
+    "id": 6,
+    "teras": "Komunikasi",
+    "question": "Saya lebih suka menyampaikan maklumat dengan ringkas supaya semua peserta faham dengan cepat.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat jelas.\nB) Baik.\nC) Ragu-ragu.\nD) Cenderung memberi penerangan panjang.\nE) Komunikasi tidak efektif.\n"
+  },
+  {
+    "id": 7,
+    "teras": "Sikap membantu pasukan.",
+    "question": "Saya bersedia menerima tugasan tambahan apabila pasukan kekurangan tenaga.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu ekstrem, risiko burnout.\nB) Bertimbang rasa dan sedia membantu.\nC) Tidak pasti.\nD) Tidak suka bantu.\nE) Sangat enggan.\n"
+  },
+  {
+    "id": 8,
+    "teras": "Stabil terhadap penolakan.",
+    "question": "Saya tidak mudah tersinggung apabila idea saya tidak diterima oleh rakan kerja.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat kebal, mungkin kurang peka.\nB) Stabil dan profesional.\nC) Tidak pasti.\nD) Mudah terasa.\nE) Sangat sensitif.\n"
+  },
+  {
+    "id": 9,
+    "teras": "Kejelasan komunikasi.",
+    "question": "Saya akan memastikan semua ahli pasukan faham peranan masing-masing sebelum program bermula.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat bertanggungjawab.\nB) Baik.\nC) Tidak pasti.\nD) Kurang mengambil berat.\nE) Tidak peduli.\n"
+  },
+  {
+    "id": 10,
+    "teras": "Kerjasama",
+    "question": "Saya menghormati keputusan yang dibuat secara bersama walaupun bukan pilihan saya.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu akur (risiko kurang pendirian).\nB) Profesional & menghormati majoriti.\nC) Tidak pasti.\nD) Kurang hormat keputusan.\nE) Menolak keputusan bersama.\n"
+  },
+  {
+    "id": 11,
+    "teras": "Emosi",
+    "question": "Saya tidak mudah hilang sabar apabila fasiliti sukan tidak tersedia seperti dirancang.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu tenang (tidak realistik).\nB) Stabil & matang.\nC) Keliru.\nD) Cepat marah.\nE) Tidak boleh terima langsung.\n"
+  },
+  {
+    "id": 12,
+    "teras": "Komunikasi",
+    "question": "Saya menggunakan nada suara yang sesuai ketika berinteraksi dengan golongan remaja.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat profesional.\nB) Baik.\nC) Tidak pasti.\nD) Tidak pandai kawal nada.\nE) Nada tidak sesuai.\n"
+  },
+  {
+    "id": 13,
+    "teras": "Kerjasama",
+    "question": "Saya sedia berkongsi maklumat penting dengan rakan sekerja tanpa menunggu diminta.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Proaktif.\nB) Baik.\nC) Tidak pasti.\nD) Tidak suka berkongsi.\nE) Menyimpan maklumat.\n"
+  },
+  {
+    "id": 14,
+    "teras": "Emosi",
+    "question": "Saya tetap tenang walaupun jadual program berubah saat akhir.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu tenang (tak realistik).\nB) Stabil dan fleksibel.\nC) Tidak pasti.\nD) Goyah.\nE) Sangat stres.\n"
+  },
+  {
+    "id": 15,
+    "teras": "Komunikasi",
+    "question": "Saya akan meminta maklum balas secara terbuka untuk memperbaiki cara saya berkomunikasi.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu ekstrem (sentiasa bertanya).\nB) Proaktif & matang.\nC) Tidak pasti.\nD) Enggan.\nE) Anti-maklum balas.\n"
+  },
+  {
+    "id": 16,
+    "teras": "Kerjasama",
+    "question": "Saya mengutamakan kepentingan pasukan berbanding kepentingan peribadi ketika bertugas.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Ekstrem hingga abaikan diri.\nB) Seimbang & matang.\nC) Tidak pasti.\nD) Utamakan diri.\nE) Sangat individualistik.\n"
+  },
+  {
+    "id": 17,
+    "teras": "Emosi",
+    "question": "Saya tidak membiarkan tekanan kerja menjejaskan hubungan saya dengan orang lain.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu ideal.\nB) Stabil.\nC) Tidak pasti.\nD) Tekanan menjejaskan hubungan.\nE) Sangat mudah terjejas.\n"
+  },
+  {
+    "id": 18,
+    "teras": "Komunikasi",
+    "question": "Saya memastikan mesej saya tidak mengandungi unsur sindiran yang boleh menyinggung mana-mana pihak.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat berhati-hati & matang.\nB) Baik.\nC) Tidak pasti.\nD) Kadang menyindir.\nE) Kerap menyindir.\n"
+  },
+  {
+    "id": 19,
+    "teras": "Kerjasama",
+    "question": "Saya tidak keberatan menerima cadangan orang lain walaupun ia berbeza daripada idea saya.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu akomodatif.\nB) Terbuka & profesional.\nC) Tidak pasti.\nD) Sukar menerima perubahan.\nE) Sangat tertutup.\n"
+  },
+  {
+    "id": 20,
+    "teras": "Emosi",
+    "question": "Saya jarang bertindak mengikut emosi ketika membuat keputusan berkaitan aktiviti belia.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu robotik.\nB) Rasional & stabil.\nC) Tidak pasti.\nD) Kerap impulsif.\nE) Sangat mengikut emosi.\n"
+  },
+  {
+    "id": 21,
+    "teras": "Kerjasama",
+    "question": "Saya sanggup menangguhkan kerja sendiri seketika untuk membantu rakan sekerja yang sedang tertekan dengan tugasan program belia.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "pilihan jawapan:\nA) Sangat komited membantu, tetapi berisiko mengabaikan kerja sendiri jika tidak seimbang.\nB) Sedia membantu dalam had yang munasabah; seimbang antara tugasan sendiri dan pasukan.\nC) Tidak jelas keutamaan; boleh dilihat sebagai ragu-ragu dalam kerja pasukan.\nD) Lebih mementingkan diri; mungkin dilihat sukar bekerjasama bila diperlukan.\nE) Sangat individualistik; tidak sesuai untuk kerja lapangan yang perlukan sokongan rakan.\n"
+  },
+  {
+    "id": 22,
+    "teras": "Emosi",
+    "question": "Saya mudah kecewa apabila peserta tidak memberi respon positif terhadap aktiviti yang saya jalankan.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "D",
+    "explanation": "A) Sangat mudah kecewa; emosi calon terlalu bergantung kepada pujian dan sambutan.\nB) Masih agak sensitif; cenderung terpengaruh dengan respon orang lain.\nC) Tidak jelas sejauh mana kecewa memberi kesan kepada diri.\nD) Emosi lebih stabil; sedikit kecewa tetapi masih boleh teruskan tugas dengan baik.\nE) Sangat stabil dan tidak mudah goyah; namun jika terlalu “tak kisah” mungkin nampak tidak peka.\n"
+  },
+  {
+    "id": 23,
+    "teras": "Komunikasi",
+    "question": "Saya sering menggunakan contoh situasi harian belia untuk memudahkan mereka faham penerangan saya.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat mahir mengaitkan maklumat dengan realiti sasaran; komunikasi sangat berkesan.\nB) Kerap menggunakan contoh, tetapi mungkin tidak konsisten.\nC) Tidak pasti bagaimana hendak memudahkan contoh; perlu banyak bimbingan.\nD) Jarang gunakan contoh; komunikasi berisiko kaku dan membosankan.\nE) Tidak gunakan contoh langsung; calon mungkin sukar menarik minat belia.\n"
+  },
+  {
+    "id": 24,
+    "teras": "Kerjasama",
+    "question": "Saya rasa lebih selesa jika dapat bekerja seorang diri tanpa perlu bergantung kepada orang lain.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "E",
+    "explanation": "A) Terlalu suka kerja sendiri; kuat berdikari tetapi cenderung sukar bekerjasama.\nB) Cenderung bekerja sendiri berbanding secara kumpulan; kurang sesuai untuk program lapangan yang banyak melibatkan pasukan.\nC) Keliru antara keperluan kerja sendiri dan kerja berkumpulan.\nD) Boleh menerima kerja berkumpulan, tetapi kurang spontan.\nE) Menolak idea “selesa seorang diri”; menunjukkan calon lebih terbuka bekerja dengan pasukan.\n"
+  },
+  {
+    "id": 25,
+    "teras": "Emosi",
+    "question": "Saya cepat berasa marah apabila jadual aktiviti sering berubah pada saat-saat akhir.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "E",
+    "explanation": "A) Sangat mudah naik marah; berisiko menjejaskan hubungan dengan rakan dan peserta.\nB) Emosi mudah terganggu; masih belum matang menghadapi perubahan.\nC) Tidak pasti bagaimana akan bertindak; mungkin tidak konsisten.\nD) Ada rasa tidak puas hati tetapi masih boleh kawal, walaupun agak negatif.\nE) Menolak sifat mudah marah; lebih sesuai kerana menunjukkan kesabaran dan fleksibiliti.\n"
+  },
+  {
+    "id": 26,
+    "teras": "Komunikasi",
+    "question": "Saya lebih suka bertanya semula daripada membuat andaian sendiri apabila arahan kerja kurang jelas.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Proaktif, berani bertanya, dan mementingkan kejelasan.\nB) Umumnya akan bertanya, tetapi ada masa segan atau menangguh.\nC) Tidak pasti; mungkin kadang bertanya, kadang main agak.\nD) Lebih suka andaian sendiri; risiko salah faham tinggi.\nE) Menolak komunikasi terbuka; ini sangat bahaya untuk tugasan melibatkan keselamatan dan orang awam.\n"
+  },
+  {
+    "id": 27,
+    "teras": "Kerjasama",
+    "question": "Saya menghargai perbezaan pandangan dalam kumpulan walaupun saya tidak bersetuju dengannya.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat terbuka; mungkin terlalu mudah mengalah jika tidak seimbang.\nB) Seimbang – menghargai pandangan orang lain tetapi masih ada pendirian.\nC) Tidak pasti; boleh menjadi tidak konsisten dalam kumpulan.\nD) Sukar menerima pandangan lain; potensi konflik tinggi.\nE) Menolak pandangan orang lain secara ekstrem; tidak sesuai untuk kerjasama.\n"
+  },
+  {
+    "id": 28,
+    "teras": "Emosi",
+    "question": "Saya mengambil masa yang lama untuk bertenang selepas berlaku salah faham dengan rakan sekerja.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "D",
+    "explanation": "A) Sangat sukar bertenang; cenderung menyimpan dendam.\nB) Emosi agak berat; mudah memanjangkan konflik.\nC) Tidak pasti; mungkin tidak sedar impak tingkah laku sendiri.\nD) Menolak sikap ambil masa lama untuk bertenang; lebih baik untuk suasana kerja.\nE) Sangat tidak setuju; menunjukkan calon cepat redakan konflik dan profesional.\n"
+  },
+  {
+    "id": 29,
+    "teras": "Komunikasi",
+    "question": "Saya berhati-hati mengelakkan kata-kata yang boleh merendah-rendahkan keyakinan diri belia.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat peka dan berhikmah dalam tutur kata.\nB) Umumnya menjaga bahasa, tetapi mungkin terlepas sekali-sekala.\nC) Tidak pasti; mungkin tidak sedar kesan kata-kata.\nD) Kurang peka, berisiko menjatuhkan semangat orang lain.\nE) Langsung tidak ambil peduli; sangat tidak sesuai dengan jawatan.\n"
+  },
+  {
+    "id": 30,
+    "teras": "Kerjasama",
+    "question": "Saya lebih mengutamakan kejayaan keseluruhan program daripada siapa yang mendapat pujian.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat tidak kisah soal pujian; bagus, tetapi jika keterlaluan boleh tampak tidak peduli pengiktirafan orang lain.\nB) Seimbang – fokus pada kejayaan program, bukan semata-mata nama sendiri.\nC) Tidak pasti; mungkin masih mengejar kredit peribadi.\nD) Lebih mengejar penghargaan untuk diri; boleh mewujudkan persaingan tidak sihat.\nE) Sangat menekankan pujian diri; tidak sesuai dengan budaya kerja pasukan.\n"
+  },
+  {
+    "id": 31,
+    "teras": "Emosi",
+    "question": "Saya mudah hilang semangat apabila aktiviti yang dirancang menerima kritikan daripada pihak penganjur.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "D",
+    "explanation": "A) Sangat mudah hilang semangat; berisiko cepat burn out.\nB) Masih cenderung kecewa; tekad bekerja mungkin turun naik.\nC) Tidak pasti; corak emosi sukar dijangka.\nD) Menolak sifat cepat hilang semangat; lebih baik.\nE) Sangat menolak; menunjukkan semangat yang kuat dan lebih konsisten.\n"
+  },
+  {
+    "id": 32,
+    "teras": "Komunikasi",
+    "question": "Saya sanggup mengulang penerangan beberapa kali sehingga peserta benar-benar faham.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat sanggup mengulang; baik, tetapi jika terlalu ekstrem boleh menjejaskan pengurusan masa jika tidak bijak diatur.\nB) Sabar dan praktikal; sanggup ulang jika perlu.\nC) Tidak pasti; mungkin kurang sabar atau cepat bosan.\nD) Tidak suka mengulang; berisiko menyebabkan peserta tertinggal maklumat.\nE) Sangat menolak; calon mungkin tidak sesuai untuk kerja yang memerlukan bimbingan.\n"
+  },
+  {
+    "id": 33,
+    "teras": "Kerjasama",
+    "question": "Saya rasa tidak selesa apabila perlu berkongsi tanggungjawab tugas dengan orang lain.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "E",
+    "explanation": "A) Sangat tidak selesa; cenderung mahu mengawal atau menyendiri.\nB) Masih agak tidak selesa; kurang yakin dengan pembahagian tugas.\nC) Tidak pasti; belum matang memahami kerja pasukan.\nD) Menolak sedikit rasa tak selesa, tetapi belum kuat.\nE) Menolak sepenuhnya rasa tidak selesa; menunjukkan calon selesa berkongsi tugasan dan bekerjasama.\n"
+  },
+  {
+    "id": 34,
+    "teras": "Emosi",
+    "question": "Saya mudah terasa apabila rakan sekerja menegur cara saya mengendalikan peserta.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "D",
+    "explanation": "A) Sangat mudah terasa; sukar menerima pandangan orang lain.\nB) Sensitif tetapi masih cuba kawal; emosi masih rapuh.\nC) Tidak pasti; mungkin tidak sedar tahap sensitif diri.\nD) Menolak sikap mudah terasa; lebih terbuka dan profesional.\nE) Sangat menolak; sangat stabil dan mampu melihat teguran sebagai peluang pembaikan.\n"
+  },
+  {
+    "id": 35,
+    "teras": "Komunikasi",
+    "question": "Saya mengelakkan menggunakan istilah sukan yang terlalu teknikal apabila bercakap dengan orang awam.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat peka; pandai menyesuaikan bahasa dengan audiens.\nB) Umumnya bagus, tetapi kadang-kadang masih guna istilah sukar.\nC) Tidak pasti; komunikasi mungkin tidak konsisten.\nD) Kurang peka, suka gunakan istilah teknikal; boleh timbul salah faham.\nE) Langsung tidak peduli; komunikasi dianggap lemah.\n"
+  },
+  {
+    "id": 36,
+    "teras": "Kerjasama",
+    "question": "Saya berasa puas hati apabila melihat rakan sepasukan berjaya walaupun sumbangan saya tidak disebut.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat puas hati; tanda sokongan kuat, tetapi jika terlalu ekstrem mungkin tidak peduli hak sendiri langsung.\nB) Positif dan matang – menghargai kejayaan pasukan lebih daripada pengiktirafan peribadi.\nC) Tidak pasti – mungkin masih berkira tentang kredit.\nD) Kurang puas; terlalu fokus kepada pengiktirafan diri.\nE) Sangat tidak puas hati; cenderung menimbulkan rasa tidak senang dalam pasukan.\n"
+  },
+  {
+    "id": 37,
+    "teras": "Emosi",
+    "question": "Saya sukar mengawal nada suara apabila sedang tertekan mengendalikan peserta yang degil.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "D",
+    "explanation": "A) Sangat sukar kawal nada; risiko tinggi berlaku pertengkaran.\nB) Agak sukar; masih cenderung meninggikan suara bila stres.\nC) Tidak pasti; tidak jelas sejauh mana mampu kawal diri.\nD) Menolak sikap sukar kawal nada; lebih sesuai.\nE) Sangat menolak; menunjukkan kawalan diri yang baik, selari dengan imej profesional.\n"
+  },
+  {
+    "id": 38,
+    "teras": "Komunikasi",
+    "question": "Saya akan mendengar dahulu aduan belia sampai habis sebelum memberi sebarang jawapan.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Pendengar yang sangat baik; membantu membina kepercayaan.\nB) Umumnya mendengar, tetapi kadang-kadang menyampuk.\nC) Tidak pasti; mungkin tidak sedar tabiat sendiri.\nD) Kerap memotong percakapan; boleh dilihat sebagai tidak hormat.\nE) Langsung tidak memberi ruang; komunikasi sangat lemah.\n"
+  },
+  {
+    "id": 39,
+    "teras": "Kerjasama",
+    "question": "Saya akan tetap membantu persediaan program walaupun tugasan utama saya hanya pada hari pelaksanaan.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat sanggup; bagus tetapi jika terlalu ekstrem boleh menyebabkan beban berlebihan.\nB) Sedia membantu secara munasabah; seimbang dan profesional.\nC) Tidak pasti; menunggu arahan, kurang inisiatif.\nD) Tidak mahu terlibat selain tugas sendiri; kerjasama rendah.\nE) Sangat menolak; calon dilihat tidak berminat menyokong pasukan.\n"
+  },
+  {
+    "id": 40,
+    "teras": "Emosi",
+    "question": "Saya masih boleh berfikir dengan tenang walaupun jadual program menjadi padat dan tergesa-gesa.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat tenang; baik, tetapi jika terlalu ekstrem mungkin nampak terlalu relaks.\nB) Tenang dalam kebanyakan keadaan; sesuai dengan keperluan jawatan.\nC) Tidak pasti; tindak balas mungkin tidak konsisten.\nD) Mudah panik; risiko membuat keputusan terburu-buru.\nE) Sangat tertekan; sukar mengurus keadaan padat.\n"
+  },
+  {
+    "id": 41,
+    "teras": "Kerjasama",
+    "question": "Saya menerima tugasan yang diagihkan walaupun ia bukan tugasan yang saya inginkan.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu bersetuju, mungkin mengorbankan pendapat sendiri secara keterlaluan.\nB) Seimbang: menerima tugasan dengan profesional walaupun bukan pilihan utama.\nC) Tidak pasti; sukar dijangka dalam situasi sebenar.\nD) Cenderung menolak tugasan tidak disukai; kurang kerjasama.\nE) Sangat tidak bersedia menerima tugasan; berisiko menimbulkan masalah pasukan.\n"
+  },
+  {
+    "id": 42,
+    "teras": "Emosi",
+    "question": "Saya cepat terganggu jika peserta membuat bising ketika sesi taklimat.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "D",
+    "explanation": "A) Sangat mudah terganggu; kurang sesuai untuk suasana belia yang aktif.\nB) Tetap terganggu, walaupun cuba kawal.\nC) Tidak pasti; emosi tidak stabil.\nD) Menolak sifat mudah terganggu; stabil dan matang.\nE) Sangat menolak; sangat sabar, namun jika terlalu ekstrem boleh dianggap tidak tegas.\n"
+  },
+  {
+    "id": 43,
+    "teras": "Komunikasi",
+    "question": "Saya menyesuaikan gaya bahasa saya apabila bercakap dengan kumpulan belia yang berlainan latar belakang.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat baik menyesuaikan bahasa; komunikasi efektif.\nB) Baik tetapi tidak selalu konsisten.\nC) Ragu-ragu; komunikasi mungkin kaku.\nD) Tidak menyesuaikan gaya bahasa; kurang fleksibel.\nE) Langsung tidak berubah; risiko mesej tidak sampai.\n"
+  },
+  {
+    "id": 44,
+    "teras": "Kerjasama",
+    "question": "Saya suka apabila rakan sepasukan berkongsi idea baru walaupun ia bercanggah dengan idea saya.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu terbuka; boleh dilihat tidak tegas.\nB) Terbuka secara profesional dan menerima idea baru.\nC) Tidak pasti; sukar menilai sikap sebenar.\nD) Kurang selesa; risiko menghalang kreativiti.\nE) Sangat tidak suka perbezaan idea; sukar bekerjasama.\n"
+  },
+  {
+    "id": 45,
+    "teras": "Emosi",
+    "question": "Saya sukar mengawal rasa kecewa apabila keputusan pihak atasan tidak memihak kepada cadangan saya.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "D",
+    "explanation": "A) Sangat sukar menerima keputusan; emosinya kuat.\nB) Cenderung kecewa; perlu lebih matang.\nC) Tidak pasti; sukar menilai ketahanan emosi.\nD) Tidak bersetuju dengan sifat sukar menerima keputusan; stabil.\nE) Sangat stabil dan tidak cepat kecewa.\n"
+  },
+  {
+    "id": 46,
+    "teras": "Komunikasi",
+    "question": "Saya memastikan mesej saya tidak terlalu panjang sehingga membosankan pendengar.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat menjaga kepanjangan mesej; efisien.\nB) Baik tetapi mungkin sesekali panjang.\nC) Tidak pasti; mesej mungkin tidak konsisten.\nD) Cenderung bercakap panjang; boleh menghilangkan minat belia.\nE) Sangat panjang, langsung tidak mengawal; tidak sesuai.\n"
+  },
+  {
+    "id": 47,
+    "teras": "Kerjasama",
+    "question": "Saya lebih suka meminta bantuan rakan kerja sebelum masalah menjadi lebih besar.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu cepat bergantung pada orang lain.\nB) Bijak – meminta bantuan bila perlu, tidak terlalu awal atau lewat.\nC) Tidak pasti; mungkin malu bertanya.\nD) Lambat meminta bantuan; risiko masalah semakin besar.\nE) Menolak bantuan; sangat individualistik.\n"
+  },
+  {
+    "id": 48,
+    "teras": "Emosi",
+    "question": "Saya akan berasa tertekan jika perlu mengurus ramai peserta serentak.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "D",
+    "explanation": "A) Sangat tertekan; kurang sesuai.\nB) Cenderung tertekan; perlu latihan.\nC) Tidak pasti; tidak jelas kemampuan.\nD) Menolak sifat mudah tertekan; stabil.\nE) Sangat tidak tertekan; baik, tetapi jika terlalu ekstrem mungkin tidak responsif terhadap risiko.\n"
+  },
+  {
+    "id": 49,
+    "teras": "Komunikasi",
+    "question": "Saya mudah memahami bahasa tubuh peserta yang tidak selesa atau tidak berminat.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat peka; bagus, tetapi perlu berhati-hati supaya tidak terlebih menafsir.\nB) Peka dan seimbang.\nC) Tidak pasti; perlukan bimbingan.\nD) Kurang peka; boleh terlepas tanda penting.\nE) Langsung tidak peka; komunikasi sangat lemah.\n"
+  },
+  {
+    "id": 50,
+    "teras": "Kerjasama",
+    "question": "Saya jarang berat sebelah apabila bekerja dengan ahli kumpulan yang berbeza latar belakang.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Tidak berat sebelah langsung; sangat sesuai.\nB) Umumnya adil, tetapi kadang terpengaruh.\nC) Tidak pasti; sukar dibaca.\nD) Kadang berat sebelah; kurang sesuai.\nE) Sangat berat sebelah; risiko konflik tinggi.\n"
+  },
+  {
+    "id": 51,
+    "teras": "Emosi",
+    "question": "Saya mengambil masa yang lama untuk pulih daripada tekanan kerja.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "D",
+    "explanation": "A) Sangat lambat pulih; mudah burnout.\nB) Agak lambat; memerlukan pengurusan stres lebih baik.\nC) Tidak pasti; tidak kenal diri.\nD) Menolak sifat lambat pulih; sesuai.\nE) Sangat cepat pulih; bagus, tetapi perlu berhati-hati jangan sampai tak ambil iktibar.\n"
+  },
+  {
+    "id": 52,
+    "teras": "Komunikasi",
+    "question": "Saya menyusun maklumat mengikut keutamaan sebelum menyampaikan kepada peserta.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Menyusun maklumat sangat baik; efektif.\nB) Biasanya teratur, tetapi tidak selalu.\nC) Tidak pasti struktur sendiri.\nD) Tidak sistematik; komunikasi kurang jelas.\nE) Tidak peduli susunan; tidak sesuai.\n"
+  },
+  {
+    "id": 53,
+    "teras": "Kerjasama",
+    "question": "Saya mudah memberikan pujian kepada rakan sekerja apabila mereka melakukan tugas dengan baik.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sering memuji; baik, tetapi jika terlalu kerap mungkin dianggap tidak tulen.\nB) Memberi pujian secara profesional dan seimbang.\nC) Tidak pasti; mungkin kurang selesa memuji.\nD) Jarang memuji; boleh buat rakan rasa tidak dihargai.\nE) Tidak suka memuji langsung; tidak sesuai untuk kerja berpasukan.\n"
+  },
+  {
+    "id": 54,
+    "teras": "Emosi",
+    "question": "Saya akan cepat rasa terhina jika ditegur secara langsung di hadapan orang lain.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "D",
+    "explanation": "A) Sangat mudah terhina; tidak stabil.\nB) Mudah terjejas; kurang matang.\nC) Tidak pasti.\nD) Menolak sifat cepat terhina; profesional.\nE) Sangat menolak; sangat kuat emosi.\n"
+  },
+  {
+    "id": 55,
+    "teras": "Komunikasi",
+    "question": "Saya lebih suka mendengar dahulu sebelum memberi pandangan semasa mesyuarat.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Pendengar yang sangat baik; profesional.\nB) Baik tetapi kadang mahu bercakap dulu.\nC) Tidak pasti; konsistensi kurang.\nD) Bercakap dulu tanpa mendengar; risiko salah tafsir.\nE) Sangat tidak suka mendengar; tidak sesuai.\n"
+  },
+  {
+    "id": 56,
+    "teras": "Kerjasama",
+    "question": "Saya sanggup berkongsi idea walaupun risau idea itu tidak diterima oleh kumpulan.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu berani berkongsi tanpa mempertimbang konteks.\nB) Berani tetapi berhemah; sesuai.\nC) Ragu-ragu; mungkin diam dalam mesyuarat.\nD) Tidak berani; risiko kurang menyumbang.\nE) Sangat takut idea ditolak; tidak sesuai.\n"
+  },
+  {
+    "id": 57,
+    "teras": "Emosi",
+    "question": "Saya cepat panik apabila berlaku kecemasan semasa program.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "E",
+    "explanation": "A) Sangat panik; risiko keselamatan.\nB) Panik sederhana; tidak stabil.\nC) Tidak pasti.\nD) Menolak panik tetapi mungkin masih gelabah.\nE) Menolak sepenuhnya sifat panik; tenang dan sesuai.\n"
+  },
+  {
+    "id": 58,
+    "teras": "Komunikasi",
+    "question": "Saya mampu memberikan penerangan tanpa perlu menaikkan suara.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Selalu bercakap perlahan; risiko tidak jelas.\nB) Seimbang – jelas tetapi tidak menengking.\nC) Tidak pasti; kawalan suara lemah.\nD) Cenderung meninggikan suara; kurang sesuai.\nE) Terlalu tidak meninggikan suara hingga tidak tegas.\n"
+  },
+  {
+    "id": 59,
+    "teras": "Kerjasama",
+    "question": "Saya suka apabila semua ahli pasukan saling berkongsi maklumat secara terbuka.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat menyokong perkongsian maklumat; bagus.\nB) Umumnya setuju tetapi kadang memilih maklumat tertentu.\nC) Tidak pasti.\nD) Kurang suka berkongsi; risiko kerja bersilo.\nE) Sangat menolak; sangat tidak sesuai.\n"
+  },
+  {
+    "id": 60,
+    "teras": "Emosi",
+    "question": "Saya tetap boleh mengawal perasaan walaupun ditegur dengan nada tinggi.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu kebal; kadang tidak responsif.\nB) Stabil, boleh kawal emosi dengan baik.\nC) Tidak pasti.\nD) Mudah tersinggung; reaksi emosional.\nE) Sangat sensitif; tidak sesuai menangani tekanan.\n"
+  },
+  {
+    "id": 61,
+    "teras": "Komunikasi",
+    "question": "Saya memastikan mesej yang saya sampaikan tidak mengandungi nada yang boleh dianggap mengarah atau mengugut.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat berhati-hati; menjaga nada untuk memastikan mesej diterima dengan baik.\nB) Umumnya peka, tetapi mungkin tersilap nada sekali-sekala.\nC) Tidak pasti; kawalan nada mungkin tidak konsisten.\nD) Kadang bercakap dengan nada mengarah; boleh menimbulkan salah faham.\nE) Kerap menggunakan nada kasar; tidak sesuai untuk berurusan dengan belia.\n"
+  },
+  {
+    "id": 62,
+    "teras": "Kerjasama",
+    "question": "Saya sering menawarkan diri untuk membantu walaupun tugas itu tidak termasuk dalam bidang kerja saya.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu sering menawarkan diri; berisiko terlebih beban.\nB) Membantu secara munasabah dan seimbang; ideal.\nC) Tidak pasti; kurang kesedaran tentang peranan sendiri.\nD) Kurang sedia membantu; tidak kooperatif.\nE) Tidak mahu membantu langsung; tidak sesuai untuk kerja pasukan.\n"
+  },
+  {
+    "id": 63,
+    "teras": "Emosi",
+    "question": "Saya sukar menerima jika orang lain mengkritik cara saya bekerja.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "D",
+    "explanation": "A) Sangat sensitif; cepat tersinggung.\nB) Masih mudah terasa tetapi cuba kawal.\nC) Tidak pasti; cenderung tidak konsisten.\nD) Menolak sifat sukar menerima kritikan; matang.\nE) Sangat terbuka; kadang mungkin terlampau menerima tanpa menilai.\n"
+  },
+  {
+    "id": 64,
+    "teras": "Komunikasi",
+    "question": "Saya berbicara dengan perlahan dan jelas ketika memberi arahan kepada peserta.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat jelas dan teratur; komunikasi sangat berkesan.\nB) Umumnya jelas, tetapi kadang tergesa.\nC) Tidak konsisten; berpotensi menimbulkan kekeliruan.\nD) Nada bercakap laju; belia mungkin tidak faham arahan.\nE) Terlalu mendatar atau perlahan sehingga hilang perhatian peserta.\n"
+  },
+  {
+    "id": 65,
+    "teras": "Kerjasama",
+    "question": "Saya tetap menjalankan tugas pasukan walaupun saya tidak bersetuju dengan keputusan yang dibuat.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu akur; mungkin tidak menunjukkan pendapat yang berguna.\nB) Profesional; melaksanakan keputusan walaupun tidak memihak kepadanya.\nC) Tidak pasti; kadang patuh, kadang tidak.\nD) Enggan ikut keputusan; risiko sabotaj pasukan.\nE) Menolak keputusan kumpulan; tidak sesuai dalam kerjasama.\n"
+  },
+  {
+    "id": 66,
+    "teras": "Emosi",
+    "question": "Saya boleh menerima perubahan mendadak tanpa terlalu stres.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu “relaks”; mungkin tidak mengambil serius kesan perubahan.\nB) Stabil dan fleksibel; sesuai.\nC) Tidak pasti; kadang stres, kadang tidak.\nD) Mudah stres; tidak sesuai untuk program dinamik.\nE) Sangat stres; risiko menjejaskan pasukan.\n"
+  },
+  {
+    "id": 67,
+    "teras": "Komunikasi",
+    "question": "Saya sentiasa memeriksa semula maklumat sebelum menyampaikannya kepada orang awam.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat teliti; memastikan ketepatan.\nB) Teliti tetapi tidak selalu disemak semula.\nC) Tidak pasti; berisiko sampaikan maklumat tidak tepat.\nD) Kurang teliti; bahaya dalam komunikasi awam.\nE) Tidak semak langsung; sangat tidak sesuai.\n"
+  },
+  {
+    "id": 68,
+    "teras": "Kerjasama",
+    "question": "Saya cuba memahami cabaran yang dihadapi rakan sekerja sebelum memberi reaksi terhadap tingkah laku mereka.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat empati; membantu membina pasukan harmoni.\nB) Empati tetapi tidak menyeluruh.\nC) Tidak pasti; reaksi mungkin bergantung kepada mood.\nD) Kurang empati; mudah salah faham.\nE) Tidak peduli cabaran rakan; tidak sesuai untuk kerjasama.\n"
+  },
+  {
+    "id": 69,
+    "teras": "Emosi",
+    "question": "Saya mudah gelisah apabila diberi tugasan yang memerlukan saya bercakap di hadapan orang ramai.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "D",
+    "explanation": "A) Sangat gelisah; kurang sesuai.\nB) Agak gelisah; perlu latihan.\nC) Tidak pasti; keyakinan tidak stabil.\nD) Menolak sifat gelisah; menunjukkan keyakinan sederhana.\nE) Sangat yakin; sesuai tetapi perlu elak kelihatan terlalu yakin.\n"
+  },
+  {
+    "id": 70,
+    "teras": "Komunikasi",
+    "question": "Saya menyemak semula respons saya sebelum menghantar mesej atau maklumat secara bertulis.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat berhati-hati; mengelakkan salah faham.\nB) Baik tetapi tidak selalu menyemak semula.\nC) Tidak pasti; mesej boleh tersilap.\nD) Tidak semak; risiko komunikasi tidak profesional.\nE) Fokus rendah; sangat tidak sesuai.\n"
+  },
+  {
+    "id": 71,
+    "teras": "Kerjasama",
+    "question": "Saya gembira apabila rakan sepasukan berjaya walaupun saya tidak terlibat secara langsung dalam kejayaan itu.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat gembira; positif tetapi jika terlalu ekstrem mungkin tidak peduli hasil sendiri.\nB) Gembira secara profesional; ideal.\nC) Tidak pasti; mungkin berkira.\nD) Kurang senang; ada kecenderungan rasa cemburu.\nE) Tidak suka langsung; tidak sesuai untuk kerja pasukan.\n"
+  },
+  {
+    "id": 72,
+    "teras": "Emosi",
+    "question": "Saya jarang membiarkan masalah peribadi menjejaskan prestasi kerja saya.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat tidak membiarkan; bagus tetapi mungkin terlalu menekan diri.\nB) Seimbang; profesional dan stabil.\nC) Tidak pasti; kadang terjejas, kadang tidak.\nD) Kerap terjejas; kurang sesuai.\nE) Sangat terjejas; menjejaskan kerja pasukan.\n"
+  },
+  {
+    "id": 73,
+    "teras": "Komunikasi",
+    "question": "Saya akan mengulangi soalan untuk memastikan saya benar-benar memahami permintaan pihak penganjur.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Proaktif; memastikan tiada salah faham.\nB) Kadang bertanya, kadang tidak.\nC) Tidak pasti; tidak ada pola konsisten.\nD) Tidak bertanya; risiko besar.\nE) Menolak bertanya; berisiko tinggi.\n"
+  },
+  {
+    "id": 74,
+    "teras": "Kerjasama",
+    "question": "Saya menerima dengan baik jika diminta menggantikan rakan sekerja yang tidak dapat hadir ke program.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat rela; tetapi perlu berhati-hati agar tidak dipergunakan.\nB) Profesional dan bersedia membantu.\nC) Tidak pasti; perlukan motivasi luar.\nD) Tidak selesa; kurang fleksibiliti.\nE) Sangat enggan; tidak sesuai.\n"
+  },
+  {
+    "id": 75,
+    "teras": "Emosi",
+    "question": "Saya mudah terganggu jika jadual kerja terlalu padat dalam satu hari.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "D",
+    "explanation": "A) Sangat terganggu; terlalu sensitif.\nB) Mudah terkesan tetapi cuba kawal.\nC) Tidak pasti; sukar menilai kestabilan.\nD) Menolak sifat mudah terganggu; sesuai.\nE) Sangat stabil; sangat tahan stres.\n"
+  },
+  {
+    "id": 76,
+    "teras": "Komunikasi",
+    "question": "Saya cepat memahami apa yang orang lain cuba sampaikan walaupun mereka kurang jelas.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu cepat faham; risiko salah tanggapan.\nB) Faham dalam kebanyakan keadaan; seimbang.\nC) Tidak pasti; mungkin sering salah faham.\nD) Kurang memahami; komunikasi sukar.\nE) Tidak cuba faham langsung; sangat tidak sesuai.\n"
+  },
+  {
+    "id": 77,
+    "teras": "Kerjasama",
+    "question": "Saya lebih selesa melakukan tugasan secara berkumpulan berbanding bersendirian.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat suka berkumpulan; bagus tetapi perlu pastikan tidak terlalu bergantung.\nB) Seimbang; boleh bekerja dalam kumpulan dan sendirian.\nC) Neutral; kurang menunjukkan kecenderungan.\nD) Lebih suka bersendirian; kurang sesuai.\nE) Sangat tidak suka kumpulan; tidak sesuai sama sekali.\n"
+  },
+  {
+    "id": 78,
+    "teras": "Emosi",
+    "question": "Saya jarang marah walaupun berada dalam keadaan yang tidak terkawal semasa aktiviti.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat jarang marah; baik tetapi mungkin nampak terlalu pasif.\nB) Jarang marah tetapi masih tegas apabila perlu; ideal.\nC) Tidak pasti; tidak konsisten.\nD) Mudah marah; tidak sesuai.\nE) Sangat marah; sangat tidak sesuai.\n"
+  },
+  {
+    "id": 79,
+    "teras": "Komunikasi",
+    "question": "Saya sanggup memperbaiki cara saya bercakap jika diberi maklum balas oleh rakan sekerja.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat terbuka; matang dan berkembang.\nB) Terbuka tetapi perlahan berubah.\nC) Tidak pasti; mungkin defensif.\nD) Susah menerima; kurang matang.\nE) Menolak maklum balas; tidak sesuai.\n"
+  },
+  {
+    "id": 80,
+    "teras": "Kerjasama",
+    "question": "Saya tidak keberatan berkongsi bahan rujukan atau nota dengan rakan sekerja yang memerlukannya.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat suka berkongsi; ideal dan menyatukan pasukan.\nB) Berkongsi secara sederhana.\nC) Tidak pasti; mungkin memilih-milih.\nD) Kurang suka berkongsi; sukar bekerjasama.\nE) Tidak mahu berkongsi langsung; ciri individualistik.\n"
+  },
+  {
+    "id": 81,
+    "teras": "Kerjasama",
+    "question": "Saya sentiasa memberi ruang kepada rakan lain untuk menyampaikan pandangan sebelum saya memberi cadangan sendiri.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu menunggu orang lain; mungkin kurang memberi input.\nB) Memberi ruang tetapi masih berkongsi pandangan sendiri; seimbang.\nC) Tidak pasti; bergantung kepada situasi.\nD) Sering mendahului orang lain; boleh dianggap mendominasi.\nE) Sangat mendominasi; tidak sesuai untuk kerja berkumpulan.\n"
+  },
+  {
+    "id": 82,
+    "teras": "Emosi",
+    "question": "Saya mudah berasa terbeban apabila menerima banyak tugasan serentak.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "D",
+    "explanation": "A) Sangat mudah terbeban; tekanan kerja mungkin memberi kesan besar.\nB) Masih cepat berasa tertekan.\nC) Tidak pasti kestabilan diri.\nD) Menolak sifat mudah terbeban; sesuai.\nE) Sangat menolak; sangat tahan tekanan tetapi berhati-hati jangan tampak terlalu tidak realistik.\n"
+  },
+  {
+    "id": 83,
+    "teras": "Komunikasi",
+    "question": "Saya sentiasa memastikan soalan daripada peserta dijawab dengan penuh kesabaran.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat sabar; sesuai untuk kerja yang melibatkan ramai belia.\nB) Sabar tetapi kadang kurang konsisten.\nC) Tidak pasti; mungkin mudah hilang sabar.\nD) Kurang sabar; risiko hubungan tidak baik.\nE) Tidak sabar langsung; tidak sesuai untuk tugasan fasilitasi.\n"
+  },
+  {
+    "id": 84,
+    "teras": "Kerjasama",
+    "question": "Saya menghormati keputusan majoriti walaupun saya tidak bersetuju dengannya.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat akur; mungkin mengabaikan pendapat yang bernilai.\nB) Profesional; menghormati keputusan kumpulan.\nC) Tidak pasti; konsistensi rendah.\nD) Enggan terima keputusan majoriti; risiko konflik.\nE) Sangat menolak keputusan majoriti; tidak sesuai dalam pasukan.\n"
+  },
+  {
+    "id": 85,
+    "teras": "Emosi",
+    "question": "Saya jarang melayani perasaan negatif walaupun berdepan peserta yang kurang memberi kerjasama.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu tidak terkesan; mungkin dilihat tidak peka.\nB) Stabil dan mampu kawal emosi.\nC) Tidak pasti; konsistensi rendah.\nD) Mudah terkesan; boleh menjejaskan mutu kerja.\nE) Sangat terkesan; risiko burnout tinggi.\n"
+  },
+  {
+    "id": 86,
+    "teras": "Komunikasi",
+    "question": "Saya memastikan bahasa yang digunakan tidak mengandungi unsur sarkastik.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat menjaga tutur kata; sangat sesuai.\nB) Baik tetapi kadang terlepas.\nC) Tidak pasti; kesedaran rendah.\nD) Kadang sarkastik; kurang sesuai.\nE) Kerap sarkastik; berisiko menyinggung peserta.\n"
+  },
+  {
+    "id": 87,
+    "teras": "Kerjasama",
+    "question": "Saya sedia mengambil peranan kecil dalam kumpulan jika itu membantu melancarkan aktiviti.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat sanggup; bagus tetapi berhati-hati jangan terlalu “yes-man”.\nB) Seimbang; rela membantu mengikut keperluan.\nC) Tidak pasti; mungkin memilih-milih tugas.\nD) Kurang suka peranan kecil; tidak fleksibel.\nE) Sangat tidak suka peranan kecil; berpotensi bermasalah.\n"
+  },
+  {
+    "id": 88,
+    "teras": "Emosi",
+    "question": "Saya mudah berasa kecewa apabila peserta tidak mengikut arahan dengan betul.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "D",
+    "explanation": "A) Sangat mudah kecewa; emosi tidak stabil.\nB) Masih mudah terganggu.\nC) Tidak pasti; bergantung keadaan.\nD) Menolak sifat mudah kecewa; profesional.\nE) Sangat menolak; kawalan diri baik tetapi jangan terlalu pasif.\n"
+  },
+  {
+    "id": 89,
+    "teras": "Komunikasi",
+    "question": "Saya memastikan setiap maklumat penting disampaikan dengan cara yang mudah diingati oleh peserta.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat jelas dan kreatif menyampaikan maklumat.\nB) Baik tetapi kurang konsisten.\nC) Tidak pasti; mungkin kurang mahir.\nD) Cara penyampaian tidak berstruktur.\nE) Tidak peduli sama ada peserta ingat atau tidak.\n"
+  },
+  {
+    "id": 90,
+    "teras": "Kerjasama",
+    "question": "Saya sering menjadi orang pertama menawarkan diri untuk bekerjasama dalam tugasan berkumpulan.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu kerap; boleh dilihat ingin menonjol.\nB) Sering menawarkan diri secara seimbang; positif.\nC) Tidak pasti; mungkin menunggu diminta.\nD) Jarang menawarkan diri; kurang proaktif.\nE) Tidak mahu terlibat; individualistik.\n"
+  },
+  {
+    "id": 91,
+    "teras": "Emosi",
+    "question": "Saya boleh mengurus reaksi marah tanpa meninggikan suara.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu tenang; mungkin tidak tegas.\nB) Stabil dan matang dalam mengawal marah.\nC) Tidak pasti; kawalan suara tidak konsisten.\nD) Mudah meninggikan suara bila marah.\nE) Sangat mudah hilang kawalan; tidak sesuai.\n"
+  },
+  {
+    "id": 92,
+    "teras": "Komunikasi",
+    "question": "Saya suka bertanyakan soalan untuk memastikan saya benar-benar faham apa yang sedang dibincangkan.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Proaktif dan teliti; komunikasi matang.\nB) Kadang bertanya, kadang tidak.\nC) Tidak pasti; mungkin malu bertanya.\nD) Jarang bertanya; risiko salah faham tinggi.\nE) Tidak bertanya langsung; komunikasi lemah.\n"
+  },
+  {
+    "id": 93,
+    "teras": "Kerjasama",
+    "question": "Saya lebih suka melihat pasukan berjaya berbanding kejayaan individu saya sendiri.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat mengutamakan pasukan; bagus tetapi pastikan tidak abaikan pencapaian sendiri.\nB) Seimbang; mengutamakan pasukan secara profesional.\nC) Neutral; tidak jelas orientasi.\nD) Lebih pentingkan diri; tidak sesuai.\nE) Sangat mementingkan diri; berisiko mengganggu pasukan.\n"
+  },
+  {
+    "id": 94,
+    "teras": "Emosi",
+    "question": "Saya akan berasa tertekan sekiranya aktiviti tidak berjalan seperti perancangan asal.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "D",
+    "explanation": "A) Sangat tertekan; tidak fleksibel.\nB) Mudah terkesan; kurang sesuai.\nC) Tidak pasti; emosi tidak stabil.\nD) Menolak tekanan ekstrem; sesuai dengan situasi sebenar.\nE) Terlalu tenang; mungkin tidak responsif.\n"
+  },
+  {
+    "id": 95,
+    "teras": "Komunikasi",
+    "question": "Saya tidak teragak-agak meminta peserta mengulang semula soalan mereka jika tidak jelas.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Telus dan mahu kejelasan; komunikasi sangat baik.\nB) Biasanya minta ulang tetapi kadang segan.\nC) Tidak pasti; komunikasi tidak stabil.\nD) Tidak suka meminta penjelasan; risiko tersalah.\nE) Sangat enggan; tidak sesuai.\n"
+  },
+  {
+    "id": 96,
+    "teras": "Kerjasama",
+    "question": "Saya berasa selesa bekerja dengan kumpulan yang mempunyai personaliti berbeza daripada saya.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat fleksibel; mudah menyesuaikan diri.\nB) Boleh menyesuaikan diri tetapi ambil masa.\nC) Tidak pasti; mungkin sukar.\nD) Tidak selesa; cenderung pilih kumpulan tertentu sahaja.\nE) Sangat tidak selesa; tidak sesuai untuk persekitaran dinamik belia.\n"
+  },
+  {
+    "id": 97,
+    "teras": "Emosi",
+    "question": "Saya jarang menunjukkan reaksi negatif ketika sedang menguruskan konflik antara peserta.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu tidak beremosi; boleh dilihat tidak peduli.\nB) Reaksi terkawal; sesuai dan profesional.\nC) Tidak pasti; tidak konsisten.\nD) Reaksi negatif kerap muncul.\nE) Sangat reaktif; memburukkan keadaan.\n"
+  },
+  {
+    "id": 98,
+    "teras": "Komunikasi",
+    "question": "Saya memberi perhatian kepada perincian kecil semasa menerangkan sesuatu arahan kepada peserta.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "A",
+    "explanation": "A) Sangat terperinci; mengurangkan risiko salah arahan.\nB) Baik tetapi ada perkara kecil terlepas.\nC) Tidak pasti; tidak konsisten.\nD) Kurang terperinci; arahan mungkin tidak jelas.\nE) Tidak peduli perincian; tidak sesuai.\n"
+  },
+  {
+    "id": 99,
+    "teras": "Kerjasama",
+    "question": "Saya menyokong keputusan kumpulan walaupun idea saya tidak dipilih.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Sangat menyokong; bagus tetapi pastikan tidak terlalu pasif.\nB) Menyokong dengan profesional; ideal.\nC) Neutral; kurang komitmen.\nD) Sukar menyokong; mungkin merajuk.\nE) Tidak menyokong langsung; boleh mengancam kerjasama.\n"
+  },
+  {
+    "id": 100,
+    "teras": "Emosi",
+    "question": "Saya boleh mengawal perasaan walaupun menerima kritikan yang tidak membina.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sangat Setuju"
+      },
+      {
+        "label": "B",
+        "text": "Setuju"
+      },
+      {
+        "label": "C",
+        "text": "Tidak Pasti"
+      },
+      {
+        "label": "D",
+        "text": "Tidak Setuju"
+      },
+      {
+        "label": "E",
+        "text": "Sangat Tidak Setuju"
+      }
+    ],
+    "bestAnswer": "B",
+    "explanation": "A) Terlalu kebal; mungkin tidak ambil berat maklum balas.\nB) Berfikiran matang; menilai kritikan dengan rasional.\nC) Tidak pasti; reaksi tidak stabil.\nD) Mudah terasa; tidak sesuai.\nE) Sangat terkesan; emosi tidak stabil.\n"
+  }
+]
