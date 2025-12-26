@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { User, Save, Trash2, AlertTriangle, Moon, Sun } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { TransactionsList } from "@/components/TransactionsList";
 
 export default function SettingsPage() {
     const [name, setName] = useState("");
@@ -26,27 +27,69 @@ export default function SettingsPage() {
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
                 setEmail(session.user.email || "");
-                // For now, if we don't have a 'users' table, we can just use email prefix as name or fallback
-                // Or stick to localStorage for 'name' if we want to allow user customization without a DB table for profile yet.
-                // Let's check if we have a name in localStorage, else default to 'Calon'.
-                const savedName = localStorage.getItem('userName');
-                setName(savedName || "Calon");
+
+                // Fetch profile from DB
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('full_name')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (profile?.full_name) {
+                    setName(profile.full_name);
+                } else {
+                    // Fallback to localStorage
+                    const savedName = localStorage.getItem('userName');
+                    setName(savedName || (session.user.email?.split('@')[0] || "Calon"));
+                }
             }
         };
 
         fetchUser();
     }, []);
 
-    const handleSave = () => {
-        localStorage.setItem('userName', name);
-        // Dispatch custom event to notify Sidebar (and other components)
-        window.dispatchEvent(new Event('user-profile-update'));
+    const handleSave = async () => {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                alert("Sila log masuk semula.");
+                return;
+            }
 
-        // Dispatch custom event to notify Sidebar (and other components)
-        window.dispatchEvent(new Event('user-profile-update'));
+            // 1. Try Update via RPC (Server Function) - Safest
+            let { error } = await supabase.rpc('update_own_profile_name', {
+                p_full_name: name
+            });
 
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
+            // 2. Fallback: Direct Table Update (if RPC not found/failed)
+            if (error) {
+                console.warn("RPC Update failed:", error);
+                const { error: directError } = await supabase
+                    .from('profiles')
+                    .update({
+                        full_name: name,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', session.user.id);
+
+                if (directError) {
+                    // Alert the user with the specific error for debugging
+                    alert(`Update Failed! \nRPC Error: ${error.message || JSON.stringify(error)}\nDirect Error: ${directError.message || JSON.stringify(directError)}`);
+                    console.error("Direct update also failed:", directError);
+                    throw directError;
+                }
+            }
+
+            // 3. Keep localStorage for legacy components/offline fallback
+            localStorage.setItem('userName', name);
+            window.dispatchEvent(new Event('user-profile-update'));
+
+            setSaved(true);
+            setTimeout(() => setSaved(false), 2000);
+        } catch (err) {
+            console.error("Error updating profile:", err);
+            alert("Gagal menyimpan profil. Sila cuba lagi.");
+        }
     };
 
     const handleClearData = () => {
@@ -108,6 +151,11 @@ export default function SettingsPage() {
                         </Button>
                     </CardFooter>
                 </Card>
+
+                {/* Subscription History */}
+                <div className="space-y-4">
+                    <TransactionsList />
+                </div>
 
                 {/* Appearance (Placeholder) */}
                 <Card>

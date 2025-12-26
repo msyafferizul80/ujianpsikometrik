@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button"; // Added Button import
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { PremiumLock } from "@/components/PremiumLock";
 import { TrendingUp, BarChart, Activity, PieChart } from "lucide-react";
 import {
     LineChart,
@@ -218,23 +219,30 @@ export default function AnalyticsPage() {
                                     Cuba fahami pola jawapan terbaik untuk kategori ini.
                                 </p>
                                 <div className="mt-4">
-                                    <Button
-                                        onClick={() => {
-                                            const weakest = [...terasStats].sort((a, b) => a.score - b.score)[0]?.subject;
-                                            if (weakest) {
-                                                localStorage.setItem('activeQuizId', 'smart-review');
-                                                localStorage.setItem('activeTeras', weakest);
-                                                localStorage.setItem('activeQuizTitle', `Latih Tubi Fokus: ${weakest}`);
-                                                router.push('/quiz');
-                                            } else {
-                                                alert("Lengkapkan sekurang-kurangnya satu ujian untuk menggunakan ciri ini.");
-                                            }
-                                        }}
-                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition-all text-sm flex items-center justify-center gap-2"
+                                    <PremiumLock
+                                        featureCode="ai_coach"
+                                        title="AI Coach Terkunci"
+                                        description="Dapatkan analisis terperinci dan soalan latih tubi khas untuk topik lemah anda."
+                                        fallbackHeight="h-12"
                                     >
-                                        <Activity className="h-4 w-4" />
-                                        Baiki Kelemahan: {[...terasStats].sort((a, b) => a.score - b.score)[0]?.subject || "Mula Latihan"}
-                                    </Button>
+                                        <Button
+                                            onClick={() => {
+                                                const weakest = [...terasStats].sort((a, b) => a.score - b.score)[0]?.subject;
+                                                if (weakest) {
+                                                    localStorage.setItem('activeQuizId', 'smart-review');
+                                                    localStorage.setItem('activeTeras', weakest);
+                                                    localStorage.setItem('activeQuizTitle', `Latih Tubi Fokus: ${weakest}`);
+                                                    router.push('/quiz');
+                                                } else {
+                                                    alert("Lengkapkan sekurang-kurangnya satu ujian untuk menggunakan ciri ini.");
+                                                }
+                                            }}
+                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition-all text-sm flex items-center justify-center gap-2"
+                                        >
+                                            <Activity className="h-4 w-4" />
+                                            Baiki Kelemahan: {[...terasStats].sort((a, b) => a.score - b.score)[0]?.subject || "Mula Latihan"}
+                                        </Button>
+                                    </PremiumLock>
                                 </div>
                             </div>
                         </div>

@@ -15,10 +15,22 @@ import {
     Flame,
     Lock,
     Library,
-    LogOut
+    LogOut,
+    History,
+    HelpCircle,
+    MessageSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getQuizStats } from "@/utils/stats";
+import {
+    Dialog,
+    DialogContent,
+    DialogTrigger,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription
+} from "@/components/ui/dialog";
+import { TransactionsList } from "@/components/TransactionsList";
 
 const menuItems = [
     {
@@ -47,14 +59,29 @@ const menuItems = [
         href: "/calendar",
     },
     {
+        title: "Carta Prestasi", // Leaderboard
+        icon: Trophy,
+        href: "/leaderboard",
+    },
+    {
         title: "Tetapan",
         icon: Settings,
         href: "/settings",
     },
     {
+        title: "Bantuan", // Added Support link
+        icon: HelpCircle,
+        href: "/dashboard/support",
+    },
+    {
         title: "Admin Panel",
         icon: Lock,
         href: "/admin/dashboard",
+    },
+    {
+        title: "Pusat Bantuan",
+        icon: MessageSquare,
+        href: "/admin/support",
     },
 ];
 
@@ -65,6 +92,7 @@ export function Sidebar() {
     const [userName, setUserName] = useState("Calon");
     const [userEmail, setUserEmail] = useState("");
     const [userRole, setUserRole] = useState("user");
+    const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
     const [mounted, setMounted] = useState(false);
 
     // Import Supabase Client
@@ -85,23 +113,29 @@ export function Sidebar() {
                 setUserEmail(session.user.email || "");
                 // Prioritize localStorage name if set, else use email part
                 const savedName = localStorage.getItem('userName');
-                setUserName(savedName || session.user.email?.split('@')[0] || "Calon");
 
-                // Fetch Role from 'profiles'
+                // Fetch Profile for Name & Role & Subscription
                 const { data: profile } = await supabase
                     .from('profiles')
-                    .select('role')
+                    .select('full_name, role, subscription_tier, subscription_end_date')
                     .eq('id', session.user.id)
                     .single();
 
                 if (profile) {
+                    setUserName(profile.full_name || savedName || session.user.email?.split('@')[0] || "Calon");
                     setUserRole(profile.role);
-                }
 
-                // Fallback for initial admin bootstrap (demo purpose only)
-                // If the email matches the developer/admin email, auto-grant admin in UI state (not DB, DB needs manual update)
-                if (session.user.email === 'sheffi80@gmail.com') { // Hardcode bootstrap
-                    setUserRole('admin');
+                    // Check strict expiry
+                    let tier = profile.subscription_tier;
+                    if (profile.subscription_end_date) {
+                        const endDate = new Date(profile.subscription_end_date);
+                        if (endDate < new Date()) {
+                            tier = 'free'; // Force downgrade visually
+                        }
+                    }
+                    setSubscriptionStatus(tier);
+                } else {
+                    setUserName(savedName || session.user.email?.split('@')[0] || "Calon");
                 }
             }
         };
@@ -129,6 +163,15 @@ export function Sidebar() {
             .join("")
             .substring(0, 2)
             .toUpperCase();
+    };
+
+    const handleLogout = async () => {
+        if (confirm("Log keluar dari sistem?")) {
+            await supabase.auth.signOut();
+            localStorage.removeItem('quizHistory');
+            localStorage.removeItem('userProfile');
+            window.location.href = '/';
+        }
     };
 
     return (
@@ -206,6 +249,23 @@ export function Sidebar() {
                                 </Link>
                             );
                         })}
+
+                        {/* Upgrade Button - Only show if NOT subscribed/active */}
+                        {(!subscriptionStatus || subscriptionStatus === 'free') && (
+                            <Link
+                                href="/pricing"
+                                onClick={() => setIsOpen(false)}
+                                className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 mt-6 mb-2 bg-gradient-to-r from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 border border-orange-200 shadow-sm group"
+                            >
+                                <div className="p-1.5 bg-white rounded-md shadow-sm group-hover:scale-110 transition-transform">
+                                    <Flame className="h-4 w-4 text-orange-500 fill-orange-500" />
+                                </div>
+                                <div className="flex-1">
+                                    <span className="text-sm font-bold text-gray-900 block">Naik Taraf</span>
+                                    <span className="text-[10px] text-orange-600 font-medium">Lulus Exam Kali Ini!</span>
+                                </div>
+                            </Link>
+                        )}
                     </div>
                 </nav>
 
@@ -214,40 +274,66 @@ export function Sidebar() {
                     <div className="flex items-center gap-2">
                         <Link href="/settings" className="flex-1 min-w-0 group">
                             <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                                <div className="h-9 w-9 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold shadow-md shrink-0">
+                                <div className="h-9 w-9 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold shadow-md shrink-0 relative">
                                     {userName ? getInitials(userName) : "AD"}
+                                    {/* Status Badge */}
+                                    <div className={cn(
+                                        "absolute -bottom-1 -right-1 text-[9px] text-white px-1.5 py-0.5 rounded-full border border-white",
+                                        subscriptionStatus && subscriptionStatus !== 'free' ? "bg-gradient-to-r from-yellow-500 to-amber-600" : "bg-gray-600"
+                                    )}>
+                                        {subscriptionStatus && subscriptionStatus !== 'free' ? 'PRO' : 'FREE'}
+                                    </div>
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">{userName}</p>
-                                    <p className="text-xs text-gray-500 truncate">{userEmail || "S5 Candidate"}</p>
+                                <div className="min-w-0 flex-1 text-left">
+                                    <p className="text-sm font-medium text-gray-900 truncate">
+                                        {userName || "Memuatkan..."}
+                                    </p>
+                                    <p className="text-xs text-gray-500 truncate">
+                                        {userEmail || "Tetapan Akaun"}
+                                    </p>
                                 </div>
                             </div>
                         </Link>
 
+                        {/* Payment History Trigger */}
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Sejarah Pembayaran">
+                                    <History className="h-5 w-5" />
+                                </button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                    <DialogTitle>Sejarah Transaksi</DialogTitle>
+                                    <DialogDescription>
+                                        Senarai rekod pembayaran dan langganan anda.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <TransactionsList />
+                            </DialogContent>
+                        </Dialog>
+
                         <button
-                            onClick={async () => {
-                                if (confirm("Log keluar dari sistem?")) {
-                                    await supabase.auth.signOut();
-                                    localStorage.removeItem('quizHistory'); // Optional: clear history if mostly private
-                                    localStorage.removeItem('userProfile');
-                                    // Clear session related items but maybe keep some preferences
-                                    window.location.href = '/';
-                                }
-                            }}
-                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                            onClick={handleLogout}
+                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                             title="Log Keluar"
                         >
                             <LogOut className="h-5 w-5" />
                         </button>
                     </div>
+                </div>
 
-                    {/* Streak Badge */}
-                    <div className="p-2.5 rounded-lg bg-gradient-to-r from-orange-50 to-red-50 border border-orange-100 flex items-center justify-between">
+                {/* Status/Streak Badge - Positioned at bottom of sidebar */}
+                <div className="px-4 pb-4 mt-auto">
+                    <div className="p-2.5 rounded-lg bg-gradient-to-r from-orange-50 to-red-50 border border-orange-100 flex items-center justify-between shadow-sm">
                         <div className="flex items-center gap-2">
-                            <Flame className="h-4 w-4 text-orange-500" />
+                            <Flame className="h-4 w-4 text-orange-500 fill-orange-500" />
                             <span className="text-xs font-medium text-orange-700">Momentum</span>
                         </div>
-                        <span className="text-sm font-bold text-orange-600">{streak} hari</span>
+                        <span className="text-sm font-bold text-orange-600">
+                            {/* @ts-ignore */}
+                            {typeof streak !== 'undefined' ? streak : 0} hari
+                        </span>
                     </div>
                 </div>
             </aside>

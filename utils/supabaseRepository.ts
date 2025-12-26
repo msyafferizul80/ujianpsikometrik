@@ -103,6 +103,25 @@ export const quizRepository = {
         }));
     },
 
+    async getQuestionsSecurely(quizId: string, userId: string) {
+        const { data, error } = await supabase
+            .rpc('get_secure_questions', {
+                p_quiz_id: parseInt(quizId),
+                p_user_id: userId
+            });
+
+        if (error) throw error;
+
+        return data.map((q: any) => ({
+            id: q.id,
+            question: q.question_text,
+            options: q.options,
+            correctAnswer: q.correct_answer,
+            teras: q.teras,
+            explanation: q.explanation
+        }));
+    },
+
     async getQuestionsByTeras(teras: string, limit: number = 10) {
         // Fetch random questions for specific Teras
         const { data, error } = await supabase
@@ -125,12 +144,13 @@ export const quizRepository = {
 
     // --- Attempts / History ---
 
-    async saveAttempt(userName: string, quizId: number, score: number, answers: any) {
+    async saveAttempt(userName: string, quizId: number, score: number, answers: any, userId?: string) {
+        const payload: any = { user_name: userName, quiz_id: quizId, score, answers };
+        if (userId) payload.user_id = userId;
+
         const { data, error } = await supabase
             .from('attempts')
-            .insert([
-                { user_name: userName, quiz_id: quizId, score, answers }
-            ]);
+            .insert([payload]);
 
         if (error) throw error;
         return data;
@@ -172,7 +192,31 @@ export const quizRepository = {
     async updateUserStatus(userId: string, status: 'active' | 'suspended') {
         const { error } = await supabase
             .from('profiles')
-            .update({ status })
+            .update({ status }) // Note: 'status' column in profiles, separate from subscription_status
+            .eq('id', userId);
+
+        if (error) throw error;
+    },
+
+    async extendSubscription(userId: string, days: number) {
+        // First get current expiry
+        const { data: profile } = await supabase.from('profiles').select('subscription_end_date').eq('id', userId).single();
+
+        let newDate = new Date();
+        if (profile?.subscription_end_date && new Date(profile.subscription_end_date) > new Date()) {
+            newDate = new Date(profile.subscription_end_date);
+        }
+
+        // Add days
+        newDate.setDate(newDate.getDate() + days);
+
+        const { error } = await supabase
+            .from('profiles')
+            .update({
+                subscription_status: 'active',
+                subscription_end_date: newDate.toISOString(),
+                updated_at: new Date().toISOString()
+            })
             .eq('id', userId);
 
         if (error) throw error;
@@ -185,5 +229,80 @@ export const quizRepository = {
             .eq('id', userId);
 
         if (error) throw error;
+    },
+
+    // --- System Settings ---
+
+    async getExamDate() {
+        const { data, error } = await supabase
+            .rpc('get_exam_date');
+
+        if (error) throw error;
+        return data;
+    },
+
+    async setExamDate(date: Date) {
+        const { error } = await supabase
+            .rpc('set_exam_date', { p_date: date.toISOString() });
+
+        if (error) throw error;
+    },
+
+    // --- Support Ticket System ---
+
+    async createTicket(userId: string, subject: string, message: string) {
+        const { error } = await supabase
+            .from('support_tickets')
+            .insert({ user_id: userId, subject, message });
+
+        if (error) throw error;
+    },
+
+    async getUserTickets(userId: string) {
+        const { data, error } = await supabase
+            .from('support_tickets')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data;
+    },
+
+    async getAllTickets() {
+        const { data, error } = await supabase
+            .from('support_tickets')
+            .select('*, profiles(full_name, email)')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error("Error in getAllTickets:", error.message, error.details, error.hint);
+            throw error;
+        }
+        return data;
+    },
+
+    async resolveTicket(ticketId: string, reply: string, status: 'replied' | 'closed') {
+        const { error } = await supabase
+            .from('support_tickets')
+            .update({
+                admin_reply: reply,
+                status: status,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', ticketId);
+
+        if (error) throw error;
+    },
+
+    // --- Leaderboard ---
+    async getLeaderboard(limit: number = 20) {
+        const { data, error } = await supabase
+            .from('leaderboard_view')
+            .select('*')
+            .limit(limit);
+
+        if (error) throw error;
+        return data;
     }
 };

@@ -11,32 +11,13 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { quizRepository } from "@/utils/supabaseRepository";
 
 // Default/Demo Data
-const DEMO_QUIZ = [
-    {
-        id: "demo-1",
-        title: "Set Demo - Soalan Disember 2025",
-        description: "Kuiz percubaan untuk menguji tahap kesiapsiagaan anda.",
-        totalQuestions: 100,
-        duration: 60,
-        isNew: true,
-        questions: [] // Mock: usually loaded when started
-    },
-    {
-        id: "demo-2",
-        title: "Set Pegawai Tadbir N41",
-        description: "Soalan psikometrik Pegawai Tadbir Diplomatik.",
-        totalQuestions: 40,
-        duration: 30,
-        isNew: false,
-        questions: []
-    }
-];
+// Default/Demo Data Removed per user request
+const DEMO_QUIZ: any[] = [];
 
 export default function QuizSelectPage() {
     const router = useRouter();
     const [quizzes, setQuizzes] = useState<any[]>([]);
 
-    // ... imports ...
     // ... imports ...
 
     // ... inside component ...
@@ -52,11 +33,10 @@ export default function QuizSelectPage() {
                     duration: q.duration_minutes || Math.ceil(q.total_questions * 0.8),
                     isNew: new Date(q.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // New if created within 7 days
                 }));
-                setQuizzes([...DEMO_QUIZ, ...formatted]);
+                setQuizzes(formatted);
             } catch (err) {
                 console.error("Failed to fetch quizzes", err);
-                // Fallback to demo only
-                setQuizzes(DEMO_QUIZ);
+                setQuizzes([]);
             }
         };
 

@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -10,8 +11,16 @@ import { CountdownTimer } from "@/components/CountdownTimer";
 import { AnswerOption } from "@/components/AnswerOption";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { QuizSkeleton } from "@/components/QuizSkeleton";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
 
 import { quizRepository } from "@/utils/supabaseRepository";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 interface Question {
     id: number;
@@ -28,6 +37,7 @@ export default function QuizPage() {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [autoSaving, setAutoSaving] = useState(false);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const router = useRouter();
 
     // Load questions and saved progress
@@ -35,6 +45,48 @@ export default function QuizPage() {
     // ... imports ...
 
     // ... inside component ...
+    // Helper to securely set questions with limit check
+    const setQuestionsWithSecurity = async (allQuestions: Question[]) => {
+        // Fetch User Session & Profile
+        const { data: { session } } = await supabase.auth.getSession();
+        let isPremium = false;
+
+        if (session) {
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('subscription_tier, role, subscription_end_date')
+                .eq('id', session.user.id)
+                .single();
+
+            // Check criteria for premium
+            if (profile && (profile.role === 'admin' || profile.subscription_tier !== 'free')) {
+                // Check expiry date
+                if (profile.subscription_end_date) {
+                    const endDate = new Date(profile.subscription_end_date);
+                    if (endDate > new Date()) {
+                        isPremium = true;
+                    } else {
+                        isPremium = false; // Expired
+                    }
+                } else {
+                    // No date but not free? Assume active unless explicitly handled
+                    isPremium = true;
+                }
+            }
+        }
+
+        // Enforce Limit
+        if (!isPremium && allQuestions.length > 10) {
+            console.log("🔒 Enforcing Free Limit: Slicing to 10 questions");
+            setQuestions(allQuestions.slice(0, 10));
+            localStorage.setItem('isFreeLimit', 'true');
+        } else {
+            console.log("🔓 Full Access Granted");
+            setQuestions(allQuestions);
+            localStorage.removeItem('isFreeLimit');
+        }
+    };
+
     useEffect(() => {
         const loadQuizData = async () => {
             const activeQuizId = localStorage.getItem('activeQuizId');
@@ -46,7 +98,7 @@ export default function QuizPage() {
                     try {
                         const data = await quizRepository.getQuestionsByTeras(teras, 10);
                         if (data && data.length > 0) {
-                            setQuestions(data);
+                            await setQuestionsWithSecurity(data);
                             setLoading(false);
                             return;
                         }
@@ -61,39 +113,33 @@ export default function QuizPage() {
                 try {
                     const data = await quizRepository.getQuestionsByQuizId(activeQuizId);
                     if (data && data.length > 0) {
-                        setQuestions(data);
+                        await setQuestionsWithSecurity(data);
 
                         // Validate Data Integrity
                         const missingAnswers = data.filter((q: any) => !q.correctAnswer).length;
-                        if (missingAnswers > 0) {
-                            console.warn(`${missingAnswers} questions missing correct answers`);
-                            if (missingAnswers === data.length) {
-                                alert("AMARAN KRITIKAL: Set soalan ini TIDAK MEMPUNYAI SKEMA JAWAPAN. Anda akan mendapat markah 0% walaupun menjawab dengan betul. Sila hubungi Admin untuk upload semula soalan dengan format yang betul (Jawapan: A).");
-                            }
+                        if (missingAnswers > 0 && missingAnswers === data.length) {
+                            alert("AMARAN: Set soalan ini mungkin rosak (Tiada Jawapan). Hubungi Admin.");
                         }
 
                         setLoading(false);
                         return;
                     } else {
-                        throw new Error("No questions found for this quiz");
+                        throw new Error("No questions found");
                     }
                 } catch (err) {
                     console.error("Failed to load from Supabase", err);
-                    // CRITICAL: Do NOT fall back to Demo if we expected a specific quiz.
-                    // This prevents answer mismatch (e.g. user has answers for ID 200, but we load ID 1).
-                    alert("Gagal memuat turun soalan. Sila pastikan sambungan internet anda baik dan refresh semula.");
+                    alert("Gagal memuat turun soalan. Sila refresh.");
                     setLoading(false);
                     return;
                 }
             }
 
             // 3. Fallback / Default Demo Logic
-            // Only run this if NO activeQuizId is set (or it's explicitly demo)
             if (!activeQuizId || activeQuizId.startsWith('demo-')) {
                 fetch('/api/questions')
                     .then(res => res.json())
-                    .then(data => {
-                        setQuestions(data);
+                    .then(async (data) => {
+                        await setQuestionsWithSecurity(data);
                         setLoading(false);
                     })
                     .catch(err => {
@@ -101,50 +147,14 @@ export default function QuizPage() {
                         setLoading(false);
                     });
             } else {
-                // Should not reach here if logic above is correct, but safe termination
                 setLoading(false);
             }
 
             // Load saved state (User progress)
-            // Load saved state (User progress)
             const savedAnswers = localStorage.getItem('quizAnswers');
-            let loadedAnswers = {};
             if (savedAnswers) {
-                loadedAnswers = JSON.parse(savedAnswers);
-                setAnswers(loadedAnswers);
+                setAnswers(JSON.parse(savedAnswers));
             };
-
-            // Enhanced Auto-Resume Logic:
-            // 1. Try to find the first UNANSWERED question from the loaded list
-            let resumeIndex = 0;
-            // We need to wait for questions to be set, but we are inside the async function where we just fetched them.
-            // However, 'questions' state variable won't be updated until next render.
-            // So we must use the 'data' variable we just fetched above.
-
-            // It's tricky because we have 3 potential data sources above (smart review, supabase, demo).
-            // Let's refactor slightly to ensure we have 'finalQuestions' logic available before this block.
-            // Since the code above returns early, we can't easily access 'data' here if we don't restructure.
-            // BUT: The existing code has early returns. This block (lines 87-93) is only reached if demo fetch finishes OR if it falls through?
-            // Wait, the early returns in 1 & 2 skip this block! 
-            // This is a BUG in existing code: if it returns early in step 1 or 2, it NEVER loads saved answers!
-
-            // I will fix this by moving the answer loading logic to a helper or copying it before returns.
-            // Or better, remove early returns and use a variable.
-
-            // To be safe with minimal diff, I will rely on the fact that I am REPLACING this block,
-            // but I need to make sure this block runs for ALL cases.
-            // Actually, I need to modify the structure.
-
-            // Let's rewrite the whole function body to be safe? No, replace_file_content is for chunks.
-            // I will inject the resume logic into the specific data loading blocks in a subsequent step if needed,
-            // but first I must realize the current code is flawed.
-
-            // Let's fix the logic by removing early returns in the previous blocks? 
-            // That would require a massive replace.
-
-            // Alternative: Add a separate useEffect for "Resume" that runs when 'questions' changes?
-            // Yes! efficient and cleaner.
-            // If questions are loaded and we have saved answers, compute the index.
 
             localStorage.setItem('quizInProgress', 'true');
         };
@@ -218,17 +228,7 @@ export default function QuizPage() {
         }
     };
 
-    const handleSubmit = useCallback(async () => {
-        // Check if all questions are answered
-        const unansweredCount = questions.filter(q => !answers[q.id]).length;
-
-        if (unansweredCount > 0) {
-            const confirm = window.confirm(
-                `Anda masih mempunyai ${unansweredCount} soalan yang belum dijawab. Adakah anda pasti mahu menghantar?`
-            );
-            if (!confirm) return;
-        }
-
+    const submitActual = useCallback(async () => {
         setSubmitting(true);
         try {
             // 1. Calculate Score & Stats (Frontend Calculation)
@@ -294,13 +294,20 @@ export default function QuizPage() {
             const activeQuizId = localStorage.getItem('activeQuizId');
             if (activeQuizId && !activeQuizId.startsWith('demo-')) {
                 const userName = localStorage.getItem('userName') || 'Anonymous Candidate';
+
+                // Fetch User ID
+                const { createClient } = require('@supabase/supabase-js');
+                const supabase = createClient(
+                    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                );
+                const { data: { session } } = await supabase.auth.getSession();
+                const userId = session?.user?.id;
+
                 // Using dynamic import to avoid any potential server-component issues
                 const { quizRepository } = await import("@/utils/supabaseRepository");
-                await quizRepository.saveAttempt(userName, parseInt(activeQuizId), totalScore, answers);
+                await quizRepository.saveAttempt(userName, parseInt(activeQuizId), totalScore, answers, userId);
             }
-
-            // We skip fetch('/api/submit') because it only handles static JSON matching.
-            // We use our local calculation.
 
             // Save result (User context)
             localStorage.setItem('quizResult', JSON.stringify(resultWithAnswers));
@@ -310,6 +317,7 @@ export default function QuizPage() {
             localStorage.removeItem('currentQuestion');
             localStorage.removeItem('quizTimeLeft');
             localStorage.removeItem('quizInProgress');
+            // Do not remove isFreeLimit here yet, as it might be needed for logic, but usually it's fine.
 
             router.push('/result');
         } catch (e) {
@@ -318,6 +326,27 @@ export default function QuizPage() {
             alert("Gagal menghantar jawapan. Sila cuba lagi.");
         }
     }, [answers, questions, router]);
+
+    const handleSubmit = useCallback(async () => {
+        // Check if all questions are answered
+        const unansweredCount = questions.filter(q => !answers[q.id]).length;
+
+        if (unansweredCount > 0) {
+            const confirm = window.confirm(
+                `Anda masih mempunyai ${unansweredCount} soalan yang belum dijawab. Adakah anda pasti mahu menghantar?`
+            );
+            if (!confirm) return;
+        }
+
+        // Check for Free Limit Logic
+        const isFreeLimit = localStorage.getItem('isFreeLimit') === 'true';
+        if (isFreeLimit) {
+            setShowUpgradeModal(true);
+            return;
+        }
+
+        await submitActual();
+    }, [answers, questions, submitActual]);
 
     const handleTimeUp = useCallback(() => {
         alert("Masa tamat! Jawapan anda akan dihantar secara automatik.");
@@ -556,6 +585,54 @@ export default function QuizPage() {
                     </div>
                 </main>
             </div>
+            <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-xl">
+                            <span className="text-2xl">👑</span>
+                            Tahniah! Anda Selesai 10 Soalan
+                        </DialogTitle>
+                        <DialogDescription className="text-base pt-2">
+                            Anda telah melengkapkan percubaan percuma. Untuk keputusan yang lebih tepat dan analisis AI yang mendalam, anda disarankan untuk menjawab kesemua soalan.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="grid gap-4 py-4">
+                        <div className="bg-blue-50 p-4 rounded-lg flex items-start gap-3">
+                            <div className="bg-blue-100 p-2 rounded-full text-blue-600">
+                                <ArrowRight className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-blue-900">Apa yang anda dapat dengan Premium?</h4>
+                                <ul className="text-sm text-blue-800 list-disc list-inside mt-1 space-y-1">
+                                    <li>Akses penuh koleksi soalan terkini</li>
+                                    <li>Analisis AI Kelemahan & Kekuatan</li>
+                                    <li>Skor Teras (Emosi, Kerjasama, dll)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <DialogFooter className="flex-col sm:flex-row gap-3">
+                        <Button
+                            variant="outline"
+                            onClick={async () => {
+                                setShowUpgradeModal(false);
+                                await submitActual();
+                            }}
+                            className="w-full sm:w-auto"
+                        >
+                            Hantar & Lihat Skor (Free)
+                        </Button>
+                        <Button
+                            onClick={() => router.push('/pricing')}
+                            className="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white"
+                        >
+                            Naik Taraf Sekarang
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </DashboardLayout>
     );
 }

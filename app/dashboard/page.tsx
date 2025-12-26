@@ -15,6 +15,8 @@ import { ShareButton } from "@/components/ShareButton";
 import { createClient } from '@supabase/supabase-js';
 import { getQuizStats, hasInProgressQuiz } from "@/utils/stats";
 
+import { SubscriptionCountdown } from "@/components/SubscriptionCountdown";
+
 export default function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({
@@ -25,6 +27,8 @@ export default function Dashboard() {
     });
     const [inProgress, setInProgress] = useState(false);
     const [userName, setUserName] = useState("Calon");
+    const [subscription, setSubscription] = useState<{ endDate: string | null; tier: string | null }>({ endDate: null, tier: null });
+    const [featuredQuiz, setFeaturedQuiz] = useState<any>(null);
 
     // Import Supabase Client
     const supabase = createClient(
@@ -40,12 +44,16 @@ export default function Dashboard() {
                 // Try to get explicit profile name first
                 const { data: profile } = await supabase
                     .from('profiles')
-                    .select('full_name')
+                    .select('full_name, subscription_end_date, subscription_tier')
                     .eq('id', session.user.id)
                     .single();
 
-                if (profile && profile.full_name) {
-                    setUserName(profile.full_name);
+                if (profile) {
+                    if (profile.full_name) setUserName(profile.full_name);
+                    setSubscription({
+                        endDate: profile.subscription_end_date,
+                        tier: profile.subscription_tier
+                    });
                 } else {
                     // Fallback to name in localStorage or Email prefix
                     const savedName = localStorage.getItem('userName');
@@ -54,6 +62,34 @@ export default function Dashboard() {
             }
         };
         fetchUser();
+
+        // Fetch Featured/Latest Quiz
+        const fetchFeaturedQuiz = async () => {
+            const { data } = await supabase
+                .from('quizzes')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .single();
+
+            if (data) {
+                setFeaturedQuiz({
+                    title: data.title,
+                    totalQuestions: data.total_questions,
+                    duration: data.duration_minutes,
+                    description: data.description
+                });
+            } else {
+                // Fallback if no quiz exists
+                setFeaturedQuiz({
+                    title: "Ujian Psikometrik Lengkap",
+                    totalQuestions: 100,
+                    duration: 60,
+                    description: "Set soalan latihan ujian psikometrik."
+                });
+            }
+        };
+        fetchFeaturedQuiz();
 
         // Simulate network delay for verification of skeleton
         const timer = setTimeout(() => {
@@ -94,6 +130,9 @@ export default function Dashboard() {
     return (
         <DashboardLayout>
             <div className="p-6 max-w-7xl mx-auto space-y-8">
+                {/* Subscription Countdown */}
+                <SubscriptionCountdown expiryDate={subscription.endDate} planType={subscription.tier || 'free'} />
+
                 {/* 1. Smart Hero Section (Fokus Hari Ini) */}
                 <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                     <div>
@@ -180,21 +219,25 @@ export default function Dashboard() {
                                 </div>
                             </div>
 
+
+
+
+
                             <CardContent className="p-6">
                                 {/* Quiz Info */}
                                 <div className="bg-gradient-to-br from-gray-50 to-blue-50/50 p-5 rounded-xl border border-gray-100 mb-6">
                                     <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
                                         <BarChart3 className="h-4 w-4 text-blue-600" />
-                                        Ujian Psikometrik Lengkap (2025)
+                                        {featuredQuiz?.title || "Memuatkan..."}
                                     </h4>
                                     <div className="grid grid-cols-2 gap-4 mb-4">
                                         <div className="flex items-center gap-2 text-sm text-gray-600">
                                             <BookOpen className="h-4 w-4 text-blue-500" />
-                                            <span>100 soalan</span>
+                                            <span>{featuredQuiz?.totalQuestions || 0} soalan</span>
                                         </div>
                                         <div className="flex items-center gap-2 text-sm text-gray-600">
                                             <Clock className="h-4 w-4 text-green-500" />
-                                            <span>60 minit</span>
+                                            <span>{featuredQuiz?.duration || 0} minit</span>
                                         </div>
                                     </div>
                                     <ul className="list-disc list-inside text-sm text-gray-600 space-y-1.5">
