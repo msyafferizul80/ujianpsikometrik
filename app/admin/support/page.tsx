@@ -17,6 +17,7 @@ type Ticket = {
     status: 'open' | 'replied' | 'closed';
     admin_reply?: string;
     created_at: string;
+    updated_at?: string; // Added optional field
     profiles: {
         full_name: string;
         email: string;

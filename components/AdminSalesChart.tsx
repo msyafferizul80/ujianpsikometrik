@@ -78,7 +78,7 @@ export function AdminSalesChart() {
                             />
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
                             <Tooltip
-                                formatter={(value: number) => [`RM ${value.toFixed(2)}`, "Jualan"]}
+                                formatter={(value: any) => [`RM ${Number(value).toFixed(2)}`, "Jualan"]}
                                 contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e5e7eb' }}
                             />
                             <Area
