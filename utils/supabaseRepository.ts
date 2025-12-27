@@ -17,14 +17,49 @@ export const quizRepository = {
         return data;
     },
 
-    async getAllQuizzes() {
-        const { data, error } = await supabase
+    async getAllQuizzes(onlyActive: boolean = false) {
+        let query = supabase
             .from('quizzes')
             .select('*')
             .order('created_at', { ascending: false });
 
+        if (onlyActive) {
+            query = query.eq('is_active', true);
+        }
+
+        const { data, error } = await query;
+
         if (error) throw error;
         return data;
+    },
+
+    async getQuizzesPaginated({ page = 1, limit = 10, search = '', status = 'all' }) {
+        let query = supabase
+            .from('quizzes')
+            .select('*', { count: 'exact' });
+
+        // Search
+        if (search) {
+            query = query.ilike('title', `%${search}%`);
+        }
+
+        // Filter Status
+        if (status === 'active') {
+            query = query.eq('is_active', true);
+        } else if (status === 'inactive') {
+            query = query.eq('is_active', false);
+        }
+
+        // Pagination
+        const from = (page - 1) * limit;
+        const to = from + limit - 1;
+
+        query = query.range(from, to).order('created_at', { ascending: false });
+
+        const { data, error, count } = await query;
+
+        if (error) throw error;
+        return { data, count };
     },
 
     async getQuizById(id: string) {
@@ -60,6 +95,16 @@ export const quizRepository = {
             console.error("Error deleting quiz:", error);
             throw new Error(`Failed to delete quiz: ${error.message} (${error.details})`);
         }
+        return true;
+    },
+
+    async toggleQuizStatus(id: string, isActive: boolean) {
+        const { error } = await supabase
+            .from('quizzes')
+            .update({ is_active: isActive })
+            .eq('id', id);
+
+        if (error) throw error;
         return true;
     },
 

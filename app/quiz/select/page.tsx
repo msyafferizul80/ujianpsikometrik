@@ -24,7 +24,7 @@ export default function QuizSelectPage() {
     useEffect(() => {
         const fetchQuizzes = async () => {
             try {
-                const data: any = await quizRepository.getAllQuizzes();
+                const data: any = await quizRepository.getAllQuizzes(true);
                 const formatted = data.map((q: any) => ({
                     id: q.id,
                     title: q.title,

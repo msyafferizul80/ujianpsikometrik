@@ -37,29 +37,23 @@ export default function UploadPage() {
             const line = lines[i];
 
             // 1. Detect New Question
-            // Relaxed: "Soalan" or "Question" followed by number, OR just a number like "1." "1)".
-            // Also handles "1 ." or "1 -"
             const questionStartMatch = line.match(/^(?:Soalan|Question)\s*(\d+)[\.\:\)]?|^(\d+)[\.\)\-\:](?!\d)/i);
 
             if (questionStartMatch) {
-                // If previous question exists, save it
                 if (currentQuestion) {
                     questions.push(currentQuestion);
                 }
 
                 const qNum = questionStartMatch[1] || questionStartMatch[2];
-                // Try to get text on the same line if "Soalan 1: Text is here"
-                // But avoid capturing just empty/header text
                 let qText = line.replace(/^(?:Soalan|Question)\s*\d+[\.\:\)]?\s*|^\d+[\.\)\-\:]\s*/i, '').trim();
 
-                // Special case: If text starts with "Teras:", ignore it (it will be picked up by Teras handler)
                 if (/^Teras\s*[\:\-]/i.test(qText)) {
                     qText = '';
                 }
 
                 currentQuestion = {
                     id: parseInt(qNum) || questions.length + 1,
-                    question: qText, // Changed from 'text' to 'question'
+                    question: qText,
                     options: [],
                     correctAnswer: '',
                     answerPoints: {},
@@ -80,30 +74,34 @@ export default function UploadPage() {
 
             // 3. Detect "Soalan:" prefix
             if (/^Soalan\s*[\:\-]/i.test(line)) {
-                currentQuestion.question = line.replace(/^Soalan\s*[\:\-]\s*/i, '').trim(); // Changed from 'text' to 'question'
+                currentQuestion.question = line.replace(/^Soalan\s*[\:\-]\s*/i, '').trim();
                 parsingState = 'question_text';
                 continue;
             }
 
-            // ... (rest of loops)
-
-            // --- State Handling ---
-            if (parsingState === 'question_text') {
-                if (/^[A-E] [\–\-\.]/.test(line)) {
-                    parsingState = 'options';
-                } else if (!/^Soalan\s+\d+/i.test(line)) {
-                    currentQuestion.question += (currentQuestion.question ? " " : "") + line; // Changed from 'text' to 'question'
+            // 4. Detect "Pernyataan:"
+            if (/^Pernyataan\s*[\:\-]/i.test(line)) {
+                // Remove "Pernyataan:" label, keep only the text
+                const val = line.replace(/^Pernyataan\s*[\:\-]\s*/i, '').trim();
+                if (currentQuestion.question) {
+                    currentQuestion.question += "\n\n" + val;
+                } else {
+                    currentQuestion.question = val;
                 }
+                parsingState = 'question_text';
+                continue;
             }
 
-            // 4. Detect "Pilihan Jawapan:" header
+            // 5. Detect Options (e.g. "A.", "• A.", "A)")
+            const optionMatch = line.match(/^(?:[\•\-\*]\s*)?([A-E])\s*[\.\)\-\–]\s+(.*)/i);
+
+            // 6. Detect Headers that force state change
             if (/^Pilihan Jawapan[\:\-]/i.test(line)) {
                 parsingState = 'options';
                 continue;
             }
 
-            // 5. Detect "Cadangan Jawapan Terbaik:" or "Jawapan:"
-            if (/^(Cadangan Jawapan Terbaik|Jawapan|Answer)\s*[\:\-]/i.test(line)) {
+            if (/^(Cadangan Jawapan|Jawapan|Answer)/i.test(line)) {
                 const match = line.match(/[\:\-]\s*([A-E])/i);
                 if (match) {
                     currentQuestion.correctAnswer = match[1].toUpperCase();
@@ -112,35 +110,38 @@ export default function UploadPage() {
                 continue;
             }
 
-            // 6. Detect Explanation
-            if (/^(Kenapa soalan ini penting|Penerangan Jawapan|Explanation)[\:\-]/i.test(line)) {
+            if (/^(Kenapa|Penerangan|Explanation)/i.test(line)) {
                 parsingState = 'explanation';
+                // Don't continue, capture the header as part of explanation context if needed, or just let loop proceed
             }
 
             // --- State Handling ---
+
             if (parsingState === 'question_text') {
-                if (/^[A-E] [\–\-\.]/.test(line)) {
+                // Check if it's an option before appending to question
+                if (optionMatch) {
                     parsingState = 'options';
-                    // Fallthrough to handle current line as option
-                } else if (!/^Soalan\s+\d+/i.test(line)) {
-                    currentQuestion.question += (currentQuestion.question ? " " : "") + line;
+                } else if (!/^(Cadangan|Jawapan|Answer)/i.test(line) && !/^(Kenapa|Penerangan)/i.test(line)) {
+                    currentQuestion.question += (currentQuestion.question ? "\n" : "") + line;
                 }
             }
 
             if (parsingState === 'options') {
-                // Match "A – Text", "A. Text", "A) Text"
-                const optMatch = line.match(/^([A-E])\s*[\.\)\-\–]\s+(.*)/i);
-                if (optMatch) {
+                if (optionMatch) {
                     currentQuestion.options.push({
-                        label: optMatch[1].toUpperCase(),
-                        text: optMatch[2].trim()
+                        label: optionMatch[1].toUpperCase(),
+                        text: optionMatch[2].trim()
                     });
                 }
             }
 
             if (parsingState === 'explanation') {
-                if (!currentQuestion.explanation) currentQuestion.explanation = "";
-                currentQuestion.explanation += (currentQuestion.explanation ? "\n" : "") + line;
+                // If line matches "Kenapa" or "Penerangan", we just entered this state.
+                // We append lines until we hit new question or answer (though answer usually comes before explanation).
+                if (!/^(Cadangan Jawapan|Jawapan|Answer)\s*[\:\-]/i.test(line)) {
+                    if (!currentQuestion.explanation) currentQuestion.explanation = "";
+                    currentQuestion.explanation += (currentQuestion.explanation ? "\n" : "") + line;
+                }
             }
         }
         if (currentQuestion) questions.push(currentQuestion);
@@ -149,7 +150,11 @@ export default function UploadPage() {
         return questions.map(q => {
             const points: any = {};
             q.options.forEach((opt: any) => {
-                points[opt.label] = (opt.label === q.correctAnswer) ? 10 : 0;
+                if (opt.label === q.correctAnswer) {
+                    points[opt.label] = 10;
+                } else {
+                    points[opt.label] = 0;
+                }
             });
             return { ...q, answerPoints: points };
         });
@@ -190,7 +195,6 @@ export default function UploadPage() {
                 body: formData
             });
 
-            // ... rest of file handling ...
             let data;
             try {
                 data = await res.json();
@@ -214,14 +218,6 @@ export default function UploadPage() {
             setParsing(false);
         }
     };
-
-
-    // Import repository at the top (added via tool instruction context, but here focusing on the function)
-
-    // ... imports ...
-    // ... imports ...
-
-    // ... inside component ...
 
     const handleSaveQuiz = async () => {
         if (!quizTitle) {
@@ -360,7 +356,7 @@ export default function UploadPage() {
                         <div className="bg-gray-100 p-4 rounded-lg h-[300px] overflow-y-auto text-sm space-y-4 border scrollbar-thin scrollbar-thumb-gray-300">
                             {questions.map((q, i) => (
                                 <div key={i} className="bg-white p-3 rounded border shadow-sm">
-                                    <p className="font-semibold text-gray-800 mb-2">{i + 1}. {q.question}</p>
+                                    <p className="font-semibold text-gray-800 mb-2 truncate">{i + 1}. {q.question}</p>
                                     <ul className="space-y-1 ml-4 text-gray-600 list-none">
                                         {q.options.map((opt: any, j: number) => (
                                             <li key={j} className={opt.label === q.correctAnswer ? "text-green-600 font-bold bg-green-50 px-2 py-1 rounded" : ""}>

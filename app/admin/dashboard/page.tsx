@@ -1,22 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Plus, FileText, Trash2, User } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, FileText, Trash2, User, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { quizRepository } from "@/utils/supabaseRepository";
 import { createClient } from '@supabase/supabase-js';
 import { AdminSalesChart } from "@/components/AdminSalesChart";
 import { AdminLiveFeed } from "@/components/AdminLiveFeed";
+import debounce from "lodash/debounce"; // You might need to install lodash or write a simple debounce
 
 interface QuizSet {
     id: string;
     title: string;
     totalQuestions: number;
     createdAt: string;
+    isActive: boolean;
 }
 
 export default function AdminDashboard() {
@@ -27,17 +30,25 @@ export default function AdminDashboard() {
         totalRevenue: 0,
         conversionRate: 0
     });
+
+    // Quiz Management State
     const [quizzes, setQuizzes] = useState<QuizSet[]>([]);
     const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [filterStatus, setFilterStatus] = useState("all");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const ITEMS_PER_PAGE = 5;
 
-    // Initial Auth & Data Fetch
+    // Supabase Client
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    // Initial Auth & Stats Fetch
     useEffect(() => {
         const initDashboard = async () => {
-            const supabase = createClient(
-                process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-            );
-
             // 1. Check Admin Auth
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) {
@@ -47,11 +58,8 @@ export default function AdminDashboard() {
 
             try {
                 // 2. Fetch Stats
-                // Note: In a real large-scale app, we'd use an RPC for this aggregation to avoid fetching all rows.
-                // For MVP (<1000 users), fetching client-side is acceptable.
                 const { data: profiles } = await supabase.from('profiles').select('id, subscription_status, subscription_tier');
                 const { data: transactions } = await supabase.from('transactions').select('amount, status').eq('status', 'paid');
-                const { data: quizData }: any = await quizRepository.getAllQuizzes();
 
                 // Calculate Stats
                 const totalUsers = profiles?.length || 0;
@@ -66,42 +74,84 @@ export default function AdminDashboard() {
                     conversionRate: Number(conversionRate)
                 });
 
-                setQuizzes(quizData?.map((q: any) => ({
-                    id: q.id,
-                    title: q.title,
-                    totalQuestions: q.total_questions,
-                    createdAt: new Date(q.created_at).toLocaleDateString()
-                })) || []);
-
             } catch (err) {
                 console.error("Dashboard fetch error:", err);
-            } finally {
-                setLoading(false);
             }
         };
 
         initDashboard();
     }, [router]);
 
+    // Fetch Quizzes with Pagination, Search & Filter
+    const fetchQuizzes = async () => {
+        setLoading(true);
+        try {
+            const { data, count }: any = await quizRepository.getQuizzesPaginated({
+                page: currentPage,
+                limit: ITEMS_PER_PAGE,
+                search: searchQuery,
+                status: filterStatus
+            });
+
+            if (data) {
+                setQuizzes(data.map((q: any) => ({
+                    id: q.id,
+                    title: q.title,
+                    totalQuestions: q.total_questions,
+                    createdAt: new Date(q.created_at).toLocaleDateString(),
+                    isActive: q.is_active === null ? true : q.is_active
+                })));
+
+                if (count !== null) {
+                    setTotalPages(Math.ceil(count / ITEMS_PER_PAGE));
+                }
+            }
+        } catch (err) {
+            console.error("Failed to fetch quizzes", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Debounced Search Handler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const debouncedSearch = useCallback(
+        debounce((query: string) => {
+            setSearchQuery(query);
+            setCurrentPage(1); // Reset to page 1 on search
+        }, 500),
+        []
+    );
+
+    // Trigger fetch on state change
+    useEffect(() => {
+        fetchQuizzes();
+    }, [currentPage, searchQuery, filterStatus]); // Add dependencies
+
     const handleDelete = async (id: string) => {
         if (confirm("Adakah anda pasti mahu memadam set soalan ini?")) {
             try {
                 await quizRepository.deleteQuiz(id);
-                setQuizzes(prev => prev.filter(q => q.id !== id));
+                fetchQuizzes(); // Refresh list
             } catch (err) {
                 alert("Gagal memadam set soalan.");
             }
         }
     };
 
-    if (loading) return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-50">
-            <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <h2 className="text-xl font-semibold text-gray-700">Loading Command Center...</h2>
-            </div>
-        </div>
-    );
+    const handleToggleStatus = async (id: string, currentStatus: boolean) => {
+        try {
+            await quizRepository.toggleQuizStatus(id, !currentStatus);
+            // Optimistic update
+            setQuizzes(prev => prev.map(q =>
+                q.id === id ? { ...q, isActive: !currentStatus } : q
+            ));
+        } catch (err) {
+            console.error(err);
+            alert("Gagal mengemaskini status.");
+            fetchQuizzes(); // Revert on error
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 pb-12">
@@ -197,30 +247,98 @@ export default function AdminDashboard() {
                         </Link>
                     </div>
 
+                    {/* Search & Filter Bar */}
+                    <div className="flex gap-4">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <Input
+                                placeholder="Cari set soalan..."
+                                className="pl-9"
+                                onChange={(e) => debouncedSearch(e.target.value)}
+                            />
+                        </div>
+                        <Select value={filterStatus} onValueChange={(val) => { setFilterStatus(val); setCurrentPage(1); }}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Semua Status</SelectItem>
+                                <SelectItem value="active">Active Sahaja</SelectItem>
+                                <SelectItem value="inactive">Inactive Sahaja</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
                     <Card>
                         <CardContent className="p-0">
-                            {quizzes.length === 0 ? (
+                            {loading ? (
+                                <div className="p-8 text-center text-gray-400 animate-pulse">
+                                    Loading quizzes...
+                                </div>
+                            ) : quizzes.length === 0 ? (
                                 <div className="p-8 text-center text-gray-400">
-                                    No quiz sets found.
+                                    No quiz sets found matching your criteria.
                                 </div>
                             ) : (
                                 <div className="divide-y">
                                     {quizzes.map((quiz) => (
-                                        <div key={quiz.id} className="flex items-center justify-between p-4 hover:bg-gray-50">
+                                        <div key={quiz.id} className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
                                             <div className="flex items-center gap-4">
-                                                <div className="bg-gray-100 p-2 rounded">
-                                                    <FileText className="h-5 w-5 text-gray-600" />
+                                                <div className={`p-2 rounded ${quiz.isActive ? 'bg-green-100' : 'bg-gray-100'}`}>
+                                                    <FileText className={`h-5 w-5 ${quiz.isActive ? 'text-green-600' : 'text-gray-500'}`} />
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-semibold text-gray-900">{quiz.title}</h3>
+                                                    <div className="flex items-center gap-2">
+                                                        <h3 className="font-semibold text-gray-900">{quiz.title}</h3>
+                                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${quiz.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                                                            {quiz.isActive ? 'Active' : 'Inactive'}
+                                                        </span>
+                                                    </div>
                                                     <p className="text-xs text-gray-500">{quiz.totalQuestions} Questions • {quiz.createdAt}</p>
                                                 </div>
                                             </div>
-                                            <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-50 hover:text-red-700" onClick={() => handleDelete(quiz.id)}>
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
+                                            <div className="flex items-center gap-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => handleToggleStatus(quiz.id, quiz.isActive)}
+                                                    className={`text-xs h-8 ${quiz.isActive ? 'text-orange-600 border-orange-200 hover:bg-orange-50' : 'text-green-600 border-green-200 hover:bg-green-50'}`}
+                                                >
+                                                    {quiz.isActive ? 'Deactivate' : 'Activate'}
+                                                </Button>
+                                                <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-50 hover:text-red-700 h-8 w-8 p-0" onClick={() => handleDelete(quiz.id)}>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
                                         </div>
                                     ))}
+                                </div>
+                            )}
+
+                            {/* Pagination Footer */}
+                            {!loading && quizzes.length > 0 && (
+                                <div className="p-4 border-t flex items-center justify-between bg-gray-50/50">
+                                    <div className="text-xs text-gray-500">
+                                        Page {currentPage} of {totalPages}
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                            disabled={currentPage === 1}
+                                        >
+                                            <ChevronLeft className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                            disabled={currentPage === totalPages}
+                                        >
+                                            <ChevronRight className="h-4 w-4" />
+                                        </Button>
+                                    </div>
                                 </div>
                             )}
                         </CardContent>
