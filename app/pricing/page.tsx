@@ -52,13 +52,13 @@ export default function PricingPage() {
         },
         {
             id: "exam_ready",
-            name: "Pas Exam-Ready",
+            name: "Pas Exam-Ready (1 Bulan)",
             price: "RM 79",
-            description: "Jaminan persediaan sehingga tarikh peperiksaan.",
+            description: "Persediaan intensif dengan akses penuh selama 30 hari.",
             features: [
                 "Akses Bank Soalan UNLIMITED",
                 "Analisis Prestasi Penuh",
-                "Zero-Renew: Akses Sampai Exam",
+                "Tempoh Akses: 30 Hari",
                 "AI Coach (Baiki Kelemahan) ✅",
                 "Support Group WhatsApp"
             ],
@@ -84,22 +84,6 @@ export default function PricingPage() {
             borderColor: "border-purple-200",
             bg: "bg-purple-50",
             buttonVariant: "outline"
-        },
-        // Test Plan
-        {
-            id: "test_rm1",
-            name: "Pas Testing (RM 1)",
-            price: "RM 1",
-            description: "Untuk tujuan pengujian sistem sahaja.",
-            features: [
-                "Akses Penuh (1 Jam)",
-                "Testing Payment Flow Exists"
-            ],
-            icon: Zap,
-            color: "text-gray-600",
-            borderColor: "border-gray-200",
-            bg: "bg-gray-100",
-            buttonVariant: "ghost"
         }
     ];
 
