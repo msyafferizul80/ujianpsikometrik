@@ -59,7 +59,9 @@ export default function PricingPage() {
                 "Akses Bank Soalan UNLIMITED",
                 "Analisis Prestasi Penuh",
                 "Tempoh Akses: 30 Hari",
-                "AI Coach (Baiki Kelemahan) ✅",
+                "AI Coach (Baiki Kelemahan)",
+                "Tutor AI (Penerangan Jawapan) ✨",
+                "Analisis Konsistensi Jawapan 🆕",
                 "Support Group WhatsApp"
             ],
             icon: ShieldCheck,
@@ -73,9 +75,11 @@ export default function PricingPage() {
             id: "addon_ai",
             name: "Add-on: AI Coach",
             price: "RM 20",
-            description: "Bukac kunci ciri 'Baiki Kelemahan' secara spesifik.",
+            description: "Buka kunci ciri 'Baiki Kelemahan' secara spesifik.",
             features: [
                 "Feature Unlock: AI Coach",
+                "Tutor AI (Penjelasan Jawapan) ✨",
+                "Analisis Konsistensi Jawapan 🆕",
                 "Baiki Kelemahan Topikal",
                 "Jana Soalan Targeted"
             ],

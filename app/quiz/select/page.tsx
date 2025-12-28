@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,17 +10,22 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 
 import { quizRepository } from "@/utils/supabaseRepository";
 
-// Default/Demo Data
-// Default/Demo Data Removed per user request
-const DEMO_QUIZ: any[] = [];
+export const dynamic = 'force-dynamic';
 
 export default function QuizSelectPage() {
+    return (
+        <Suspense fallback={<div className="p-6">Loading...</div>}>
+            <QuizSelectContent />
+        </Suspense>
+    );
+}
+
+function QuizSelectContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const filterTopic = searchParams.get('filter');
     const [quizzes, setQuizzes] = useState<any[]>([]);
 
-    // ... imports ...
-
-    // ... inside component ...
     useEffect(() => {
         const fetchQuizzes = async () => {
             try {
@@ -52,13 +57,27 @@ export default function QuizSelectPage() {
             localStorage.setItem('activeQuizTitle', selected.title);
 
             // Clean up previous session data
-            localStorage.removeItem('quizQuestions'); // Ensure we don't load stale local questions
+            localStorage.removeItem('quizQuestions');
             localStorage.removeItem('quizAnswers');
             localStorage.removeItem('currentQuestion');
             localStorage.setItem('quizInProgress', 'true');
 
             router.push('/quiz');
         }
+    };
+
+    const handleStartSmartReview = (topic: string) => {
+        localStorage.setItem('activeQuizId', 'smart-review');
+        localStorage.setItem('activeQuizTitle', `Latih Tubi Fokus: ${topic.toUpperCase()}`);
+        localStorage.setItem('activeTeras', topic);
+
+        // Clean up previous session
+        localStorage.removeItem('quizQuestions');
+        localStorage.removeItem('quizAnswers');
+        localStorage.removeItem('currentQuestion');
+        localStorage.setItem('quizInProgress', 'true');
+
+        router.push('/quiz');
     };
 
     return (
@@ -69,6 +88,48 @@ export default function QuizSelectPage() {
                     <p className="text-gray-600">Pilih dari koleksi set soalan terkini untuk memulakan latihan anda.</p>
                 </div>
 
+                {/* Targeted Practice Card (Only shows if filter is present) */}
+                {filterTopic && (
+                    <div className="mb-8 animate-fade-in">
+                        <Card className="border-2 border-indigo-500 shadow-xl bg-gradient-to-r from-indigo-50 to-white">
+                            <CardHeader>
+                                <div className="flex justify-between items-start mb-2">
+                                    <Badge className="bg-indigo-600 hover:bg-indigo-700">Disyorkan oleh AI</Badge>
+                                </div>
+                                <CardTitle className="text-2xl font-bold text-gray-900">
+                                    Latih Tubi Fokus: {filterTopic.toUpperCase()}
+                                </CardTitle>
+                                <CardDescription className="text-base text-gray-700 mt-2">
+                                    Sesi khas untuk memantapkan penguasaan anda dalam kompetensi <strong>{filterTopic}</strong>. Soalan dipilih secara rawak daripada bank soalan untuk topik ini sahaja.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-center gap-4 text-sm text-gray-600">
+                                    <div className="flex items-center gap-1">
+                                        <BookOpen className="h-5 w-5 text-indigo-600" />
+                                        <span>10 Soalan Fokus</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <Clock className="h-5 w-5 text-indigo-600" />
+                                        <span>~8 minit</span>
+                                    </div>
+                                </div>
+                            </CardContent>
+                            <CardFooter>
+                                <Button
+                                    className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 font-bold text-lg py-6 px-8 shadow-lg"
+                                    onClick={() => handleStartSmartReview(filterTopic)}
+                                >
+                                    Mula Latihan Fokus
+                                    <ArrowRight className="ml-2 h-5 w-5" />
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                        <hr className="my-8 border-gray-200" />
+                    </div>
+                )}
+
+                <h3 className="text-xl font-semibold text-gray-800 mb-4">Semua Set Soalan</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {quizzes.map((quiz) => (
                         <Card key={quiz.id} className="flex flex-col hover:shadow-lg transition-shadow border-blue-100/50">

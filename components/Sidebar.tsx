@@ -18,7 +18,8 @@ import {
     LogOut,
     History,
     HelpCircle,
-    MessageSquare
+    MessageSquare,
+    BrainCircuit
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getQuizStats } from "@/utils/stats";
@@ -37,6 +38,12 @@ const menuItems = [
         title: "Dashboard",
         icon: LayoutDashboard,
         href: "/dashboard",
+    },
+    {
+        title: "Ai Coach",
+        icon: BrainCircuit,
+        href: "/ai-coach",
+        premium: true
     },
     {
         title: "Bank Soalan",
@@ -218,6 +225,12 @@ export function Sidebar() {
 
                             // Hide Admin panel if not admin
                             if (item.href.startsWith('/admin') && userRole !== 'admin') {
+                                return null;
+                            }
+
+                            // Hide Premium items if not subscribed
+                            // @ts-ignore
+                            if (item.premium && (!subscriptionStatus || subscriptionStatus === 'free') && userRole !== 'admin') {
                                 return null;
                             }
 

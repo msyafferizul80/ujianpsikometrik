@@ -153,7 +153,7 @@ export default function Dashboard() {
                         </p>
                     </div>
                     <div className="flex gap-3">
-                        <Link href="/quiz/select?filter=emosi">
+                        <Link href="/ai-coach">
                             <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 shadow-md hover:shadow-lg transition-all">
                                 <PlayCircle className="mr-2 h-4 w-4" />
                                 Latih Emosi
