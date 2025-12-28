@@ -46,7 +46,7 @@ const menuItems = [
     {
         title: "Rekod Latihan",
         icon: Trophy,
-        href: "/result",
+        href: "/history",
     },
     {
         title: "Prestasi",
@@ -58,11 +58,7 @@ const menuItems = [
         icon: Calendar,
         href: "/calendar",
     },
-    {
-        title: "Carta Prestasi", // Leaderboard
-        icon: Trophy,
-        href: "/leaderboard",
-    },
+
     {
         title: "Tetapan",
         icon: Settings,

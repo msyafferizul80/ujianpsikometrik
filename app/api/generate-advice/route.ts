@@ -56,14 +56,17 @@ Pastikan nada profesional, tegas, tetapi membantu. Jangan gunakan markdown (bold
 
 function generateMockAdviceContent(body: RequestBody) {
     const scores = body.scores;
-    if (!scores || !scores.Kerjasama) {
+    // Check if any scores exist
+    if (!scores || Object.keys(scores).length === 0) {
         return "Data tidak lengkap untuk menjana laporan.";
     }
 
     const weakAreas: string[] = [];
-    if (scores.Kerjasama.percentage < 70) weakAreas.push('Kerjasama');
-    if (scores.Emosi.percentage < 70) weakAreas.push('Emosi');
-    if (scores.Komunikasi.percentage < 70) weakAreas.push('Komunikasi');
+
+    // Dynamic check
+    Object.keys(scores).forEach(key => {
+        if (scores[key].percentage < 70) weakAreas.push(key);
+    });
 
     let advice = "";
 
@@ -71,15 +74,20 @@ function generateMockAdviceContent(body: RequestBody) {
         advice = "Tahniah! Anda menunjukkan tahap kompetensi yang tinggi dalam semua aspek psikometrik. Teruskan mengekalkan momentum positif ini.";
     } else {
         advice = `Berdasarkan keputusan anda, terdapat ruang penambahbaikan dalam aspek: ${weakAreas.join(', ')}. \n\n`;
-        if (weakAreas.includes('Kerjasama')) {
-            advice += "Untuk aspek Kerjasama: Cuba lebih terbuka dalam menerima pendapat rakan sekerja dan menyumbang tanpa mengharapkan balasan segera.\n";
-        }
-        if (weakAreas.includes('Emosi')) {
-            advice += "Untuk aspek Emosi: Latih diri untuk kekal tenang dalam situasi tertekan. Jangan biarkan emosi mengawal tindakan profesional.\n";
-        }
-        if (weakAreas.includes('Komunikasi')) {
-            advice += "Untuk aspek Komunikasi: Pastikan mesej disampaikan dengan jelas dan sopan. Dengar dahulu sebelum memberi respon.\n";
-        }
+
+        // Generic advice for any key
+        weakAreas.forEach(area => {
+            if (area === 'Kerjasama') {
+                advice += "Untuk aspek Kerjasama: Cuba lebih terbuka dalam menerima pendapat rakan sekerja dan menyumbang tanpa mengharapkan balasan segera.\n";
+            } else if (area === 'Emosi') {
+                advice += "Untuk aspek Emosi: Latih diri untuk kekal tenang dalam situasi tertekan. Jangan biarkan emosi mengawal tindakan profesional.\n";
+            } else if (area === 'Komunikasi') {
+                advice += "Untuk aspek Komunikasi: Pastikan mesej disampaikan dengan jelas dan sopan. Dengar dahulu sebelum memberi respon.\n";
+            } else {
+                advice += `Untuk aspek ${area}: Tingkatkan pembacaan dan pemahaman mengenai nilai-nilai murni dalam perkhidmatan awam berkaitan aspek ini.\n`;
+            }
+        });
+
         advice += "\n[Nota: Ini adalah laporan auto-generasi simulasi. Sila masukkan API Key untuk laporan AI sebenar.]";
     }
 

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, AlertCircle, HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle2, AlertCircle, HelpCircle, ChevronDown, ChevronUp, Sparkles, Loader2 } from "lucide-react";
 
 interface Question {
     id: number;
@@ -23,18 +23,58 @@ interface QuestionReviewProps {
 export function QuestionReview({ questions, userAnswers }: QuestionReviewProps) {
     const [filter, setFilter] = useState<'all' | 'best' | 'close' | 'weak'>('all');
     const [expandedId, setExpandedId] = useState<number | null>(null);
+    const [aiExplanations, setAiExplanations] = useState<Record<number, string>>({});
+    const [loadingAI, setLoadingAI] = useState<Record<number, boolean>>({});
 
     // Helper to get score quality
     const getAnswerQuality = (q: Question, answer: string) => {
         if (answer === q.correctAnswer) return 'best';
 
-        // Simple close match logic (matches scoring.ts logic roughly)
-        // A<>B, D<>E logic
+        // Simple close match logic
         const best = q.correctAnswer;
         if ((best === 'A' && answer === 'B') || (best === 'B' && answer === 'A')) return 'close';
         if ((best === 'D' && answer === 'E') || (best === 'E' && answer === 'D')) return 'close';
 
         return 'weak';
+    };
+
+    const handleExplain = async (q: Question, userAnswer: string) => {
+        if (aiExplanations[q.id]) return; // Already loaded
+
+        setLoadingAI(prev => ({ ...prev, [q.id]: true }));
+        try {
+            const userAnswerText = q.options.find(o => o.label === userAnswer)?.text || "";
+            const correctAnswerText = q.options.find(o => o.label === q.correctAnswer)?.text || "";
+
+            const res = await fetch('/api/explain-answer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    questionId: q.id,
+                    questionText: q.question,
+                    userAnswer,
+                    userAnswerText,
+                    correctAnswer: q.correctAnswer,
+                    correctAnswerText,
+                    teras: q.teras
+                })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || data.error) {
+                throw new Error(data.error || "Ralat API");
+            }
+
+            if (data.explanation) {
+                setAiExplanations(prev => ({ ...prev, [q.id]: data.explanation }));
+            }
+        } catch (err: any) {
+            console.error(err);
+            alert(`Gagal mendapatkan penjelasan AI: ${err.message || "Sila cuba lagi."}\n[Pastikan API Key telah diletakkan]`);
+        } finally {
+            setLoadingAI(prev => ({ ...prev, [q.id]: false }));
+        }
     };
 
     const filteredQuestions = questions.filter(q => {
@@ -162,10 +202,45 @@ export function QuestionReview({ questions, userAnswers }: QuestionReviewProps) 
                                             })}
                                         </div>
 
+                                        {/* AI Explanation Button for Wrong Answers */}
+                                        {answer !== q.correctAnswer && (
+                                            <div className="mt-4">
+                                                {!aiExplanations[q.id] ? (
+                                                    <Button
+                                                        onClick={() => handleExplain(q, answer)}
+                                                        disabled={loadingAI[q.id]}
+                                                        variant="secondary"
+                                                        className="w-full bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-200"
+                                                    >
+                                                        {loadingAI[q.id] ? (
+                                                            <>
+                                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                                Sedang Menjana Penjelasan...
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Sparkles className="mr-2 h-4 w-4" />
+                                                                Kenapa Jawapan Saya Salah? (AI Tutor)
+                                                            </>
+                                                        )}
+                                                    </Button>
+                                                ) : (
+                                                    <div className="mt-2 p-3 bg-purple-50 border border-purple-100 rounded text-sm text-purple-900 animate-fade-in relative">
+                                                        <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-600 to-indigo-600">AI Tutor</Badge>
+                                                        <h4 className="font-bold mb-1 flex items-center gap-2 text-purple-800">
+                                                            <Sparkles className="h-4 w-4 text-purple-600" />
+                                                            Sudut Pandang Penjawat Awam:
+                                                        </h4>
+                                                        <p className="whitespace-pre-line leading-relaxed">{aiExplanations[q.id]}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
                                         <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded text-sm text-blue-800">
                                             <p className="font-bold mb-1 flex items-center gap-2">
                                                 <HelpCircle className="h-4 w-4" />
-                                                Penjelasan:
+                                                Penjelasan Asal:
                                             </p>
                                             <p className="whitespace-pre-line">{q.explanation}</p>
                                         </div>

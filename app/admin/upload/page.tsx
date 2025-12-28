@@ -32,9 +32,22 @@ export default function UploadPage() {
 
         let currentQuestion: any = null;
         let parsingState = 'init';
+        let currentTeras = 'General'; // State to persist Teras across questions
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
+
+            // 0. Detect TERAS Header (Global Context)
+            // e.g. "TERAS 1: DISIPLIN (Soalan 1 - 34)"
+            const terasMatch = line.match(/^TERAS\s*\d+\s*[\:\-]\s*([A-Z\s]+)/i);
+            if (terasMatch) {
+                // Extract "DISIPLIN" from "DISIPLIN (Soalan...)"
+                const terasRaw = terasMatch[1].trim();
+                const cleanTeras = terasRaw.split('(')[0].trim(); // Remove "(Soalan ...)"
+                currentTeras = cleanTeras;
+                console.log(`Detected Teras: ${currentTeras}`);
+                continue;
+            }
 
             // 1. Detect New Question
             const questionStartMatch = line.match(/^(?:Soalan|Question)\s*(\d+)[\.\:\)]?|^(\d+)[\.\)\-\:](?!\d)/i);
@@ -47,9 +60,7 @@ export default function UploadPage() {
                 const qNum = questionStartMatch[1] || questionStartMatch[2];
                 let qText = line.replace(/^(?:Soalan|Question)\s*\d+[\.\:\)]?\s*|^\d+[\.\)\-\:]\s*/i, '').trim();
 
-                if (/^Teras\s*[\:\-]/i.test(qText)) {
-                    qText = '';
-                }
+                // If line ends with just "Soalan 1", qText might be empty.
 
                 currentQuestion = {
                     id: parseInt(qNum) || questions.length + 1,
@@ -57,7 +68,7 @@ export default function UploadPage() {
                     options: [],
                     correctAnswer: '',
                     answerPoints: {},
-                    teras: 'General',
+                    teras: currentTeras, // Use persistent Teras
                     explanation: ''
                 };
                 parsingState = 'question_text';
@@ -66,22 +77,8 @@ export default function UploadPage() {
 
             if (!currentQuestion) continue;
 
-            // 2. Detect "Teras:"
-            if (/^Teras\s*[\:\-]/i.test(line)) {
-                currentQuestion.teras = line.replace(/^Teras\s*[\:\-]\s*/i, '').trim();
-                continue;
-            }
-
-            // 3. Detect "Soalan:" prefix
-            if (/^Soalan\s*[\:\-]/i.test(line)) {
-                currentQuestion.question = line.replace(/^Soalan\s*[\:\-]\s*/i, '').trim();
-                parsingState = 'question_text';
-                continue;
-            }
-
-            // 4. Detect "Pernyataan:"
+            // 2. Detect "Pernyataan:" (Append to Question)
             if (/^Pernyataan\s*[\:\-]/i.test(line)) {
-                // Remove "Pernyataan:" label, keep only the text
                 const val = line.replace(/^Pernyataan\s*[\:\-]\s*/i, '').trim();
                 if (currentQuestion.question) {
                     currentQuestion.question += "\n\n" + val;
@@ -92,17 +89,11 @@ export default function UploadPage() {
                 continue;
             }
 
-            // 5. Detect Options (e.g. "A.", "• A.", "A)")
-            const optionMatch = line.match(/^(?:[\•\-\*]\s*)?([A-E])\s*[\.\)\-\–]\s+(.*)/i);
-
-            // 6. Detect Headers that force state change
-            if (/^Pilihan Jawapan[\:\-]/i.test(line)) {
-                parsingState = 'options';
-                continue;
-            }
-
+            // 3. Detect "Cadangan Jawapan" / "Jawapan"
+            // e.g. "Cadangan Jawapan: A. Sangat Setuju" or "Jawapan: A"
             if (/^(Cadangan Jawapan|Jawapan|Answer)/i.test(line)) {
-                const match = line.match(/[\:\-]\s*([A-E])/i);
+                // Look for single letter A-E surrounded by boundary or whitespace/punctuation
+                const match = line.match(/[\:\-]\s*([A-E])(?=[\.\s]|$)/i) || line.match(/\s+([A-E])[\.\s]+/i);
                 if (match) {
                     currentQuestion.correctAnswer = match[1].toUpperCase();
                 }
@@ -110,18 +101,26 @@ export default function UploadPage() {
                 continue;
             }
 
+            // 4. Detect Explanation Headers
+            // "Kenapa Soalan Ini Penting?", "Kenapa Dalam Teras Disiplin?", "Penerangan Pilihan Jawapan:"
             if (/^(Kenapa|Penerangan|Explanation)/i.test(line)) {
                 parsingState = 'explanation';
-                // Don't continue, capture the header as part of explanation context if needed, or just let loop proceed
+                // Append header itself to explanation to keep context
+                if (!currentQuestion.explanation) currentQuestion.explanation = "";
+                currentQuestion.explanation += (currentQuestion.explanation ? "\n\n" : "") + `**${line}**`;
+                continue;
             }
+
+            // 5. Detect Options
+            const optionMatch = line.match(/^(?:[\•\-\*]\s*)?([A-E])\s*[\.\)\-\–]\s+(.*)/i);
 
             // --- State Handling ---
 
             if (parsingState === 'question_text') {
-                // Check if it's an option before appending to question
                 if (optionMatch) {
                     parsingState = 'options';
-                } else if (!/^(Cadangan|Jawapan|Answer)/i.test(line) && !/^(Kenapa|Penerangan)/i.test(line)) {
+                } else if (!/^(Cadangan|Jawapan|Answer|Kenapa|Penerangan)/i.test(line)) {
+                    // Only append if it doesn't look like a keyword
                     currentQuestion.question += (currentQuestion.question ? "\n" : "") + line;
                 }
             }
@@ -136,11 +135,18 @@ export default function UploadPage() {
             }
 
             if (parsingState === 'explanation') {
-                // If line matches "Kenapa" or "Penerangan", we just entered this state.
-                // We append lines until we hit new question or answer (though answer usually comes before explanation).
+                // Append everything until next keyword (though keywords checked at loop start handles detection)
+                // Just need to avoid appending new question start (handled above)
                 if (!/^(Cadangan Jawapan|Jawapan|Answer)\s*[\:\-]/i.test(line)) {
-                    if (!currentQuestion.explanation) currentQuestion.explanation = "";
-                    currentQuestion.explanation += (currentQuestion.explanation ? "\n" : "") + line;
+                    // Check if it's a new sub-header in explanation
+                    if (/^(Kenapa|Penerangan)/i.test(line)) {
+                        // sub-header logic is actually handled by the "Detect Explanation Headers" block above which sets state
+                        // so here we might just be in the content flow.
+                        // But if we hit "Detect Explanation Headers" block, it 'continues'. 
+                        // So we won't reach here for the header line itself.
+                    } else {
+                        currentQuestion.explanation += "\n" + line;
+                    }
                 }
             }
         }

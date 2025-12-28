@@ -240,12 +240,16 @@ export default function QuizPage() {
 
             questions.forEach(q => {
                 // Normalize Teras key
-                let teras = q.teras.trim();
-                // Basic normalization (can be improved)
-                if (teras.match(/Kerjasama|Sikap|Pasukan/i)) teras = 'Kerjasama';
-                else if (teras.match(/Emosi|Stabil|Tenang/i)) teras = 'Emosi';
-                else if (teras.match(/Komunikasi|Bahasa|Jelas/i)) teras = 'Komunikasi';
-                else teras = 'Umum'; // Fallback
+                // Normalize Teras key
+                let teras = q.teras.trim(); // Trim whitespace
+
+                // If it's a known legacy key or complex string, we might want to clean it,
+                // but generally we should trust the parser's output (e.g. "DISIPLIN")
+
+                // Capitalize first letter strictly if needed, or just keep as is.
+                // For chart consistency, maybe specific casing?
+                // Let's just rely on the stored value but ensure it's not empty.
+                if (!teras || teras.toLowerCase() === 'general') teras = 'Umum';
 
                 if (!terasScores[teras]) terasScores[teras] = { score: 0, max: 0, percentage: 0 };
 

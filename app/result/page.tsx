@@ -11,6 +11,7 @@ import { saveQuizAttempt } from "@/utils/stats";
 import { shareResult } from "@/utils/share";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { QuestionReview } from "@/components/QuestionReview";
+import { InconsistencyReport } from "@/components/InconsistencyReport";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
@@ -41,112 +42,208 @@ export default function ResultPage() {
     const [questions, setQuestions] = useState<Question[]>([]);
     const [advice, setAdvice] = useState<string>("");
     const [loadingAdvice, setLoadingAdvice] = useState(false);
+    const [inconsistencies, setInconsistencies] = useState<any[]>([]);
+    const [checkingInconsistency, setCheckingInconsistency] = useState(false);
     const [prevBest, setPrevBest] = useState<number | null>(null);
     const [averageScore, setAverageScore] = useState<number | null>(null);
     const router = useRouter();
+    const [searchParams] = useState(new URLSearchParams(typeof window !== 'undefined' ? window.location.search : ''));
     const [copied, setCopied] = useState(false);
     const resultRef = useRef<HTMLDivElement>(null);
     const [downloading, setDownloading] = useState(false);
 
     // Load Data
     useEffect(() => {
-        const saved = localStorage.getItem('quizResult');
-        const historyStr = localStorage.getItem('quizHistory');
+        const attemptId = searchParams.get('attempt_id');
 
-        if (saved) {
-            const parsed = JSON.parse(saved);
-            setResult(parsed);
+        // Mode 1: Historical View via URL
+        if (attemptId) {
+            const fetchAttempt = async () => {
+                try {
+                    const { createClient } = await import('@supabase/supabase-js');
+                    const supabase = createClient(
+                        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                    );
 
-            // Calculate comparison (Prev Best & Average)
-            if (historyStr) {
-                const history = JSON.parse(historyStr);
-                if (history.length > 0) {
-                    const best = Math.max(...history.map((h: { percentage: number }) => h.percentage));
-                    const avg = Math.round(history.reduce((a: number, b: { percentage: number }) => a + b.percentage, 0) / history.length);
-                    setPrevBest(best);
-                    setAverageScore(avg);
+                    // Fetch attempt with quiz relation
+                    const { data: attempt, error } = await supabase
+                        .from('attempts')
+                        .select('*, quizzes(*)')
+                        .eq('id', attemptId)
+                        .single();
+
+                    if (error || !attempt) {
+                        console.error("Attempt not found", error);
+                        router.push('/history');
+                        return;
+                    }
+
+                    // Fetch questions to reconstruct Report
+                    const { quizRepository } = await import("@/utils/supabaseRepository");
+                    const quizQuestions = await quizRepository.getQuestionsByQuizId(attempt.quiz_id.toString());
+
+                    if (quizQuestions) {
+                        setQuestions(quizQuestions);
+
+                        // Recalculate Teras Scores (Score Reconstruction)
+                        const terasScores: Record<string, TerasResult> = {};
+
+                        quizQuestions.forEach((q: any) => {
+                            const selected = attempt.answers?.[q.id];
+                            const correct = q.correctAnswer;
+                            const isCorrect = selected === correct;
+
+                            if (!terasScores[q.teras]) {
+                                terasScores[q.teras] = { score: 0, max: 0, percentage: 0 };
+                            }
+
+                            // Reconstruction logic: 
+                            // If user was scored 10 points for matches (based on backend logic), we approximate here.
+                            // To match Radar Chart needs, we just need relative strength (0-100%).
+                            terasScores[q.teras].score += isCorrect ? 1 : 0;
+                            terasScores[q.teras].max += 1;
+                        });
+
+                        Object.keys(terasScores).forEach(key => {
+                            terasScores[key].percentage = Math.round((terasScores[key].score / terasScores[key].max) * 100);
+                        });
+
+                        setResult({
+                            totalScore: attempt.score,
+                            maxScore: quizQuestions.length * 10,
+                            terasScores,
+                            answers: attempt.answers
+                        });
+
+                        // Fetch AI advice
+                        setLoadingAdvice(true);
+                        fetch('/api/generate-advice', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ scores: terasScores })
+                        })
+                            .then(res => res.json())
+                            .then(data => {
+                                setAdvice(data.advice);
+                                setLoadingAdvice(false);
+                            })
+                            .catch(err => setLoadingAdvice(false));
+
+                        // Check Inconsistency
+                        if (quizQuestions.length > 0) {
+                            setCheckingInconsistency(true);
+                            fetch('/api/analyze-inconsistency', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    answers: attempt.answers,
+                                    questions: quizQuestions
+                                })
+                            })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.inconsistencies) setInconsistencies(data.inconsistencies);
+                                    setCheckingInconsistency(false);
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    setCheckingInconsistency(false);
+                                });
+                        }
+                    }
+                } catch (e) {
+                    console.error("Failed to load historical attempt", e);
+                    router.push('/history');
                 }
-            }
+            };
+            fetchAttempt();
+        } else {
+            // Mode 2: Standard Local Storage (Post-Quiz)
+            const saved = localStorage.getItem('quizResult');
+            const historyStr = localStorage.getItem('quizHistory');
 
-            // Save to quiz history (if not duplicate save - checking via timestamp/id usually better, but for now relies on useEffect single run assumption in StrictMode bypass or logic safety)
-            // Note: saveQuizAttempt adds new entry every time page loads. 
-            // FIX: Check if we just came from submission or reload. 
-            // For now, allow duplicates or handle in saveQuizAttempt (which we won't modify now to avoid complexity creeping)
-            // In real app, we'd pass a session ID.
-            // As a simple fix, check if "quizInProgress" was just cleared? It's already cleared in QuizPage.
-            // Let's assume stats.ts handles it or we accept slight duplication on refresh.
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                setResult(parsed);
 
-            // We'll skip re-saving here because QuizPage likely should have saved it? 
-            // Actually, ResultPage is responsible for saving in previous code.
-            // To prevent double save on refresh, we can check a flag or just let it be for now (User asked for features, not bugfix on refresh).
-            // Re-using existing logic:
-            saveQuizAttempt(parsed.totalScore, parsed.maxScore, parsed.terasScores, parsed.answers);
+                if (historyStr) {
+                    const history = JSON.parse(historyStr);
+                    if (history.length > 0) {
+                        const best = Math.max(...history.map((h: { percentage: number }) => h.percentage));
+                        const avg = Math.round(history.reduce((a: number, b: { percentage: number }) => a + b.percentage, 0) / history.length);
+                        setPrevBest(best);
+                        setAverageScore(avg);
+                    }
+                }
 
-            // Fetch AI advice
-            setLoadingAdvice(true);
-            fetch('/api/generate-advice', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ scores: parsed.terasScores })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    setAdvice(data.advice);
-                    setLoadingAdvice(false);
+                saveQuizAttempt(parsed.totalScore, parsed.maxScore, parsed.terasScores, parsed.answers);
+
+                setLoadingAdvice(true);
+                fetch('/api/generate-advice', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ scores: parsed.terasScores })
                 })
-                .catch(err => {
-                    console.error(err);
-                    setLoadingAdvice(false);
-                });
+                    .then(res => res.json())
+                    .then(data => {
+                        setAdvice(data.advice);
+                        setLoadingAdvice(false);
+                    })
+                    .catch(err => setLoadingAdvice(false));
 
-            // Fetch Questions for Review
-            const activeQuizId = localStorage.getItem('activeQuizId');
-
-            const fetchQuestions = async () => {
-                let fetchedQuestions: Question[] = [];
-
-                // 1. Smart Review Mode
-                if (activeQuizId === 'smart-review') {
-                    const teras = localStorage.getItem('activeTeras');
-                    if (teras) {
-                        try {
-                            // Dynamic import to avoid server-side issues if any, though "use client" handles it
-                            // We'll use the API route for consistency or import repository if safe
-                            // Since repository uses supabase client which is safe:
+                // Fetch Questions Logic
+                const activeQuizId = localStorage.getItem('activeQuizId');
+                const fetchQuestions = async () => {
+                    let fetchedQuestions: Question[] = [];
+                    if (activeQuizId === 'smart-review') {
+                        const teras = localStorage.getItem('activeTeras');
+                        if (teras) {
                             const { quizRepository } = await import("@/utils/supabaseRepository");
                             const data = await quizRepository.getQuestionsByTeras(teras, 10);
                             if (data) fetchedQuestions = data;
-                        } catch (err) {
-                            console.error("Failed to load smart review questions", err);
                         }
+                    } else if (activeQuizId && !activeQuizId.startsWith('demo-')) {
+                        try {
+                            const { quizRepository } = await import("@/utils/supabaseRepository");
+                            const data = await quizRepository.getQuestionsByQuizId(activeQuizId);
+                            if (data) fetchedQuestions = data;
+                        } catch (err) { console.error(err); }
                     }
-                }
-                // 2. Supabase Quiz
-                else if (activeQuizId && !activeQuizId.startsWith('demo-')) {
-                    try {
-                        const { quizRepository } = await import("@/utils/supabaseRepository");
-                        const data = await quizRepository.getQuestionsByQuizId(activeQuizId);
-                        if (data) fetchedQuestions = data;
-                    } catch (err) {
-                        console.error("Failed to load quiz questions", err);
+
+                    if (fetchedQuestions.length === 0) {
+                        const res = await fetch('/api/questions');
+                        fetchedQuestions = await res.json();
                     }
-                }
-                // 3. Fallback (Demo)
+                    setQuestions(fetchedQuestions);
 
-                if (fetchedQuestions.length === 0) {
-                    const res = await fetch('/api/questions');
-                    fetchedQuestions = await res.json();
-                }
-
-                setQuestions(fetchedQuestions);
-            };
-
-            fetchQuestions();
-
-        } else {
-            router.push('/dashboard');
+                    if (fetchedQuestions.length > 0) {
+                        setCheckingInconsistency(true);
+                        fetch('/api/analyze-inconsistency', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                answers: parsed.answers,
+                                questions: fetchedQuestions
+                            })
+                        })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.inconsistencies) setInconsistencies(data.inconsistencies);
+                                setCheckingInconsistency(false);
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                setCheckingInconsistency(false);
+                            });
+                    }
+                };
+                fetchQuestions();
+            } else {
+                router.push('/dashboard');
+            }
         }
-    }, [router]);
+    }, [router, searchParams]);
 
     const handleShare = () => {
         if (!result) return;
@@ -168,28 +265,24 @@ export default function ResultPage() {
 
     if (!result) return null;
 
-    const chartData = Object.keys(result.terasScores).map(key => ({
-        subject: key,
-        A: result.terasScores[key].percentage,
-        fullMark: 100
-    }));
+    const chartData = Object.keys(result.terasScores)
+        .filter(key => !['General', 'Umum'].includes(key))
+        .map(key => ({
+            subject: key,
+            A: result.terasScores[key].percentage,
+            fullMark: 100
+        }));
 
     const overallPercentage = Math.round((result.totalScore / result.maxScore) * 100);
     const improvement = prevBest !== null ? overallPercentage - prevBest : 0;
-
-    // Percentile mock: Assume normal distribution roughly, standard
-    // In real app, query DB. Here, simpler heuristic:
-    // >80 = Top 10%, >70 = Top 20%, etc.
     const percentile = overallPercentage >= 90 ? 99 : overallPercentage >= 80 ? 90 : overallPercentage >= 70 ? 75 : overallPercentage >= 60 ? 50 : 25;
 
-    // Comparison Chart Data
     const comparisonData = [
         { name: 'Anda', score: overallPercentage, fill: '#2563eb' },
         { name: 'Purata', score: averageScore || overallPercentage, fill: '#94a3b8' },
         { name: 'Terbaik', score: prevBest || overallPercentage, fill: '#16a34a' },
     ];
 
-    // Weakest Teras for Recommendations
     const weakestTeras = Object.entries(result.terasScores)
         .sort(([, a], [, b]) => a.percentage - b.percentage)
         .slice(0, 1)
@@ -220,6 +313,14 @@ export default function ResultPage() {
                             </Button>
                         </div>
                     </div>
+
+                    {/* Inconsistency Report (New) */}
+                    {result && questions.length > 0 && (
+                        <InconsistencyReport
+                            inconsistencies={inconsistencies}
+                            loading={checkingInconsistency}
+                        />
+                    )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Score Card */}
@@ -379,3 +480,14 @@ export default function ResultPage() {
         </DashboardLayout>
     );
 }
+
+// Added global style for fade animation
+const globalStyles = `
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+`;

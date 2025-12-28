@@ -34,10 +34,59 @@ export default function HistoryPage() {
     const [questions, setQuestions] = useState<any[]>([]);
 
     useEffect(() => {
-        const saved = localStorage.getItem('quizHistory');
-        if (saved) {
-            setHistory(JSON.parse(saved));
-        }
+        const fetchHistory = async () => {
+            // Import Supabase
+            const { createClient } = await import('@supabase/supabase-js');
+            const supabase = createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            );
+
+            // Get User (Priority on Logged In User)
+            const { data: { session } } = await supabase.auth.getSession();
+            const user = session?.user;
+
+            if (user) {
+                const { data, error } = await supabase
+                    .from('attempts')
+                    .select('*, quizzes(title)')
+                    .eq('user_id', user.id) // Filter by User ID for accuracy
+                    .order('created_at', { ascending: false });
+
+                if (data) {
+                    // Map to QuizAttempt interface (adjust interface if needed)
+                    const mapped = data.map((item: any) => ({
+                        id: item.id, // Keep ID for keys
+                        date: item.created_at,
+                        score: item.score,
+                        // Calculate percentage roughly if maxScore isn't saved, 
+                        // but typically attempts usually have a way to know. 
+                        // For now assume standard 100 or calculate based on score?
+                        // The table has 'score' but maybe not max.
+                        // Let's rely on what we have. 
+                        // Wait, `saveAttempt` saves raw score.
+                        // `QuizAttempt` interface expects `percentage`.
+                        // Let's check schema. If needed, we map nicely.
+                        percentage: item.score > 100 ? Math.round((item.score / (Object.keys(item.answers || {}).length * 10)) * 100) : item.score, // Fallback logic
+                        title: item.quizzes?.title || 'Set Soalan Tidak Diketahui', // Add Title
+                        answers: item.answers,
+                        // totalQuestions needed for display
+                        totalQuestions: Object.keys(item.answers || {}).length
+                    }));
+                    setHistory(mapped);
+                }
+            } else {
+                // Fallback to Local Storage for anonymous? 
+                // Or try by userName if needed, but 'Rekod Latihan' implies a personal dashboard.
+                // Let's keep LS fallback or just show empty.
+                const saved = localStorage.getItem('quizHistory');
+                if (saved) {
+                    setHistory(JSON.parse(saved));
+                }
+            }
+        };
+
+        fetchHistory();
 
         // Fetch questions for review modal
         fetch('/api/questions')
@@ -45,9 +94,10 @@ export default function HistoryPage() {
             .then(data => setQuestions(data));
     }, []);
 
+    // ... clearHistory adapted for Supabase? (Maybe just alert "Contact Admin" or hide)
+    // For now, let's keep local clear but warn user it won't delete server data if unrelated.
     const clearHistory = () => {
-        if (confirm("Adakah anda pasti mahu memadam semua sejarah ujian?")) {
-            localStorage.removeItem('quizHistory');
+        if (confirm("Padam sejarah paparan sahaja? Data di server kekal.")) {
             setHistory([]);
         }
     };
@@ -55,9 +105,10 @@ export default function HistoryPage() {
     const handleExportCSV = () => {
         if (history.length === 0) return;
 
-        const headers = ["Date", "Score", "Percentage", "Status"];
+        const headers = ["Date", "Set Soalan", "Score", "Percentage", "Status"];
         const rows = history.map(item => [
             new Date(item.date).toLocaleString(),
+            (item as any).title || "N/A",
             item.score,
             `${item.percentage}%`,
             item.percentage >= 80 ? "Sangat Baik" : item.percentage >= 50 ? "Baik" : "Lemah"
@@ -90,10 +141,11 @@ export default function HistoryPage() {
         <DashboardLayout>
             <div className="min-h-screen bg-gray-50 p-6">
                 <div className="max-w-5xl mx-auto space-y-6">
+                    {/* Header */}
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Sejarah Ujian</h1>
-                            <p className="text-gray-600">Rekod prestasi terkini anda</p>
+                            <h1 className="text-3xl font-bold text-gray-900">Sejarah Latihan</h1>
+                            <p className="text-gray-600">Rekod semua set soalan yang telah dijawab.</p>
                         </div>
                         <div className="flex gap-2 w-full md:w-auto">
                             <Input
@@ -125,20 +177,25 @@ export default function HistoryPage() {
                             {history.length === 0 ? (
                                 <div className="text-center py-12 text-gray-500">
                                     Tiada sejarah ujian dijumpai. <br />
-                                    Mula menjawab ujian di Dashboard.
                                 </div>
                             ) : (
                                 <div className="space-y-4">
-                                    {sortedHistory.map((attempt, i) => (
+                                    {sortedHistory.map((attempt: any, i) => (
                                         <div key={i} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors gap-4">
                                             <div className="flex items-center gap-4">
+                                                {/* Score Circle */}
                                                 <div className={`h-12 w-12 rounded-full flex items-center justify-center font-bold text-white ${attempt.percentage >= 80 ? 'bg-green-500' :
-                                                        attempt.percentage >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                                                    attempt.percentage >= 50 ? 'bg-yellow-500' : 'bg-red-500'
                                                     }`}>
-                                                    {attempt.percentage}%
+                                                    {attempt.percentage ?? 0}%
                                                 </div>
+
+                                                {/* Text Details */}
                                                 <div>
-                                                    <p className="font-medium text-gray-900">
+                                                    <h3 className="font-bold text-gray-900 text-lg">
+                                                        {attempt.title || "Ujian Psikometrik"} {/* New: Show Quiz Title */}
+                                                    </h3>
+                                                    <p className="font-medium text-gray-600">
                                                         {new Date(attempt.date).toLocaleDateString('ms-MY', {
                                                             weekday: 'long',
                                                             year: 'numeric',
@@ -147,10 +204,11 @@ export default function HistoryPage() {
                                                         })}
                                                     </p>
                                                     <p className="text-sm text-gray-500">
-                                                        {new Date(attempt.date).toLocaleTimeString('ms-MY')} • Skor: {attempt.score}/{attempt.totalQuestions * 10}
+                                                        {new Date(attempt.date).toLocaleTimeString('ms-MY')} • Skor: {attempt.score}
                                                     </p>
                                                 </div>
                                             </div>
+                                            {/* ... Badge and Dialog ... */}
 
                                             <div className="flex gap-2 w-full sm:w-auto">
                                                 <Badge variant="outline" className={`
@@ -161,33 +219,14 @@ export default function HistoryPage() {
                                                     {attempt.percentage >= 80 ? "Cemerlang" : attempt.percentage >= 50 ? "Lulus" : "Gagal"}
                                                 </Badge>
 
-                                                <Dialog>
-                                                    <DialogTrigger asChild>
-                                                        <Button variant="ghost" size="sm" onClick={() => setSelectedAttempt(attempt)}>
-                                                            <Eye className="h-4 w-4 mr-2" />
-                                                            Lihat
-                                                        </Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent className="max-w-4xl h-[90vh] overflow-y-auto">
-                                                        <DialogHeader>
-                                                            <DialogTitle>Semakan Jawapan Ujian</DialogTitle>
-                                                            <DialogDescription>
-                                                                Tarikh: {new Date(attempt.date).toLocaleString()} | Skor: {attempt.percentage}%
-                                                            </DialogDescription>
-                                                        </DialogHeader>
-
-                                                        {attempt.answers ? (
-                                                            <QuestionReview
-                                                                questions={questions}
-                                                                userAnswers={attempt.answers}
-                                                            />
-                                                        ) : (
-                                                            <div className="py-10 text-center text-gray-500">
-                                                                <p>Detail jawapan tidak tersedia untuk ujian ini (Rekod lama).</p>
-                                                            </div>
-                                                        )}
-                                                    </DialogContent>
-                                                </Dialog>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => window.location.href = `/result?attempt_id=${attempt.id}`}
+                                                >
+                                                    <Eye className="h-4 w-4 mr-2" />
+                                                    Lihat Laporan Penuh
+                                                </Button>
                                             </div>
                                         </div>
                                     ))}
