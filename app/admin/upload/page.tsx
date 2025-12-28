@@ -77,9 +77,9 @@ export default function UploadPage() {
 
             if (!currentQuestion) continue;
 
-            // 2. Detect "Pernyataan:" (Append to Question)
-            if (/^Pernyataan\s*[\:\-]/i.test(line)) {
-                const val = line.replace(/^Pernyataan\s*[\:\-]\s*/i, '').trim();
+            // 2. Detect "Pernyataan:" or "Pernyataan Soalan:" (Append to Question)
+            if (/^Pernyataan(?:\s+Soalan)?\s*[\:\-]/i.test(line)) {
+                const val = line.replace(/^Pernyataan(?:\s+Soalan)?\s*[\:\-]\s*/i, '').trim();
                 if (currentQuestion.question) {
                     currentQuestion.question += "\n\n" + val;
                 } else {
@@ -102,8 +102,8 @@ export default function UploadPage() {
             }
 
             // 4. Detect Explanation Headers
-            // "Kenapa Soalan Ini Penting?", "Kenapa Dalam Teras Disiplin?", "Penerangan Pilihan Jawapan:"
-            if (/^(Kenapa|Penerangan|Explanation)/i.test(line)) {
+            // "Kenapa Soalan Ini Penting?", "Kenapa Dalam Teras Disiplin?", "Penerangan Pilihan Jawapan:", "Analisis Pilihan Jawapan"
+            if (/^(Kenapa|Penerangan|Explanation|Analisis)/i.test(line)) {
                 parsingState = 'explanation';
                 // Append header itself to explanation to keep context
                 if (!currentQuestion.explanation) currentQuestion.explanation = "";
