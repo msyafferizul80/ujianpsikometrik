@@ -40,17 +40,6 @@ const menuItems = [
         href: "/dashboard",
     },
     {
-        title: "Ai Coach",
-        icon: BrainCircuit,
-        href: "/ai-coach",
-        premium: true
-    },
-    {
-        title: "Bank Soalan",
-        icon: Library,
-        href: "/quiz/select",
-    },
-    {
         title: "Rekod Latihan",
         icon: Trophy,
         href: "/history",
@@ -65,7 +54,17 @@ const menuItems = [
         icon: Calendar,
         href: "/calendar",
     },
-
+    {
+        title: "Ai Coach",
+        icon: BrainCircuit,
+        href: "/ai-coach",
+        premium: true
+    },
+    {
+        title: "Bank Soalan",
+        icon: Library,
+        href: "/quiz/select",
+    },
     {
         title: "Tetapan",
         icon: Settings,
@@ -89,6 +88,7 @@ const menuItems = [
 ];
 
 export function Sidebar() {
+    // ... existing hooks ...
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
     const [streak, setStreak] = useState(0);
@@ -104,6 +104,12 @@ export function Sidebar() {
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
+
+    // ... existing useEffect ... (Omitted for brevity in edit, but must be careful not to delete logic. 
+    // Since I'm replacing a huge chunk, I should be careful. 
+    // Actually, I can split the replace into two. One for menuItems, one for Title. Safer.)
+
+    // REPLACING JUST THE MENU ITEMS FIRST
 
     useEffect(() => {
         setMounted(true);
@@ -210,8 +216,8 @@ export function Sidebar() {
                             <span className="text-white text-sm font-bold">UP</span>
                         </div>
                         <div>
-                            <h1 className="font-bold text-gray-800 text-base">PSIKOMETRIK</h1>
-                            <p className="text-xs text-gray-500">Sistem Latihan</p>
+                            <h1 className="font-bold text-gray-800 text-base">PSIKOMETRIK Online</h1>
+                            <p className="text-xs text-gray-500">Sistem Latihan Digital</p>
                         </div>
                     </div>
                 </div>

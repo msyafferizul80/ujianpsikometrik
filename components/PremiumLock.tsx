@@ -38,7 +38,7 @@ export function PremiumLock({ children, featureCode, fallbackHeight = "h-40", ti
 
             const { data: profile } = await supabase
                 .from('profiles')
-                .select('features_unlocked, subscription_tier, subscription_end_date')
+                .select('features_unlocked, subscription_tier, subscription_end_date, role')
                 .eq('id', session.user.id)
                 .single();
 
@@ -52,8 +52,11 @@ export function PremiumLock({ children, featureCode, fallbackHeight = "h-40", ti
                 // Logic: Access if feature is strictly in the list AND (date not expired OR it's a lifetime addon?)
                 // For simplicity: If feature is in list, we assume it's valid. 
                 // BUT if plan is 'exam_ready', it has ALL access.
+                // AND if role is 'admin', they have ALL access.
 
-                if (profile.subscription_tier === 'exam_ready' && !isExpired) {
+                if (profile.role === 'admin') {
+                    setHasAccess(true);
+                } else if (profile.subscription_tier === 'exam_ready' && !isExpired) {
                     setHasAccess(true);
                 } else if (!isExpired && unlockedFeatures.includes(featureCode)) {
                     setHasAccess(true);

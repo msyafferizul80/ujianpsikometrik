@@ -27,7 +27,7 @@ export async function POST(req: Request) {
         }
 
         // 2. Prompt Engineering
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
         const prompt = `
         Act as a Professional Psychometric Auditor for a Government Exam (Malaysia SPA Standard).

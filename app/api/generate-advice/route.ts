@@ -24,9 +24,10 @@ Anda adalah seorang pakar penilaian psikometrik untuk jawatan kerajaan (Penolong
 Sila analisa keputusan ujian psikometrik calon berikut:
 
 Markah Mengikut Teras:
-- Kerjasama: ${scores.Kerjasama.percentage}%
-- Emosi: ${scores.Emosi.percentage}%
-- Komunikasi: ${scores.Komunikasi.percentage}%
+- Kerjasama: ${scores.Kerjasama?.percentage || 0}%
+- Emosi: ${scores.Emosi?.percentage || 0}%
+- Komunikasi: ${scores.Komunikasi?.percentage || 0}%
+${Object.keys(scores).filter(k => !['Kerjasama', 'Emosi', 'Komunikasi', 'General', 'Umum'].includes(k)).map(k => `- ${k}: ${scores[k]?.percentage || 0}%`).join('\n')}
 
 Sila berikan "Laporan Penambahbaikan" yang profesional dan membina dalam Bahasa Melayu.
 Format jawapan anda:
@@ -45,10 +46,14 @@ Pastikan nada profesional, tegas, tetapi membantu. Jangan gunakan markdown (bold
         return NextResponse.json({ advice });
 
     } catch (e: unknown) { // Use unknown instead of any
-        console.error("Gemini API Error:", e);
+        console.error("Gemini API Error (Detailed):", JSON.stringify(e, Object.getOwnPropertyNames(e)));
         const errorMessage = e instanceof Error ? e.message : String(e);
+        const mockAdvice = generateMockAdviceContent(body as RequestBody);
+        const detailedError = `\n\n[DEBUG ERROR]: ${errorMessage}`;
+        // Only show detailed error if we are in dev/debug mode or just append it for now to solve this.
+
         return NextResponse.json({
-            advice: generateMockAdviceContent(body as RequestBody), // Type assertion since we fallback
+            advice: mockAdvice + detailedError,
             debug: { error: errorMessage, apiKeyStatus: apiKey ? "Present" : "Missing" }
         });
     }

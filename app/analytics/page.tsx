@@ -27,6 +27,16 @@ interface QuizAttempt {
     terasScores?: Record<string, { percentage: number }>;
 }
 
+const TERAS_ADVICE: Record<string, string> = {
+    "Kerjasama": "Dalam perkhidmatan awam, kerjasama bukan sekadar bekerja dalam kumpulan, tetapi keupayaan untuk bertoleransi, menerima pandangan orang lain, dan meletakkan matlamat organisasi melebihi kepentingan peribadi. Fokus kepada soalan situasi yang menguji kesabaran anda dengan rakan sekerja yang bermasalah.",
+    "Emosi": "Kestabilan emosi adalah kritikal. Anda perlu menunjukkan bahawa anda tenang dalam tekanan, tidak mudah melenting, dan profesional walaupun diprovokasi. Elakkan jawapan yang menunjukkan anda terlalu sensitif atau cepat terasa hati.",
+    "Komunikasi": "Komunikasi berkesan bermaksud maklumat disampaikan dengan jelas dan tepat. Pilih jawapan yang menunjukkan anda proaktif bertanya jika tidak faham, dan sopan tetapi tegas apabila menegur kesalahan.",
+    "Disiplin": "Disiplin merangkumi ketepatan masa, kepatuhan kepada arahan, dan integriti kerja. Jawapan terbaik sentiasa memihak kepada peraturan dan SOP, bukan kelonggaran atas dasar kasihan atau keselesaan.",
+    "Kepimpinan": "Pemimpin yang baik adalah yang memberi contoh teladan, bukan sekadar memberi arahan. Fokus kepada jawapan yang menunjukkan anda sedia mengambil tanggungjawab, membimbing orang bawahan, dan membuat keputusan yang adil.",
+    "Integriti": "Integriti adalah tiang utama. Tiada kompromi dalam hal rasuah, salah guna kuasa, atau pecah amanah. Pilih jawapan yang paling tegas menolak sebarang bentuk penyelewengan walaupun 'kecil' atau 'biasa'.",
+    "Umum": "Konsistensi adalah kunci. Pastikan jawapan anda selaras merentas pelbagai soalan yang serupa. Jangan cuba menjadi orang lain, tetapi tonjolkan versi terbaik diri anda yang profesional."
+};
+
 export default function AnalyticsPage() {
     const router = require("next/navigation").useRouter();
     const [history, setHistory] = useState<QuizAttempt[]>([]);
@@ -66,7 +76,7 @@ export default function AnalyticsPage() {
         });
 
         const terasChartData = Object.keys(terasAgg).map(key => ({
-            subject: key,
+            name: key, // Changed from subject to name to match Recharts dataKey="name"
             score: Math.round(terasAgg[key].total / terasAgg[key].count),
             fullMark: 100
         }));
@@ -212,11 +222,9 @@ export default function AnalyticsPage() {
                                 </p>
                             </div>
                             <div className="p-4 bg-blue-50 border border-blue-100 rounded-lg">
-                                <h4 className="font-semibold text-blue-900 mb-2">Fokus Utama</h4>
-                                <p className="text-sm text-gray-700">
-                                    Berdasarkan analisis teras, anda perlu memberikan tumpuan lebih kepada soalan berkaitan
-                                    <span className="font-bold"> {[...terasStats].sort((a, b) => a.score - b.score)[0]?.subject || "umum"}</span>.
-                                    Cuba fahami pola jawapan terbaik untuk kategori ini.
+                                <h4 className="font-semibold text-blue-900 mb-2">Fokus Utama: {[...terasStats].sort((a, b) => a.score - b.score)[0]?.name || "Umum"}</h4>
+                                <p className="text-sm text-gray-700 leading-relaxed">
+                                    {TERAS_ADVICE[[...terasStats].sort((a, b) => a.score - b.score)[0]?.name] || TERAS_ADVICE["Umum"]}
                                 </p>
                                 <div className="mt-4">
                                     <PremiumLock
@@ -227,7 +235,7 @@ export default function AnalyticsPage() {
                                     >
                                         <Button
                                             onClick={() => {
-                                                const weakest = [...terasStats].sort((a, b) => a.score - b.score)[0]?.subject;
+                                                const weakest = [...terasStats].sort((a, b) => a.score - b.score)[0]?.name;
                                                 if (weakest) {
                                                     localStorage.setItem('activeQuizId', 'smart-review');
                                                     localStorage.setItem('activeTeras', weakest);
@@ -240,7 +248,7 @@ export default function AnalyticsPage() {
                                             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition-all text-sm flex items-center justify-center gap-2"
                                         >
                                             <Activity className="h-4 w-4" />
-                                            Baiki Kelemahan: {[...terasStats].sort((a, b) => a.score - b.score)[0]?.subject || "Mula Latihan"}
+                                            Baiki Kelemahan: {[...terasStats].sort((a, b) => a.score - b.score)[0]?.name || "Mula Latihan"}
                                         </Button>
                                     </PremiumLock>
                                 </div>
