@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { Calendar as CalendarIcon, Flame, Clock, Target, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Calendar as CalendarIcon, Flame, Clock, Target, AlertCircle, CheckCircle2, Activity } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
