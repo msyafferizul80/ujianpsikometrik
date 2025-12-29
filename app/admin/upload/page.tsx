@@ -8,6 +8,7 @@ import { Upload, FileText, Check, AlertCircle, Save, Loader2, Code } from "lucid
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { quizRepository } from "@/utils/supabaseRepository";
+import { parseTextClientSide } from "@/lib/question-parser";
 
 export default function UploadPage() {
     const router = useRouter();
@@ -26,145 +27,7 @@ export default function UploadPage() {
         }
     };
 
-    const parseTextClientSide = (text: string) => {
-        const questions = [];
-        const lines = text.split('\n').map(l => l.trim()).filter(l => l);
 
-        let currentQuestion: any = null;
-        let parsingState = 'init';
-        let currentTeras = 'General'; // State to persist Teras across questions
-
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-
-            // 0. Detect TERAS Header (Global Context)
-            // e.g. "TERAS 1: DISIPLIN (Soalan 1 - 34)"
-            const terasMatch = line.match(/^TERAS\s*\d+\s*[\:\-]\s*([A-Z\s]+)/i);
-            if (terasMatch) {
-                // Extract "DISIPLIN" from "DISIPLIN (Soalan...)"
-                const terasRaw = terasMatch[1].trim();
-                const cleanTeras = terasRaw.split('(')[0].trim(); // Remove "(Soalan ...)"
-                currentTeras = cleanTeras;
-                console.log(`Detected Teras: ${currentTeras}`);
-                continue;
-            }
-
-            // 1. Detect New Question
-            const questionStartMatch = line.match(/^(?:Soalan|Question)\s*(\d+)[\.\:\)]?|^(\d+)[\.\)\-\:](?!\d)/i);
-
-            if (questionStartMatch) {
-                if (currentQuestion) {
-                    questions.push(currentQuestion);
-                }
-
-                const qNum = questionStartMatch[1] || questionStartMatch[2];
-                let qText = line.replace(/^(?:Soalan|Question)\s*\d+[\.\:\)]?\s*|^\d+[\.\)\-\:]\s*/i, '').trim();
-
-                // If line ends with just "Soalan 1", qText might be empty.
-
-                currentQuestion = {
-                    id: parseInt(qNum) || questions.length + 1,
-                    question: qText,
-                    options: [],
-                    correctAnswer: '',
-                    answerPoints: {},
-                    teras: currentTeras, // Use persistent Teras
-                    explanation: ''
-                };
-                parsingState = 'question_text';
-                continue;
-            }
-
-            if (!currentQuestion) continue;
-
-            // 2. Detect "Pernyataan:" or "Pernyataan Soalan:" (Append to Question)
-            if (/^Pernyataan(?:\s+Soalan)?\s*[\:\-]/i.test(line)) {
-                const val = line.replace(/^Pernyataan(?:\s+Soalan)?\s*[\:\-]\s*/i, '').trim();
-                if (currentQuestion.question) {
-                    currentQuestion.question += "\n\n" + val;
-                } else {
-                    currentQuestion.question = val;
-                }
-                parsingState = 'question_text';
-                continue;
-            }
-
-            // 3. Detect "Cadangan Jawapan" / "Jawapan"
-            // e.g. "Cadangan Jawapan: A. Sangat Setuju" or "Jawapan: A"
-            if (/^(Cadangan Jawapan|Jawapan|Answer)/i.test(line)) {
-                // Look for single letter A-E surrounded by boundary or whitespace/punctuation
-                const match = line.match(/[\:\-]\s*([A-E])(?=[\.\s]|$)/i) || line.match(/\s+([A-E])[\.\s]+/i);
-                if (match) {
-                    currentQuestion.correctAnswer = match[1].toUpperCase();
-                }
-                parsingState = 'meta';
-                continue;
-            }
-
-            // 4. Detect Explanation Headers
-            // "Kenapa Soalan Ini Penting?", "Kenapa Dalam Teras Disiplin?", "Penerangan Pilihan Jawapan:", "Analisis Pilihan Jawapan"
-            if (/^(Kenapa|Penerangan|Explanation|Analisis)/i.test(line)) {
-                parsingState = 'explanation';
-                // Append header itself to explanation to keep context
-                if (!currentQuestion.explanation) currentQuestion.explanation = "";
-                currentQuestion.explanation += (currentQuestion.explanation ? "\n\n" : "") + `**${line}**`;
-                continue;
-            }
-
-            // 5. Detect Options
-            const optionMatch = line.match(/^(?:[\•\-\*]\s*)?([A-E])\s*[\.\)\-\–]\s+(.*)/i);
-
-            // --- State Handling ---
-
-            if (parsingState === 'question_text') {
-                if (optionMatch) {
-                    parsingState = 'options';
-                } else if (!/^(Cadangan|Jawapan|Answer|Kenapa|Penerangan)/i.test(line)) {
-                    // Only append if it doesn't look like a keyword
-                    currentQuestion.question += (currentQuestion.question ? "\n" : "") + line;
-                }
-            }
-
-            if (parsingState === 'options') {
-                if (optionMatch) {
-                    currentQuestion.options.push({
-                        label: optionMatch[1].toUpperCase(),
-                        text: optionMatch[2].trim()
-                    });
-                }
-            }
-
-            if (parsingState === 'explanation') {
-                // Append everything until next keyword (though keywords checked at loop start handles detection)
-                // Just need to avoid appending new question start (handled above)
-                if (!/^(Cadangan Jawapan|Jawapan|Answer)\s*[\:\-]/i.test(line)) {
-                    // Check if it's a new sub-header in explanation
-                    if (/^(Kenapa|Penerangan)/i.test(line)) {
-                        // sub-header logic is actually handled by the "Detect Explanation Headers" block above which sets state
-                        // so here we might just be in the content flow.
-                        // But if we hit "Detect Explanation Headers" block, it 'continues'. 
-                        // So we won't reach here for the header line itself.
-                    } else {
-                        currentQuestion.explanation += "\n" + line;
-                    }
-                }
-            }
-        }
-        if (currentQuestion) questions.push(currentQuestion);
-
-        // Score Processing
-        return questions.map(q => {
-            const points: any = {};
-            q.options.forEach((opt: any) => {
-                if (opt.label === q.correctAnswer) {
-                    points[opt.label] = 10;
-                } else {
-                    points[opt.label] = 0;
-                }
-            });
-            return { ...q, answerPoints: points };
-        });
-    };
 
     const handleUpload = async () => {
         setParsing(true);
