@@ -12,6 +12,8 @@ import { parseTextClientSide } from "@/lib/question-parser";
 
 export default function UploadPage() {
     const router = useRouter();
+
+
     const [file, setFile] = useState<File | null>(null);
     const [parsing, setParsing] = useState(false);
     const [questions, setQuestions] = useState<any[]>([]);
@@ -27,8 +29,6 @@ export default function UploadPage() {
         }
     };
 
-
-
     const handleUpload = async () => {
         setParsing(true);
         setError("");
@@ -41,9 +41,7 @@ export default function UploadPage() {
                     setParsing(false);
                     return;
                 }
-                console.log("Starting client-side parse...");
                 const parsed = parseTextClientSide(rawText);
-                console.log("Parsed result:", parsed);
 
                 if (parsed.length > 0) {
                     setQuestions(parsed);

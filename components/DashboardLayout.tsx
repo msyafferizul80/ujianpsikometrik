@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Sidebar } from "@/components/Sidebar";
 import { createClient } from "@supabase/supabase-js";
 import { Loader2 } from "lucide-react";
@@ -10,6 +10,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
     const router = useRouter();
+    const pathname = usePathname();
     const [loading, setLoading] = useState(true);
     const [authenticated, setAuthenticated] = useState(false);
 
@@ -24,7 +25,19 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
             if (session) {
                 setAuthenticated(true);
-                setLoading(false);
+
+                // Check for mandatory WhatsApp number
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('whatsapp')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (!profile?.whatsapp && pathname !== '/settings') {
+                    router.push('/settings');
+                } else {
+                    setLoading(false);
+                }
             } else {
                 // 2. Fallback: Check localStorage/Cookie (Legacy/Demo support)
                 // If we strictly want Supabase, we comment this out.
@@ -38,7 +51,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         };
 
         checkAuth();
-    }, [router]);
+    }, [router, pathname]);
 
     if (loading) {
         return (

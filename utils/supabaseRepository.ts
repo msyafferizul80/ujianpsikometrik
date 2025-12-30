@@ -17,6 +17,28 @@ export const quizRepository = {
         return data;
     },
 
+    async incrementQuestionCount(quizId: string, amount: number) {
+        // RPC or direct update? Direct update requires reading first or raw SQL.
+        // Let's read first to be safe, or just use an RPC if one existed.
+        // For simplicity, let's read and update.
+        const { data: quiz, error: fetchError } = await supabase
+            .from('quizzes')
+            .select('total_questions')
+            .eq('id', quizId)
+            .single();
+
+        if (fetchError) throw fetchError;
+
+        const newTotal = (quiz.total_questions || 0) + amount;
+
+        const { error: updateError } = await supabase
+            .from('quizzes')
+            .update({ total_questions: newTotal })
+            .eq('id', quizId);
+
+        if (updateError) throw updateError;
+    },
+
     async getAllQuizzes(onlyActive: boolean = false) {
         let query = supabase
             .from('quizzes')

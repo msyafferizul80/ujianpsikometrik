@@ -464,7 +464,7 @@ export default function ResultPage() {
                     {questions.length > 0 && result.answers && (
                         <div id="review-section">
                             <QuestionReview
-                                questions={questions}
+                                questions={questions.filter(q => result.answers && result.answers[q.id] !== undefined)}
                                 userAnswers={result.answers}
                             />
                         </div>

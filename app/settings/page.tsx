@@ -12,7 +12,9 @@ import { TransactionsList } from "@/components/TransactionsList";
 
 export default function SettingsPage() {
     const [name, setName] = useState("");
+
     const [email, setEmail] = useState("");
+    const [whatsapp, setWhatsapp] = useState("");
     const [saved, setSaved] = useState(false);
 
     // Import Supabase
@@ -31,12 +33,13 @@ export default function SettingsPage() {
                 // Fetch profile from DB
                 const { data: profile } = await supabase
                     .from('profiles')
-                    .select('full_name')
+                    .select('full_name, whatsapp')
                     .eq('id', session.user.id)
                     .single();
 
-                if (profile?.full_name) {
-                    setName(profile.full_name);
+                if (profile) {
+                    if (profile.full_name) setName(profile.full_name);
+                    if (profile.whatsapp) setWhatsapp(profile.whatsapp);
                 } else {
                     // Fallback to localStorage
                     const savedName = localStorage.getItem('userName');
@@ -56,29 +59,25 @@ export default function SettingsPage() {
                 return;
             }
 
-            // 1. Try Update via RPC (Server Function) - Safest
-            let { error } = await supabase.rpc('update_own_profile_name', {
-                p_full_name: name
-            });
+            // 2. Fallback or Side-load: Whatsapp needs direct update (since RPC might not cover it)
+            // We can just run a direct update for whatsapp if the RPC doesn't handle it, 
+            // OR just use direct update for everything to be simpler given the new field.
 
-            // 2. Fallback: Direct Table Update (if RPC not found/failed)
-            if (error) {
-                console.warn("RPC Update failed:", error);
-                const { error: directError } = await supabase
-                    .from('profiles')
-                    .update({
-                        full_name: name,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('id', session.user.id);
+            // Just strictly do a direct update for the profile to ensure everything syncs
+            const { error: directError } = await supabase
+                .from('profiles')
+                .update({
+                    full_name: name,
+                    whatsapp: whatsapp,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', session.user.id);
 
-                if (directError) {
-                    // Alert the user with the specific error for debugging
-                    alert(`Update Failed! \nRPC Error: ${error.message || JSON.stringify(error)}\nDirect Error: ${directError.message || JSON.stringify(directError)}`);
-                    console.error("Direct update also failed:", directError);
-                    throw directError;
-                }
+            if (directError) {
+                console.error("Direct update failed:", directError);
+                throw directError;
             }
+
 
             // 3. Keep localStorage for legacy components/offline fallback
             localStorage.setItem('userName', name);
@@ -130,6 +129,18 @@ export default function SettingsPage() {
                             />
                         </div>
                         <div className="space-y-2">
+                            <Label htmlFor="whatsapp" className="flex items-center gap-1">
+                                No. WhatsApp <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                                id="whatsapp"
+                                value={whatsapp}
+                                onChange={(e) => setWhatsapp(e.target.value)}
+                                placeholder="e.g. 0123456789"
+                            />
+                            <p className="text-xs text-slate-500">Wajib untuk komunikasi penting dan notifikasi.</p>
+                        </div>
+                        <div className="space-y-2">
                             <Label htmlFor="email">Emel</Label>
                             <Input
                                 id="email"
@@ -141,7 +152,7 @@ export default function SettingsPage() {
                         </div>
                     </CardContent>
                     <CardFooter className="bg-gray-50 border-t p-4 flex justify-end">
-                        <Button onClick={handleSave} disabled={saved} className="bg-blue-600 hover:bg-blue-700">
+                        <Button onClick={handleSave} disabled={saved || !whatsapp} className="bg-blue-600 hover:bg-blue-700">
                             {saved ? "Disimpan!" : (
                                 <>
                                     <Save className="h-4 w-4 mr-2" />
