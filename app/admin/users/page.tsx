@@ -1,209 +1,399 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { quizRepository } from "@/utils/supabaseRepository";
-import { Loader2, Shield, User, Ban, CheckCircle } from "lucide-react";
+import { Loader2, Shield, User, Ban, CheckCircle, Search, Download, ChevronLeft, ChevronRight, FileText } from "lucide-react";
+import { createClient } from "@supabase/supabase-js";
+import { saveAs } from 'file-saver';
+
+// Initialize Supabase Client directly for complex queries
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function UserManagementPage() {
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const router = useRouter();
+    const [searchTerm, setSearchTerm] = useState("");
+    const [roleFilter, setRoleFilter] = useState("all");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalUsers, setTotalUsers] = useState(0);
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
+    // Derived state for pagination
+    const totalPages = Math.ceil(totalUsers / pageSize);
 
-    const fetchUsers = async () => {
+    const fetchUsers = useCallback(async () => {
+        setLoading(true);
         try {
-            const data = await quizRepository.getAllUsers();
-            setUsers(data || []);
+            // Build Query
+            let query = supabase
+                .from('profiles')
+                .select('*', { count: 'exact' });
+
+            // Apply Filters
+            if (roleFilter !== 'all') {
+                query = query.eq('role', roleFilter);
+            }
+            if (statusFilter !== 'all') {
+                query = query.eq('status', statusFilter);
+            }
+            if (searchTerm) {
+                query = query.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
+            }
+
+            // Apply Pagination
+            const from = (page - 1) * pageSize;
+            const to = from + pageSize - 1;
+            query = query.range(from, to).order('created_at', { ascending: false });
+
+            const { data: profiles, count, error } = await query;
+
+            if (error) throw error;
+
+            setTotalUsers(count || 0);
+
+            // Fetch Latest Activity for these users
+            if (profiles && profiles.length > 0) {
+                const enrichedUsers = await Promise.all(profiles.map(async (user) => {
+                    // Try to find latest attempt by email (since user_name in attempts is often email)
+                    // Note: If attempts table has user_id, use that. Fallback to email.
+                    const { data: latestAttempt } = await supabase
+                        .from('attempts')
+                        .select('created_at, quizzes(title)')
+                        .or(`user_id.eq.${user.id},user_name.eq.${user.email}`) // Flexible match
+                        .order('created_at', { ascending: false })
+                        .limit(1)
+                        .single();
+
+                    return {
+                        ...user,
+                        latest_attempt: latestAttempt
+                    };
+                }));
+                setUsers(enrichedUsers);
+            } else {
+                setUsers([]);
+            }
+
         } catch (error) {
             console.error("Error fetching users:", error);
         } finally {
             setLoading(false);
         }
-    };
+    }, [page, pageSize, roleFilter, statusFilter, searchTerm]);
+
+    // Debounce Search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setPage(1); // Reset to page 1 on search
+            fetchUsers();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchTerm, roleFilter, statusFilter, pageSize]); // Don't include fetchUsers to avoid loop, specifically target dependencies
+
+    // Handle Page Change separately to avoid double fetch with debounce
+    useEffect(() => {
+        fetchUsers();
+    }, [page]);
+
 
     const toggleRole = async (userId: string, currentRole: string) => {
         const newRole = currentRole === 'admin' ? 'user' : 'admin';
         if (confirm(`Adakah anda pasti mahu menukar role user ini kepada ${newRole}?`)) {
-            try {
-                await quizRepository.updateUserRole(userId, newRole as 'user' | 'admin');
-                fetchUsers(); // Refresh
-            } catch (error) {
-                alert("Gagal mengemaskini role.");
-            }
+            await quizRepository.updateUserRole(userId, newRole as 'user' | 'admin');
+            fetchUsers();
         }
     };
 
     const toggleStatus = async (userId: string, currentStatus: string) => {
         const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
         if (confirm(`Adakah anda pasti mahu menukar status user ini kepada ${newStatus}?`)) {
-            try {
-                await quizRepository.updateUserStatus(userId, newStatus as 'active' | 'suspended');
-                fetchUsers();
-            } catch (error) {
-                alert("Gagal mengemaskini status.");
-            }
+            await quizRepository.updateUserStatus(userId, newStatus as 'active' | 'suspended');
+            fetchUsers();
         }
     };
 
     const handleExtend = async (userId: string) => {
         const daysStr = prompt("Masukkan jumlah hari tambahan (contoh: 30):", "30");
         if (!daysStr) return;
-
         const days = parseInt(daysStr);
-        if (isNaN(days) || days <= 0) {
-            alert("Sila masukkan nombor yang sah.");
-            return;
-        }
+        if (isNaN(days) || days <= 0) return alert("Nombor tidak sah.");
 
         try {
             await quizRepository.extendSubscription(userId, days);
-            alert(`Berjaya tambah ${days} hari untuk user ini.`);
+            alert(`Berjaya tambah ${days} hari.`);
             fetchUsers();
         } catch (error) {
-            console.error(error);
-            alert("Gagal menambah hari langganan.");
+            alert("Gagal menambah hari.");
+        }
+    };
+
+    const handleExport = async () => {
+        try {
+            const { data: allUsers, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error || !allUsers) return alert("Gagal export data.");
+
+            // Fetch latest attempts for ALL users (might be heavy, optimization: fetch distinct on attempts?)
+            // For now, let's just loop. For < 1000 users it's fine. 
+            const csvRows = [];
+            // Header
+            csvRows.push(["Nama", "Emel", "No. WhatsApp", "Status", "Role", "Tarikh Daftar", "Langganan", "Tamat Pada"]);
+
+            for (const user of allUsers) {
+                // Formatting data
+                const row = [
+                    user.full_name || "N/A",
+                    user.email || "N/A",
+                    // Force string for whatsapp to prevent scientific notation in Excel
+                    `'${user.whatsapp || "-"}'`,
+                    user.status,
+                    user.role,
+                    new Date(user.created_at).toLocaleDateString(),
+                    user.subscription_tier,
+                    user.subscription_end_date ? new Date(user.subscription_end_date).toLocaleDateString() : "-"
+                ];
+                csvRows.push(row.join(","));
+            }
+
+            const csvContent = "\uFEFF" + csvRows.join("\n"); // Add BOM for Excel
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            saveAs(blob, `users_export_${new Date().toISOString().split('T')[0]}.csv`);
+
+        } catch (e) {
+            console.error(e);
+            alert("Export error.");
         }
     };
 
     return (
         <DashboardLayout>
-            <div className="p-6 max-w-7xl mx-auto space-y-6">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                        <User className="h-8 w-8 text-blue-600" />
-                        Pengurusan Pengguna
-                    </h1>
-                    <p className="text-gray-600">Urus akses, langganan, dan status pengguna.</p>
+            <div className="p-6 max-w-[1600px] mx-auto space-y-6">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+                            <User className="h-8 w-8 text-blue-600" />
+                            Pengurusan Pengguna
+                        </h1>
+                        <p className="text-gray-600">Total Pengguna: {totalUsers}</p>
+                    </div>
+                    <Button onClick={handleExport} variant="outline" className="gap-2">
+                        <Download className="h-4 w-4" /> Export CSV
+                    </Button>
                 </div>
 
                 <Card>
-                    <CardHeader>
-                        <CardTitle>Senarai Pengguna ({users.length})</CardTitle>
-                        <CardDescription>
-                            Senarai lengkap pengguna berdaftar dan status langganan mereka.
-                        </CardDescription>
+                    <CardHeader className="pb-4">
+                        <div className="flex flex-col md:flex-row gap-4 justify-between">
+                            <div className="relative w-full md:w-96">
+                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                                <Input
+                                    placeholder="Cari user (Nama / Emel)..."
+                                    className="pl-9"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            <div className="flex gap-2">
+                                <Select value={roleFilter} onValueChange={setRoleFilter}>
+                                    <SelectTrigger className="w-[130px]">
+                                        <SelectValue placeholder="Role" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Semua Role</SelectItem>
+                                        <SelectItem value="user">User</SelectItem>
+                                        <SelectItem value="admin">Admin</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                    <SelectTrigger className="w-[140px]">
+                                        <SelectValue placeholder="Status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Semua Status</SelectItem>
+                                        <SelectItem value="active">Active</SelectItem>
+                                        <SelectItem value="suspended">Suspended</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <Select value={pageSize.toString()} onValueChange={(val) => setPageSize(parseInt(val))}>
+                                    <SelectTrigger className="w-[100px]">
+                                        <SelectValue placeholder="Show" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="10">10 / Page</SelectItem>
+                                        <SelectItem value="20">20 / Page</SelectItem>
+                                        <SelectItem value="50">50 / Page</SelectItem>
+                                        <SelectItem value="100">100 / Page</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
                     </CardHeader>
                     <CardContent>
                         {loading ? (
-                            <div className="flex justify-center p-8">
+                            <div className="flex justify-center p-12">
                                 <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
                             </div>
                         ) : (
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>User</TableHead>
-                                        <TableHead>Role</TableHead>
-                                        <TableHead>Status Akaun</TableHead>
-                                        <TableHead>Langganan</TableHead>
-                                        <TableHead>Tamat Pada</TableHead>
-                                        <TableHead className="text-right">Tindakan</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {users.map((user) => (
-                                        <TableRow key={user.id}>
-                                            <TableCell>
-                                                <div className="flex flex-col">
-                                                    <span className="font-medium text-gray-900">
-                                                        {user.full_name || (user.email ? user.email.split('@')[0] : "Tanpa Nama")}
-                                                    </span>
-                                                    <span className="text-xs text-gray-500">{user.email}</span>
-                                                    {!user.full_name && (
-                                                        <span className="text-[10px] text-orange-500 italic">*Belum update profil</span>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant={user.role === 'admin' ? "default" : "outline"} className={user.role === 'admin' ? "bg-purple-600 hover:bg-purple-700" : "bg-gray-100 text-gray-700"}>
-                                                    {user.role}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                {user.status === 'active' ? (
-                                                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200 border-green-200">
-                                                        Active
-                                                    </Badge>
-                                                ) : (
-                                                    <Badge variant="destructive">
-                                                        Suspended
-                                                    </Badge>
-                                                )}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-col gap-1">
-                                                    <Badge variant="outline" className="w-fit border-blue-200 bg-blue-50 text-blue-700">
-                                                        {user.subscription_tier === 'cram_24h'
-                                                            ? 'Pas Pecutan (24 Jam)'
-                                                            : (user.subscription_tier === 'exam_ready'
-                                                                ? 'Pas Exam-Ready (Premium)'
-                                                                : (user.subscription_tier === 'free' ? 'Free Tier' : user.subscription_tier))}
-                                                    </Badge>
-                                                    {user.subscription_status === 'active' && user.subscription_tier !== 'free' && (
-                                                        <span className="text-[10px] text-green-600 font-bold flex items-center gap-1">
-                                                            <CheckCircle className="h-3 w-3" /> LANGGANAN AKTIF
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                {(user.subscription_end_date && user.subscription_tier !== 'free') ? (
-                                                    <span className={`text-sm font-mono ${new Date(user.subscription_end_date) < new Date() ? 'text-red-500 font-bold' : 'text-gray-600'}`}>
-                                                        {new Date(user.subscription_end_date).toLocaleDateString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-gray-400 text-xs">-</span>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => handleExtend(user.id)}
-                                                        className="hover:bg-green-50 hover:text-green-600 hover:border-green-200 transition-colors"
-                                                        title="Tambah Hari Langganan"
-                                                    >
-                                                        <span className="flex items-center gap-1">
-                                                            + Hari
-                                                        </span>
-                                                    </Button>
-
-                                                    <div className="flex bg-gray-50 rounded-md border border-gray-100 p-0.5">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-7 w-7 text-gray-500 hover:text-purple-600 hover:bg-white rounded shadow-sm transition-all"
-                                                            onClick={() => toggleRole(user.id, user.role)}
-                                                            title={user.role === 'admin' ? "Jadikan User" : "Lantik Admin"}
-                                                        >
-                                                            <Shield className="h-4 w-4" />
-                                                        </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className={`h-7 w-7 rounded shadow-sm transition-all ${user.status === 'active' ? 'text-gray-500 hover:text-red-600 hover:bg-white' : 'text-red-500 bg-red-50 hover:bg-red-100'}`}
-                                                            onClick={() => toggleStatus(user.id, user.status)}
-                                                            title={user.status === 'active' ? "Gantung Akaun" : "Aktifkan Akaun"}
-                                                        >
-                                                            <Ban className="h-4 w-4" />
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </TableCell>
+                            <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow className="bg-gray-50">
+                                            <TableHead className="w-[300px]">User Info</TableHead>
+                                            <TableHead>WhatsApp</TableHead>
+                                            <TableHead>Role & Status</TableHead>
+                                            <TableHead>Langganan</TableHead>
+                                            <TableHead>Aktiviti Terakhir</TableHead>
+                                            <TableHead className="text-right">Tindakan</TableHead>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {users.length === 0 ? (
+                                            <TableRow>
+                                                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                                                    Tiada pengguna dijumpai.
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : (
+                                            users.map((user) => (
+                                                <TableRow key={user.id} className="hover:bg-gray-50/50">
+                                                    <TableCell>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-semibold text-gray-900">
+                                                                {user.full_name || (user.email ? user.email.split('@')[0] : "Tanpa Nama")}
+                                                            </span>
+                                                            <span className="text-xs text-gray-500">{user.email}</span>
+                                                            <span className="text-[10px] text-gray-400 mt-1">
+                                                                Joined: {new Date(user.created_at).toLocaleDateString()}
+                                                            </span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {user.whatsapp ? (
+                                                            <span className="font-mono text-sm text-gray-700 bg-green-50 px-2 py-1 rounded border border-green-100">
+                                                                {user.whatsapp}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-gray-400 text-xs italic">Belum set</span>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex gap-2">
+                                                            <Badge variant={user.role === 'admin' ? "default" : "secondary"} className="h-6">
+                                                                {user.role}
+                                                            </Badge>
+                                                            <Badge variant={user.status === 'active' ? "outline" : "destructive"} className={user.status === 'active' ? "text-green-600 border-green-200 bg-green-50" : ""}>
+                                                                {user.status}
+                                                            </Badge>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex flex-col gap-1">
+                                                            <Badge variant="outline" className="w-fit border-blue-200 bg-blue-50 text-blue-700">
+                                                                {user.subscription_tier === 'free' ? 'Free Tier' : user.subscription_tier}
+                                                            </Badge>
+                                                            {user.subscription_end_date && user.subscription_tier !== 'free' && (
+                                                                <span className={`text-[10px] ${new Date(user.subscription_end_date) < new Date() ? 'text-red-500 font-bold' : 'text-gray-500'}`}>
+                                                                    Exp: {new Date(user.subscription_end_date).toLocaleDateString()}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {user.latest_attempt ? (
+                                                            <div className="flex flex-col gap-0.5">
+                                                                <span className="text-xs font-medium text-gray-900" title={user.latest_attempt.quizzes?.title}>
+                                                                    {user.latest_attempt.quizzes?.title || "Ujian Tanpa Tajuk"}
+                                                                </span>
+                                                                <span className="text-[10px] text-gray-500">
+                                                                    {new Date(user.latest_attempt.created_at).toLocaleDateString()} • {new Date(user.latest_attempt.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                </span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-gray-400 text-xs">-</span>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <div className="flex justify-end gap-1">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => handleExtend(user.id)}
+                                                                className="h-8 w-8 p-0 text-gray-500 hover:text-green-600 hover:bg-green-50"
+                                                                title="Extend Sub"
+                                                            >
+                                                                <span className="font-bold text-lg leading-none">+</span>
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => toggleRole(user.id, user.role)}
+                                                                className="h-8 w-8 p-0 text-gray-500 hover:text-purple-600"
+                                                                title="Toggle Role"
+                                                            >
+                                                                <Shield className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => toggleStatus(user.id, user.status)}
+                                                                className={`h-8 w-8 p-0 ${user.status === 'active' ? 'text-gray-500 hover:text-red-600' : 'text-red-600 bg-red-50'}`}
+                                                                title="Toggle Status"
+                                                            >
+                                                                <Ban className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}
+
+                        {/* Pagination Controls */}
+                        {!loading && users.length > 0 && (
+                            <div className="flex items-center justify-between mt-4">
+                                <div className="text-sm text-gray-500">
+                                    Showing {((page - 1) * pageSize) + 1} to {Math.min(page * pageSize, totalUsers)} of {totalUsers} users
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                                        disabled={page === 1}
+                                    >
+                                        <ChevronLeft className="h-4 w-4" />
+                                    </Button>
+                                    <div className="text-sm font-medium">
+                                        Page {page} of {totalPages}
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                                        disabled={page === totalPages}
+                                    >
+                                        <ChevronRight className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </div>
                         )}
                     </CardContent>
                 </Card>
