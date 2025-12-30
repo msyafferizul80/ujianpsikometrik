@@ -118,10 +118,15 @@ export default function ResultPage() {
 
                         // Fetch AI advice
                         setLoadingAdvice(true);
+                        const jobRole = attempt.quizzes?.title || "Penolong Pegawai Belia Dan Sukan";
+
                         fetch('/api/generate-advice', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ scores: terasScores })
+                            body: JSON.stringify({
+                                scores: terasScores,
+                                jobRole: jobRole
+                            })
                         })
                             .then(res => res.json())
                             .then(data => {
@@ -179,21 +184,45 @@ export default function ResultPage() {
 
                 saveQuizAttempt(parsed.totalScore, parsed.maxScore, parsed.terasScores, parsed.answers);
 
-                setLoadingAdvice(true);
-                fetch('/api/generate-advice', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ scores: parsed.terasScores })
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        setAdvice(data.advice);
-                        setLoadingAdvice(false);
-                    })
-                    .catch(err => setLoadingAdvice(false));
-
-                // Fetch Questions Logic
+                // Fetch Questions Logic to get Title first if possible (async race condition fix)
                 const activeQuizId = localStorage.getItem('activeQuizId');
+
+                // Helper to fetch title
+                const fetchTitleAndAdvice = async () => {
+                    let jobRole = "Penolong Pegawai Belia Dan Sukan"; // Default
+
+                    if (activeQuizId && !activeQuizId.startsWith('demo-') && activeQuizId !== 'smart-review') {
+                        try {
+                            const { createClient } = await import('@supabase/supabase-js');
+                            const supabase = createClient(
+                                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                            );
+                            const { data } = await supabase.from('quizzes').select('title').eq('id', activeQuizId).single();
+                            if (data?.title) jobRole = data.title;
+                        } catch (e) {
+                            console.error("Error fetching quiz title for advice", e);
+                        }
+                    }
+
+                    setLoadingAdvice(true);
+                    fetch('/api/generate-advice', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            scores: parsed.terasScores,
+                            jobRole: jobRole
+                        })
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            setAdvice(data.advice);
+                            setLoadingAdvice(false);
+                        })
+                        .catch(err => setLoadingAdvice(false));
+                };
+
+                fetchTitleAndAdvice();
                 const fetchQuestions = async () => {
                     let fetchedQuestions: Question[] = [];
                     if (activeQuizId === 'smart-review') {

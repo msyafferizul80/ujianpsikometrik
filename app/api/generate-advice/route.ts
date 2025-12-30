@@ -3,6 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 interface RequestBody {
     scores: Record<string, { percentage: number }>;
+    jobRole?: string;
 }
 
 export async function POST(request: Request) {
@@ -13,6 +14,7 @@ export async function POST(request: Request) {
         const text = await request.text();
         try { body = JSON.parse(text); } catch (e) { console.error("JSON Parse Error:", e); }
         const scores = body.scores;
+        const jobRole = body.jobRole || "Penolong Pegawai Belia Dan Sukan Gred S5";
 
         if (!scores) throw new Error("Missing scores");
 
@@ -20,7 +22,7 @@ export async function POST(request: Request) {
         const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
         const prompt = `
-Anda adalah seorang pakar penilaian psikometrik untuk jawatan kerajaan (Penolong Pegawai Belia Dan Sukan Gred S5). 
+Anda adalah seorang pakar penilaian psikometrik untuk jawatan kerajaan (${jobRole}). 
 Sila analisa keputusan ujian psikometrik calon berikut:
 
 Markah Mengikut Teras:
