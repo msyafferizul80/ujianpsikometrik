@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
-import { Loader2, RefreshCcw, FileText, Share2, Download, Copy, Check, TrendingUp, Target, ArrowRight } from "lucide-react";
+import { Loader2, RefreshCcw, FileText, Share2, Download, Copy, Check, TrendingUp, Target, ArrowRight, Lock } from "lucide-react";
 import { saveQuizAttempt } from "@/utils/stats";
 import { shareResult } from "@/utils/share";
 import { DashboardLayout } from "@/components/DashboardLayout";
@@ -52,8 +52,34 @@ export default function ResultPage() {
     const resultRef = useRef<HTMLDivElement>(null);
     const [downloading, setDownloading] = useState(false);
 
+    const [isPremium, setIsPremium] = useState(false);
+
     // Load Data
     useEffect(() => {
+        // Check Premium Status
+        const checkPremium = async () => {
+            const { createClient } = await import('@supabase/supabase-js');
+            const supabase = createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            );
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('subscription_tier, role, subscription_end_date')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (profile && (profile.role === 'admin' || profile.subscription_tier !== 'free')) {
+                    if (!profile.subscription_end_date || new Date(profile.subscription_end_date) > new Date()) {
+                        setIsPremium(true);
+                    }
+                }
+            }
+        };
+        checkPremium();
+
         const attemptId = searchParams.get('attempt_id');
 
         // Mode 1: Historical View via URL
@@ -345,10 +371,25 @@ export default function ResultPage() {
 
                     {/* Inconsistency Report (New) */}
                     {result && questions.length > 0 && (
-                        <InconsistencyReport
-                            inconsistencies={inconsistencies}
-                            loading={checkingInconsistency}
-                        />
+                        <div className="relative">
+                            <InconsistencyReport
+                                inconsistencies={inconsistencies}
+                                loading={checkingInconsistency}
+                            />
+                            {/* LOCK: Blur Overlay for Free Users */}
+                            {!isPremium && !checkingInconsistency && (
+                                <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 flex flex-col items-center justify-center text-center p-6 border border-gray-200 rounded-lg">
+                                    <Target className="h-10 w-10 text-gray-400 mb-2" />
+                                    <h3 className="text-lg font-bold text-gray-900">Analisis Konsistensi Dikunci</h3>
+                                    <p className="text-gray-600 max-w-sm mb-4">
+                                        Naik taraf ke Premium untuk melihat jika jawapan anda konsisten atau 'Red Flag' di mata penemuduga.
+                                    </p>
+                                    <Button onClick={() => router.push('/pricing')} className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md">
+                                        Buka Kunci Premium
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
                     )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -455,22 +496,21 @@ export default function ResultPage() {
                                         element?.scrollIntoView({ behavior: 'smooth' });
                                     }}>
                                         Lihat Kesilapan
-                                        <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
                                 </div>
                             </CardContent>
                         </Card>
                     </div>
 
-                    {/* AI Advice Section */}
-                    <Card className="border-purple-100 shadow-md bg-white">
+                    {/* AI Advice Section - GATED */}
+                    <Card className="border-purple-100 shadow-md bg-white relative overflow-hidden">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-purple-900">
                                 <FileText className="h-5 w-5" />
                                 Laporan Penambahbaikan (AI)
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className={!isPremium ? "blur-md select-none" : ""}>
                             {loadingAdvice ? (
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-2">
@@ -487,15 +527,47 @@ export default function ResultPage() {
                                 </div>
                             )}
                         </CardContent>
+
+                        {/* Lock Overlay for AI Report */}
+                        {!isPremium && !loadingAdvice && (
+                            <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center text-center p-8">
+                                <div className="bg-white p-3 rounded-full shadow-lg mb-4">
+                                    <Lock className="h-8 w-8 text-purple-600" />
+                                </div>
+                                <h3 className="text-2xl font-bold text-gray-900 mb-2">Buka Kunci Laporan AI</h3>
+                                <p className="text-gray-700 max-w-md mb-6 font-medium">
+                                    Dapatkan analisis mendalam tentang psikologi jawapan anda dan cara menjawab dengan lebih tepat mengikut skema.
+                                </p>
+                                <Button onClick={() => router.push('/pricing')} size="lg" className="bg-purple-600 hover:bg-purple-700 text-white shadow-xl">
+                                    Upgrade Sekarang (RM79)
+                                </Button>
+                            </div>
+                        )}
                     </Card>
 
-                    {/* Question Review Section */}
+                    {/* Question Review Section - GATED (Partially) */}
                     {questions.length > 0 && result.answers && (
-                        <div id="review-section">
+                        <div id="review-section" className="relative">
                             <QuestionReview
-                                questions={questions.filter(q => result.answers && result.answers[q.id] !== undefined)}
+                                questions={!isPremium ? questions.slice(0, 3) : questions.filter(q => result.answers && result.answers[q.id] !== undefined)}
                                 userAnswers={result.answers}
                             />
+
+                            {/* Premium Gate for Reviews */}
+                            {!isPremium && questions.length > 3 && (
+                                <div className="relative mt-[-100px] h-[300px] bg-gradient-to-t from-gray-50 via-white/90 to-transparent flex flex-col items-center justify-end pb-12 z-20">
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2">Lihat 100+ Soalan Lain</h3>
+                                    <p className="text-gray-600 mb-4 text-center max-w-md">
+                                        Anda hanya melihat 3 soalan pertama. Pengguna Premium boleh melihat kesemua jawapan salah dan huraian penuh.
+                                    </p>
+                                    <Button onClick={() => router.push('/pricing')} className="bg-gray-900 text-white hover:bg-gray-800">
+                                        Buka Semua Jawapan
+                                    </Button>
+                                    <p className="text-xs text-gray-400 mt-4">
+                                        *Huraian jawapan membantu anda faham 'pattern' soalan sebenar.
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     )}
 

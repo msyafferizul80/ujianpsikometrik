@@ -26,9 +26,24 @@ export default function LoginPage() {
         setLoading(true);
         setError("");
 
+        // Validate email format strictly
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) {
+            setError("Sila masukkan alamat emel yang sah.");
+            setLoading(false);
+            return;
+        }
+
+        // Basic check for common typos (optional but helpful)
+        if (email.endsWith("@gamil.com") || email.endsWith("@gnail.com")) {
+            setError("Adakah anda bermaksud @gmail.com?");
+            setLoading(false);
+            return;
+        }
+
         try {
             const { error } = await supabase.auth.signInWithOtp({
-                email: email,
+                email: email.trim(), // Trim whitespace
                 options: {
                     shouldCreateUser: true, // Allow new users (candidates) to sign up
                 }
@@ -98,7 +113,10 @@ export default function LoginPage() {
                                         type="email"
                                         placeholder="nama@email.com"
                                         value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        onChange={(e) => {
+                                            setEmail(e.target.value);
+                                            setError("");
+                                        }}
                                         className="pl-10"
                                         required
                                     />

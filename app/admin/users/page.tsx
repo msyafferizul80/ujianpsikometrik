@@ -148,13 +148,35 @@ export default function UserManagementPage() {
 
             if (error || !allUsers) return alert("Gagal export data.");
 
-            // Fetch latest attempts for ALL users (might be heavy, optimization: fetch distinct on attempts?)
-            // For now, let's just loop. For < 1000 users it's fine. 
+            // Fetch latest attempts for ALL users
+            const enrichedUsers = await Promise.all(allUsers.map(async (user) => {
+                const { data: latestAttempt } = await supabase
+                    .from('attempts')
+                    .select('created_at, quizzes(title)')
+                    .or(`user_id.eq.${user.id},user_name.eq.${user.email}`) // Flexible match
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .single();
+
+                return {
+                    ...user,
+                    latest_attempt: latestAttempt
+                };
+            }));
+
             const csvRows = [];
             // Header
-            csvRows.push(["Nama", "Emel", "No. WhatsApp", "Status", "Role", "Tarikh Daftar", "Langganan", "Tamat Pada"]);
+            csvRows.push(["Nama", "Emel", "No. WhatsApp", "Status", "Role", "Tarikh Daftar", "Langganan", "Aktiviti Terakhir", "Tamat Pada"]);
 
-            for (const user of allUsers) {
+            for (const user of enrichedUsers) {
+                let lastActivity = "-";
+                if (user.latest_attempt) {
+                    const title = user.latest_attempt.quizzes?.title || "Ujian Tanpa Tajuk";
+                    const date = new Date(user.latest_attempt.created_at).toLocaleDateString();
+                    const time = new Date(user.latest_attempt.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    lastActivity = `${title} \n${date} • ${time}`; // Format similar to UI
+                }
+
                 // Formatting data
                 const row = [
                     user.full_name || "N/A",
@@ -165,6 +187,7 @@ export default function UserManagementPage() {
                     user.role,
                     new Date(user.created_at).toLocaleDateString(),
                     user.subscription_tier,
+                    `"${lastActivity}"`, // Wrap in quotes to handle potential commas or newlines
                     user.subscription_end_date ? new Date(user.subscription_end_date).toLocaleDateString() : "-"
                 ];
                 csvRows.push(row.join(","));

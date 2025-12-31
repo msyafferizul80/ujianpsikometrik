@@ -27,9 +27,17 @@ export default function AdminLogin() {
         setLoading(true);
         setError("");
 
+        // Validate email format strictly
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) {
+            setError("Sila masukkan alamat emel yang sah.");
+            setLoading(false);
+            return;
+        }
+
         try {
             const { error } = await supabase.auth.signInWithOtp({
-                email: email,
+                email: email.trim(),
                 options: {
                     shouldCreateUser: true
                 }
@@ -96,7 +104,10 @@ export default function AdminLogin() {
                                     type="email"
                                     placeholder="nama@email.com"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={(e) => {
+                                        setEmail(e.target.value);
+                                        setError("");
+                                    }}
                                     className="text-center text-lg"
                                     required
                                 />

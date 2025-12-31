@@ -4,17 +4,27 @@ import { supabase } from '@/lib/supabase';
 export const quizRepository = {
     // --- Quiz Management ---
 
-    async createQuiz(title: string, description: string, totalQuestions: number) {
+    async createQuiz(title: string, description: string, totalQuestions: number, isPremium: boolean = true) {
         const { data, error } = await supabase
             .from('quizzes')
             .insert([
-                { title, description, total_questions: totalQuestions }
+                { title, description, total_questions: totalQuestions, is_premium: isPremium }
             ])
             .select()
             .single();
 
         if (error) throw error;
         return data;
+    },
+
+    async toggleQuizPremium(id: string, isPremium: boolean) {
+        const { error } = await supabase
+            .from('quizzes')
+            .update({ is_premium: isPremium })
+            .eq('id', id);
+
+        if (error) throw error;
+        return true;
     },
 
     async incrementQuestionCount(quizId: string, amount: number) {

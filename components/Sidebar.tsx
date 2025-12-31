@@ -76,6 +76,11 @@ const menuItems = [
         href: "/dashboard/support",
     },
     {
+        title: "Urus Kuiz",
+        icon: BookOpen,
+        href: "/admin/quizzes",
+    },
+    {
         title: "Admin Panel",
         icon: Lock,
         href: "/admin/dashboard",
