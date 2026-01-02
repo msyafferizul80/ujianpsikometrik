@@ -317,7 +317,9 @@ export default function Home() {
                   </div>
                   <div className="flex flex-col">
                     <span className="text-xs text-slate-500 font-medium">Hubungi melalui WhatsApp</span>
-                    <span className="font-semibold text-slate-900">+6012 3011082</span>
+                    <a href="https://wa.me/60123011082" target="_blank" rel="noopener noreferrer" className="font-semibold text-slate-900 hover:text-green-600 transition-colors">
+                      +6012 3011082
+                    </a>
                   </div>
                 </li>
               </ul>

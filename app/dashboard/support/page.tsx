@@ -97,44 +97,68 @@ export default function SupportPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* Left Col: Submission Form */}
-                    <Card className="md:col-span-1 shadow-md border-t-4 border-t-blue-500 h-fit">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Send className="w-5 h-5 text-blue-600" />
-                                Hantar Tiket Baru
-                            </CardTitle>
-                            <CardDescription>
-                                Nyatakan masalah anda dengan jelas.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Tajuk</label>
-                                    <Input
-                                        placeholder="Contoh: Pembayaran Gagal"
-                                        value={subject}
-                                        onChange={(e) => setSubject(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Mesej</label>
-                                    <Textarea
-                                        placeholder="Terangkan detail masalah..."
-                                        className="min-h-[120px]"
-                                        value={message}
-                                        onChange={(e) => setMessage(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={submitting}>
-                                    {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
-                                    Hantar Tiket
-                                </Button>
-                            </form>
-                        </CardContent>
-                    </Card>
+                    <div className="md:col-span-1 space-y-6">
+                        {/* WhatsApp Card */}
+                        <Card className="shadow-md bg-green-50 border-green-200">
+                            <CardContent className="p-6">
+                                <h3 className="font-bold text-green-800 flex items-center gap-2 mb-2">
+                                    <MessageSquare className="w-5 h-5" />
+                                    Bantuan Pantas
+                                </h3>
+                                <p className="text-sm text-green-700 mb-4">
+                                    Perlukan respon segera? Hubungi kami terus melalui WhatsApp.
+                                </p>
+                                <a
+                                    href="https://wa.me/60123011082"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold">
+                                        WhatsApp Admin
+                                    </Button>
+                                </a>
+                            </CardContent>
+                        </Card>
+
+                        <Card className="shadow-md border-t-4 border-t-blue-500 h-fit">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Send className="w-5 h-5 text-blue-600" />
+                                    Hantar Tiket Baru
+                                </CardTitle>
+                                <CardDescription>
+                                    Nyatakan masalah anda dengan jelas.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <form onSubmit={handleSubmit} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">Tajuk</label>
+                                        <Input
+                                            placeholder="Contoh: Pembayaran Gagal"
+                                            value={subject}
+                                            onChange={(e) => setSubject(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">Mesej</label>
+                                        <Textarea
+                                            placeholder="Terangkan detail masalah..."
+                                            className="min-h-[120px]"
+                                            value={message}
+                                            onChange={(e) => setMessage(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={submitting}>
+                                        {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+                                        Hantar Tiket
+                                    </Button>
+                                </form>
+                            </CardContent>
+                        </Card>
+                    </div>
 
                     {/* Right Col: History */}
                     <div className="md:col-span-2 space-y-6">

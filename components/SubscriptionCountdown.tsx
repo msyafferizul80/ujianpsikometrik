@@ -75,24 +75,35 @@ export function SubscriptionCountdown({ planType, expiryDate }: SubscriptionCoun
     // 1. FREE TIER VIEW
     if (planType === 'free') {
         return (
-            <Card className="bg-gradient-to-r from-gray-900 to-gray-800 text-white border-none shadow-lg overflow-hidden relative">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                    <Lock className="h-24 w-24 text-white" />
+            <Card className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white border-0 shadow-2xl overflow-hidden relative group">
+                {/* Background Effects */}
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+                    <Lock className="h-32 w-32 text-yellow-500 transform rotate-12" />
                 </div>
+                <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-5"></div>
+
                 <CardContent className="p-6 relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div>
-                        <h3 className="text-xl font-bold text-yellow-400 mb-2 flex items-center gap-2">
-                            Akses Terhad
+                    <div className="space-y-2 text-center md:text-left">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs font-bold uppercase tracking-wider mb-2 animate-pulse">
+                            <Clock className="w-3 h-3" />
+                            Masa Semakin Suntuk
+                        </div>
+                        <h3 className="text-2xl font-bold text-white mb-2 flex items-center justify-center md:justify-start gap-2">
+                            Akses Anda Adalah Terhad
                         </h3>
-                        <p className="text-gray-300 max-w-md">
-                            Anda sedang menggunakan akaun percuma. Dapatkan akses penuh ke Bank Soalan, Latih Tubi Emosi, dan AI Analysis sekarang.
+                        <p className="text-gray-300 max-w-lg leading-relaxed text-sm">
+                            Ramai calon sedang membuat persediaan intensif sekarang. Jangan ketinggalan. Dapatkan akses penuh ke <span className="text-white font-semibold">Bank Soalan Premium</span> & <span className="text-white font-semibold">AI Coach</span> sebelum terlambat.
                         </p>
                     </div>
-                    <Link href="/pricing">
-                        <Button className="bg-yellow-500 text-gray-900 hover:bg-yellow-400 font-bold whitespace-nowrap shadow-[0_0_15px_rgba(234,179,8,0.5)] animate-pulse">
-                            <Rocket className="mr-2 h-4 w-4" />
-                            Upgrade Premium
+
+                    <Link href="/pricing" className="w-full md:w-auto">
+                        <Button size="lg" className="w-full md:w-auto bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-black font-extrabold shadow-[0_0_20px_rgba(234,179,8,0.4)] hover:shadow-[0_0_30px_rgba(234,179,8,0.6)] transition-all duration-300 transform hover:scale-105 border-0 text-base py-6">
+                            <Rocket className="mr-2 h-5 w-5 animate-bounce" />
+                            Upgrade Premium Sekarang
                         </Button>
+                        <p className="text-xs text-center text-gray-500 mt-2">
+                            30-hari Jaminan Wang Dikembalikan
+                        </p>
                     </Link>
                 </CardContent>
             </Card>
