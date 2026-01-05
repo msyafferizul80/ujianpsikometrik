@@ -16,52 +16,13 @@ const supabase = createClient(
 // In a real app, use Service Role to update user data securely from webhook
 // const supabaseAdmin = createClient(url, service_role_key);
 
-export async function GET(req: Request) {
-    // Billplz redirects to GET with query params
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
-    const planId = searchParams.get("planId");
 
-    // Billplz params
-    const billId = searchParams.get("billplz[id]");
-    const paid = searchParams.get("billplz[paid]");
-    const x_signature = searchParams.get("billplz[x_signature]");
-
-    // Verify signature
-    // For GET redirects, Billplz appends 'billplz[x_signature]'
-    // The source string for signature generation typically involves the parameters.
-    // Refer to Billplz API: 
-    // "The signature was generated using your X Signature Key and the parameters returned."
-
-    // For simplicity in this implementation, and since we don't have the exact construction logic 
-    // of the source string handy (it varies by gateway), we will do a robust check:
-    // If signature is present, we attempt verify. If not, and we are in PROD, we should Warn.
-
-    // IMPORTANT: Implementing full signature construction requires exact sorting of keys.
-    // As a robust alternative for MVP: We can query Billplz API to confirm status.
-    // But since the user specifically asked for "Signature Validation", let's use the lib function.
-    // We will pass the specific fields or constructing it.
-
-    // Actually, for maximum security WITHOUT handling raw string complexity:
-    // We should call `getBill(billId)` from Billplz API again. 
-    // The API response is trusted. The URL params are NOT trusted.
-    // Let's modify this to verify via Re-query (Double Confirmation) which is the Industry Standard for redirect flows.
-
-    // HOWEVER, I will stick to the user request for "verify signature" if possible, 
-    // but Re-query is SAFER. I will implement Re-query as the "Validation" step.
-
-    // Wait, let's use verifySignature from lib if available.
-    // Passing params to it?
-    // let isValid = verifySignature(constructSourceString(params), x_signature); 
-
-    // Let's implement the Re-Query Strategy as it is fool-proof. 
-    // "Trust but Verify"
-
-    // ... verified below via API call ...
+// Helper to process activation
+async function processActivation(userId: string | null, planId: string | null, billId: string | null, paid: string | null) {
+    console.log("Processing Activation:", { userId, planId, billId, paid });
 
     // Verify via Re-Query Strategy (Double Confirmation)
     let isVerified = false;
-    // Helper to determine if we are in Mock mode (no API key)
     const isMock = !process.env.BILLPLZ_API_KEY || process.env.BILLPLZ_API_KEY === 'mock-key';
 
     if (paid === "true" && userId && planId && billId) {
@@ -95,79 +56,122 @@ export async function GET(req: Request) {
             }
         }
     } else {
-        console.warn("Invalid Callback Params:", { paid, userId, planId, billId });
+        console.warn("Invalid Params:", { paid, userId, planId, billId });
     }
 
-    if (isVerified) {
-        // Calculate end date based on plan
-        let endDate = new Date();
-        let featuresToAdd: string[] = [];
-        let tier = 'free';
+    if (!isVerified) {
+        return { success: false, error: "Verification failed" };
+    }
 
-        let amount = 0;
-        if (planId === 'cram_24h') {
-            endDate.setHours(endDate.getHours() + 24);
-            tier = 'cram_24h';
-            featuresToAdd = ['full_bank', 'analytics_pro'];
-            amount = 1500;
-        } else if (planId === 'exam_ready') {
-            // Get dynamic exam date from admin_settings
-            const { data: examDateStr } = await supabase.rpc('get_exam_date');
-            if (examDateStr) {
-                endDate = new Date(examDateStr);
-            } else {
-                endDate.setDate(endDate.getDate() + 60); // Fallback
-            }
-            tier = 'exam_ready';
-            featuresToAdd = ['full_bank', 'analytics_pro', 'ai_coach'];
-            amount = 7900;
-        } else if (planId === 'momentum_7d') {
-            endDate.setDate(endDate.getDate() + 7);
-            tier = 'momentum_7d';
-            featuresToAdd = ['full_bank', 'analytics_pro', 'ai_coach'];
-            amount = 4000;
-        } else if (planId === 'addon_ai') {
-            // Addon doesn't change tier usually, but unlocks specific feature
-            endDate.setFullYear(endDate.getFullYear() + 1); // 1 year validity for feature
-            featuresToAdd = ['ai_coach'];
-            tier = 'addon_ai'; // Or keep existing
-            amount = 2000;
-        } else if (planId === 'test_rm1') {
-            // Test plan gives full access for 1 hour
-            endDate.setHours(endDate.getHours() + 1);
-            tier = 'cram_24h'; // Treat as cram pass for UI/UX purposes
-            featuresToAdd = ['full_bank', 'analytics_pro', 'ai_coach'];
-            amount = 100;
+    // Calculate end date based on plan
+    let endDate = new Date();
+    let featuresToAdd: string[] = [];
+    let tier = 'free';
+    let amount = 0;
+
+    if (planId === 'cram_24h') {
+        endDate.setHours(endDate.getHours() + 24);
+        tier = 'cram_24h';
+        featuresToAdd = ['full_bank', 'analytics_pro'];
+        amount = 1500;
+    } else if (planId === 'exam_ready') {
+        // Get dynamic exam date from admin_settings
+        const { data: examDateStr } = await supabase.rpc('get_exam_date');
+        if (examDateStr) {
+            endDate = new Date(examDateStr);
+        } else {
+            endDate.setDate(endDate.getDate() + 60); // Fallback
         }
+        tier = 'exam_ready';
+        featuresToAdd = ['full_bank', 'analytics_pro', 'ai_coach'];
+        amount = 7900;
+    } else if (planId === 'momentum_7d') {
+        endDate.setDate(endDate.getDate() + 7);
+        tier = 'momentum_7d';
+        featuresToAdd = ['full_bank', 'analytics_pro', 'ai_coach'];
+        amount = 4000;
+    } else if (planId === 'addon_ai') {
+        endDate.setFullYear(endDate.getFullYear() + 1);
+        featuresToAdd = ['ai_coach'];
+        tier = 'addon_ai';
+        amount = 2000;
+    } else if (planId === 'test_rm1') {
+        endDate.setHours(endDate.getHours() + 1);
+        tier = 'cram_24h';
+        featuresToAdd = ['full_bank', 'analytics_pro', 'ai_coach'];
+        amount = 100;
+    }
 
-        // Update Supabase using RPC (Bypass RLS)
-        // We use the new 'activate_subscription' function
+    const { error } = await supabase.rpc('activate_subscription', {
+        p_user_id: userId,
+        p_tier: tier,
+        p_end_date: endDate.toISOString(),
+        p_features: featuresToAdd,
+        p_bill_id: billId,
+        p_amount: amount
+    });
 
-        const { error } = await supabase.rpc('activate_subscription', {
-            p_user_id: userId,
-            p_tier: tier,
-            p_end_date: endDate.toISOString(),
-            p_features: featuresToAdd, // RPC handles merging
-            p_bill_id: billId,
-            p_amount: amount
-        });
+    if (error) {
+        console.error("Failed to activate subscription via RPC", error);
+        return { success: false, error: error.message };
+    }
 
-        if (error) {
-            console.error("Failed to activate subscription via RPC", error);
-            // Redirect to dashboard with error message
-            return NextResponse.redirect(new URL(`/dashboard?payment=error&msg=${encodeURIComponent(error.message)}`, req.url));
-        }
+    console.log("Subscription Activated via RPC for user:", userId);
+    return { success: true };
+}
 
-        console.log("Subscription Activated via RPC for user:", userId);
+export async function GET(req: Request) {
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get("userId");
+    const planId = searchParams.get("planId");
+
+    // Billplz params for GET redirect
+    const billId = searchParams.get("billplz[id]");
+    const paid = searchParams.get("billplz[paid]");
+
+    const result = await processActivation(userId, planId, billId, paid);
+
+    if (result.success) {
         return NextResponse.redirect(new URL('/dashboard?payment=success', req.url));
-
     } else {
-        // Not verified or missing params
-        console.warn("Payment verification failed or params missing.");
-        return NextResponse.redirect(new URL('/dashboard?payment=failed', req.url));
+        return NextResponse.redirect(new URL(`/dashboard?payment=failed&reason=${encodeURIComponent(result.error || 'Unknown')}`, req.url));
     }
 }
 
-// Handle POST (Background Webhook from Billplz) as well?
-// Usually Billplz sends POST for server-to-server. GET is for user redirect.
-// We implement GET mainly for the user flow now.
+export async function POST(req: Request) {
+    // Billplz Background Webhook
+    // Query params still exist in the POST URL if we set them in callback_url
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get("userId");
+    const planId = searchParams.get("planId");
+
+    // Billplz usually sends body as x-www-form-urlencoded
+    let body;
+    try {
+        const formData = await req.formData();
+        body = Object.fromEntries(formData);
+    } catch (e) {
+        // Fallback if json
+        try {
+            body = await req.json();
+        } catch (e2) {
+            console.error("Failed to parse POST body");
+            return NextResponse.json({ error: "Invalid Body" }, { status: 400 });
+        }
+    }
+
+    const billId = body.id as string;
+    const paid = body.paid as string; // 'true' or 'false'
+    const x_signature = body.x_signature as string;
+
+    console.log("Received Webhook:", { userId, planId, billId, paid });
+
+    // Process
+    const result = await processActivation(userId, planId, billId, paid);
+
+    if (result.success) {
+        return NextResponse.json({ status: 'ok' });
+    } else {
+        return NextResponse.json({ status: 'failed', error: result.error }, { status: 400 });
+    }
+}
