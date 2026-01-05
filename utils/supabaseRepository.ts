@@ -271,46 +271,20 @@ export const quizRepository = {
             .from('profiles')
             .update({ status }) // Note: 'status' column in profiles, separate from subscription_status
             .eq('id', userId);
-
+        ```
         if (error) throw error;
     },
 
     async extendSubscription(userId: string, days: number, amountPaid: number = 0) {
-        // First get current expiry
-        const { data: profile } = await supabase.from('profiles').select('subscription_end_date').eq('id', userId).single();
+        const { error } = await supabase.rpc('admin_extend_subscription', {
+            p_user_id: userId,
+            p_days: days,
+            p_amount: amountPaid
+        });
 
-        let newDate = new Date();
-        if (profile?.subscription_end_date && new Date(profile.subscription_end_date) > new Date()) {
-            newDate = new Date(profile.subscription_end_date);
-        }
-
-        // Add days
-        newDate.setDate(newDate.getDate() + days);
-
-        const { error } = await supabase
-            .from('profiles')
-            .update({
-                subscription_status: 'active',
-                subscription_end_date: newDate.toISOString(),
-                updated_at: new Date().toISOString()
-            })
-            .eq('id', userId);
-
-        if (error) throw error;
-
-        // Log Manual Transaction if amount > 0 or explicitly requested (but here we infer from usage)
-        // If it's a manual grant with 0 cost, we might not want it in Revenue, but maybe in Live Feed?
-        // Let's assume if Admin enters this, we track it as a 'manual_grant'.
-        if (amountPaid >= 0) { // Log even if 0 to show activity
-            await supabase.from('transactions').insert({
-                user_id: userId,
-                amount: amountPaid * 100, // Convert to cents if input is RM
-                status: 'paid',
-                plan_id: 'manual_extension',
-                provider: 'admin',
-                bill_id: `manual_${Date.now()}`,
-                completed_at: new Date().toISOString()
-            });
+        if (error) {
+            console.error("Error extending subscription:", error);
+            throw error;
         }
     },
 
