@@ -283,7 +283,8 @@ export const quizRepository = {
         });
 
         if (error) {
-            console.error("Error extending subscription:", error);
+            console.error("Error extending subscription (RPC Failure):", JSON.stringify(error, null, 2));
+            console.error("Error Details:", error.message, error.details, error.hint, error.code);
             throw error;
         }
     },
