@@ -271,7 +271,7 @@ export const quizRepository = {
             .from('profiles')
             .update({ status }) // Note: 'status' column in profiles, separate from subscription_status
             .eq('id', userId);
-        ```
+
         if (error) throw error;
     },
 
