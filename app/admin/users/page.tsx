@@ -130,9 +130,12 @@ export default function UserManagementPage() {
         const days = parseInt(daysStr);
         if (isNaN(days) || days <= 0) return alert("Nombor tidak sah.");
 
+        const amountStr = prompt("Masukkan jumlah bayaran (RM) untuk direkodkan (0 jika percuma):", "0");
+        const amount = amountStr ? parseFloat(amountStr) : 0;
+
         try {
-            await quizRepository.extendSubscription(userId, days);
-            alert(`Berjaya tambah ${days} hari.`);
+            await quizRepository.extendSubscription(userId, days, amount);
+            alert(`Berjaya tambah ${days} hari. Rekod bayaran: RM${amount}`);
             fetchUsers();
         } catch (error) {
             alert("Gagal menambah hari.");
