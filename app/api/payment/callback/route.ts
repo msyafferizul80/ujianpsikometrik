@@ -121,6 +121,11 @@ export async function GET(req: Request) {
             tier = 'exam_ready';
             featuresToAdd = ['full_bank', 'analytics_pro', 'ai_coach'];
             amount = 7900;
+        } else if (planId === 'momentum_7d') {
+            endDate.setDate(endDate.getDate() + 7);
+            tier = 'momentum_7d';
+            featuresToAdd = ['full_bank', 'analytics_pro', 'ai_coach'];
+            amount = 4000;
         } else if (planId === 'addon_ai') {
             // Addon doesn't change tier usually, but unlocks specific feature
             endDate.setFullYear(endDate.getFullYear() + 1); // 1 year validity for feature

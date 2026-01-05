@@ -59,6 +59,28 @@ export default function PricingPage() {
             badge: null
         },
         {
+            id: "momentum_7d",
+            name: "Pas Momentum (7 Hari) 🔥",
+            price: "RM 40",
+            originalPrice: "RM 89",
+            description: "Pakej paling berbaloi untuk pecutan akhir seminggu.",
+            features: [
+                "Akses Bank Soalan UNLIMITED",
+                "Analisis Prestasi Penuh",
+                "Tempoh Akses: 7 Hari",
+                "AI Coach (Baiki Kelemahan) 🤖",
+                "Tutor AI (Penjelasan Jawapan) ✨",
+                "Analisis Konsistensi Jawapan 🆕"
+            ],
+            icon: Star,
+            color: "text-red-600",
+            borderColor: "border-red-500",
+            bg: "bg-red-50",
+            recommended: true,
+            buttonVariant: "default",
+            badge: "Tawaran Istimewa"
+        },
+        {
             id: "exam_ready",
             name: "Pas Exam-Ready (1 Bulan)",
             price: "RM 79",
@@ -75,11 +97,11 @@ export default function PricingPage() {
             ],
             icon: ShieldCheck,
             color: "text-green-600",
-            borderColor: "border-green-500",
-            bg: "bg-green-50/50",
-            recommended: true,
-            buttonVariant: "default",
-            badge: "Pilihan Ramai Calon"
+            borderColor: "border-green-200",
+            bg: "bg-white",
+            recommended: false,
+            buttonVariant: "outline",
+            badge: null
         },
         {
             id: "addon_ai",
@@ -180,7 +202,10 @@ export default function PricingPage() {
                             >
                                 {plan.recommended && (
                                     <div className="absolute top-0 inset-x-0 -mt-4 flex justify-center">
-                                        <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-1.5 rounded-full text-sm font-bold shadow-lg uppercase tracking-wide">
+                                        <div className={`
+                                            px-6 py-1.5 rounded-full text-sm font-bold shadow-lg uppercase tracking-wide
+                                            ${plan.id === 'momentum_7d' ? 'bg-red-600 text-white' : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'}
+                                        `}>
                                             {plan.badge}
                                         </div>
                                     </div>
@@ -188,11 +213,11 @@ export default function PricingPage() {
 
                                 <CardHeader className={`${plan.bg} ${plan.recommended ? 'pt-10' : ''} rounded-t-lg border-b border-gray-100 pb-8`}>
                                     <div className="flex items-center justify-between mb-4">
-                                        <div className={`p-3 rounded-lg ${plan.recommended ? 'bg-green-100' : 'bg-gray-100'}`}>
+                                        <div className={`p-3 rounded-lg ${plan.recommended ? 'bg-white/80' : 'bg-gray-100'}`}>
                                             <plan.icon className={`h-6 w-6 ${plan.color}`} />
                                         </div>
                                         {plan.recommended && (
-                                            <span className="text-xs font-semibold text-green-700 bg-green-100 px-2 py-1 rounded">
+                                            <span className={`text-xs font-semibold px-2 py-1 rounded ${plan.id === 'momentum_7d' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
                                                 Jimat 50%
                                             </span>
                                         )}
@@ -207,7 +232,7 @@ export default function PricingPage() {
                                             <span className="text-gray-400 line-through text-lg">{plan.originalPrice}</span>
                                             <span className="text-5xl font-extrabold text-gray-900 tracking-tight">{plan.price}</span>
                                         </div>
-                                        {plan.id !== 'exam_ready' && plan.id !== 'addon_ai' && <span className="text-sm font-medium text-gray-500"> / akses sekali</span>}
+                                        {plan.id !== 'exam_ready' && plan.id !== 'addon_ai' && plan.id !== 'momentum_7d' && <span className="text-sm font-medium text-gray-500"> / akses sekali</span>}
                                         {plan.id === 'exam_ready' && <span className="text-sm font-medium text-green-600 block mt-1">Pembayaran sekali sahaja. Tiada langganan automatik.</span>}
                                     </div>
 
@@ -215,7 +240,7 @@ export default function PricingPage() {
                                         {plan.features.map((feature, index) => (
                                             <li key={index} className="flex items-start">
                                                 <div className="flex-shrink-0">
-                                                    <Check className={`h-5 w-5 ${plan.recommended ? 'text-green-500' : 'text-gray-400'}`} />
+                                                    <Check className={`h-5 w-5 ${plan.isGreen ? 'text-green-500' : (plan.id === 'momentum_7d' ? 'text-red-500' : 'text-gray-400')}`} />
                                                 </div>
                                                 <p className="ml-3 text-sm text-gray-700 font-medium">{feature}</p>
                                             </li>
@@ -229,7 +254,9 @@ export default function PricingPage() {
                                         disabled={loading === plan.id}
                                         className={`w-full h-12 text-base font-bold shadow-sm transition-all
                                             ${plan.recommended
-                                                ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-200 hover:shadow-green-300 hover:scale-[1.02]'
+                                                ? (plan.id === 'momentum_7d'
+                                                    ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-200 hover:shadow-red-300 hover:scale-[1.02]'
+                                                    : 'bg-green-600 hover:bg-green-700 text-white shadow-green-200 hover:shadow-green-300 hover:scale-[1.02]')
                                                 : ''
                                             }
                                         `}

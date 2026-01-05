@@ -20,6 +20,11 @@ const PLANS = {
         description: "Pas Exam-Ready (Sampai Lulus)",
         duration_hours: 24 * 60 // 60 days cap or logic can handle differently
     },
+    "momentum_7d": {
+        amount: 4000, // RM40.00
+        description: "Pas Momentum (7 Hari)",
+        duration_hours: 24 * 7
+    },
     "addon_ai": {
         amount: 2000, // RM20.00
         description: "Add-on: AI Coach Feature",
