@@ -100,12 +100,7 @@ async function processActivation(userId: string | null, planId: string | null, b
         tier = 'cram_24h';
         featuresToAdd = ['full_bank', 'analytics_pro', 'ai_coach'];
         amount = 100;
-    } else if (planId === 'test_30m') {
-        // Hidden Test Plan
-        endDate.setMinutes(endDate.getMinutes() + 30);
-        tier = 'cram_24h';
-        featuresToAdd = ['full_bank', 'analytics_pro', 'ai_coach'];
-        amount = 100;
+
     }
 
     const { error } = await supabase.rpc('activate_subscription', {
