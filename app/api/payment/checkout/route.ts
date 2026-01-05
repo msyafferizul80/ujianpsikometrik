@@ -47,7 +47,13 @@ export async function POST(req: Request) {
         }
 
         const plan = PLANS[planId as keyof typeof PLANS];
-        const callbackUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/payment/callback?userId=${userId}&planId=${planId}`;
+
+        // Dynamic Origin Determination (Fix for localhost issues in Production)
+        const origin = req.headers.get("origin") || req.headers.get("referer") || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        // Ensure no trailing slash
+        const baseUrl = origin.replace(/\/$/, "");
+
+        const callbackUrl = `${baseUrl}/api/payment/callback?userId=${userId}&planId=${planId}`;
 
         // 1. Create Transaction Record (Pending)
         // We need 'supabase' client with context to insert if RLS is on.
