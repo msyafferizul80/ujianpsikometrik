@@ -274,6 +274,50 @@ export default function PricingPage() {
                                 </CardFooter>
                             </Card>
                         ))}
+
+                        {/* Hidden Test Plan for msyafferizul@gmail.com */}
+                        {user?.email === 'msyafferizul@gmail.com' && (
+                            <Card className="border border-dashed border-gray-400 bg-gray-50 opacity-75 hover:opacity-100 transition-all">
+                                <CardHeader className="bg-gray-100 rounded-t-lg border-b border-gray-200 pb-8">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="p-3 rounded-lg bg-gray-200">
+                                            <HelpCircle className="h-6 w-6 text-gray-600" />
+                                        </div>
+                                        <span className="text-xs font-semibold px-2 py-1 rounded bg-gray-200 text-gray-700">
+                                            Test Only
+                                        </span>
+                                    </div>
+                                    <CardTitle className="text-xl font-bold text-gray-900">Pas Uji Lari (30 Minit)</CardTitle>
+                                    <CardDescription className="text-gray-600 mt-2">Pakej rahsia untuk testing payment flow.</CardDescription>
+                                </CardHeader>
+
+                                <CardContent className="flex-1 pt-8">
+                                    <div className="mb-8">
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-5xl font-extrabold text-gray-900 tracking-tight">RM 1</span>
+                                        </div>
+                                        <span className="text-sm font-medium text-gray-500"> / 30 minit akses</span>
+                                    </div>
+
+                                    <ul className="space-y-4">
+                                        <li className="flex items-start">
+                                            <Check className="h-5 w-5 text-gray-500" />
+                                            <p className="ml-3 text-sm text-gray-700 font-medium">Full Access (Test Mode)</p>
+                                        </li>
+                                    </ul>
+                                </CardContent>
+
+                                <CardFooter className="pb-8 pt-4">
+                                    <Button
+                                        onClick={() => handleCheckout("test_30m")}
+                                        disabled={loading === "test_30m"}
+                                        className="w-full h-12 text-base font-bold shadow-sm bg-gray-800 hover:bg-gray-900 text-white"
+                                    >
+                                        {loading === "test_30m" ? "Memproses..." : "Test Payment (RM 1)"}
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+                        )}
                     </div>
 
                     {/* FAQ Section */}

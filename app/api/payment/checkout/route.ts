@@ -30,7 +30,13 @@ const PLANS = {
         description: "Add-on: AI Coach Feature",
         type: "addon"
     },
-    // Test Dummy
+    // Hidden Test Plan
+    "test_30m": {
+        amount: 100, // RM1.00
+        description: "Pas Uji Lari (30 Minit)",
+        duration_hours: 0.5
+    },
+    // Test Dummy (Deprecated/Legacy)
     "test_rm1": {
         amount: 100, // RM1.00
         description: "Pas Uji Lari (Testing Flow)",
