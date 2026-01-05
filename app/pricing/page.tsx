@@ -240,7 +240,7 @@ export default function PricingPage() {
                                         {plan.features.map((feature, index) => (
                                             <li key={index} className="flex items-start">
                                                 <div className="flex-shrink-0">
-                                                    <Check className={`h-5 w-5 ${plan.isGreen ? 'text-green-500' : (plan.id === 'momentum_7d' ? 'text-red-500' : 'text-gray-400')}`} />
+                                                    <Check className={`h-5 w-5 ${plan.id === 'exam_ready' ? 'text-green-500' : (plan.id === 'momentum_7d' ? 'text-red-500' : 'text-gray-400')}`} />
                                                 </div>
                                                 <p className="ml-3 text-sm text-gray-700 font-medium">{feature}</p>
                                             </li>
