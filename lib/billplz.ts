@@ -10,6 +10,12 @@ const X_SIGNATURE_KEY = process.env.BILLPLZ_X_SIGNATURE_KEY || "mock-x-signature
 // For this specific project request, we default to MOCK if no key is present
 const USE_MOCK = !process.env.BILLPLZ_API_KEY;
 
+if (isProduction && !USE_MOCK) {
+    console.log("Billplz Module initialized in PRODUCTION mode.");
+} else if (isProduction && USE_MOCK) {
+    console.warn("Billplz Module initialized in MOCK Mode (Missing API Key) even in Production!");
+}
+
 export async function createBill({
     email,
     name,
