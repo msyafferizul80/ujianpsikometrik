@@ -1,4 +1,3 @@
--- Create the admin_extend_subscription function to handle manual extensions with transaction logging
 CREATE OR REPLACE FUNCTION admin_extend_subscription(
     p_user_id UUID,
     p_days INT,
@@ -11,9 +10,10 @@ AS $$
 DECLARE
     v_current_end TIMESTAMPTZ;
     v_new_end TIMESTAMPTZ;
+    v_current_tier TEXT;
 BEGIN
-    -- 1. Get current subscription end date
-    SELECT subscription_end_date INTO v_current_end
+    -- 1. Get current subscription info
+    SELECT subscription_end_date, subscription_tier INTO v_current_end, v_current_tier
     FROM profiles
     WHERE id = p_user_id;
 
@@ -24,15 +24,22 @@ BEGIN
         v_new_end := v_current_end + (p_days || ' days')::INTERVAL;
     END IF;
 
-    -- 3. Update Profile
+    -- 3. Determine new Tier (Smart Logic)
+    -- If user is Free but paid money (amount > 0), upgrade them to 'momentum_7d' at minimum.
+    IF (v_current_tier = 'free' OR v_current_tier IS NULL) AND p_amount > 0 THEN
+         v_current_tier := 'momentum_7d';
+    END IF;
+
+    -- 4. Update Profile
     UPDATE profiles
     SET 
         subscription_status = 'active',
+        subscription_tier = v_current_tier,
         subscription_end_date = v_new_end,
         updated_at = NOW()
     WHERE id = p_user_id;
 
-    -- 4. Log Transaction (Revenue)
+    -- 5. Log Transaction (Revenue)
     INSERT INTO transactions (
         user_id,
         amount, 

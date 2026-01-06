@@ -122,8 +122,32 @@ export default function PricingPage() {
             bg: "bg-white",
             buttonVariant: "outline",
             badge: null
+        },
+        // Hidden Test Plan
+        {
+            id: "test_rm1",
+            name: "Pas Uji Lari (Testing RM1)",
+            price: "RM 1",
+            originalPrice: "RM 5",
+            description: "Untuk ujian sistem pembayaran sahaja.",
+            features: [
+                "Akses 1 Jam",
+                "Mock Payment Test",
+                "Email Notification Test"
+            ],
+            icon: HelpCircle,
+            color: "text-gray-500",
+            borderColor: "border-gray-200",
+            bg: "bg-gray-50",
+            buttonVariant: "ghost",
+            badge: "TEST ONLY"
         }
-    ];
+    ].filter(plan => {
+        if (plan.id === 'test_rm1') {
+            return user?.email === 'msyafferizul@gmail.com';
+        }
+        return true;
+    });
 
     const handleCheckout = async (planId: string) => {
         if (!user) {

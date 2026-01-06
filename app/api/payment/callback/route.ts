@@ -17,6 +17,8 @@ const supabase = createClient(
 // const supabaseAdmin = createClient(url, service_role_key);
 
 
+import { sendAdminNotification } from "@/lib/email";
+
 // Helper to process activation
 async function processActivation(userId: string | null, planId: string | null, billId: string | null, paid: string | null) {
     console.log("Processing Activation:", { userId, planId, billId, paid });
@@ -118,6 +120,37 @@ async function processActivation(userId: string | null, planId: string | null, b
     }
 
     console.log("Subscription Activated via RPC for user:", userId);
+
+    // Send Admin Notification asynchronously (fire and forget)
+    // We don't await this to prevent blocking the response speed, but Next.js might kill it if not careful.
+    // However, in serverless, it's better to await to ensure it runs unless we have background jobs.
+    // For Vercel/Netlify lambda, awaiting is safer.
+
+    // Attempt to fetch user details for better email context
+    let userName = 'Unknown';
+    let userEmail = 'Unknown';
+    if (userId) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, email')
+            .eq('id', userId)
+            .single();
+
+        if (profile) {
+            userName = profile.full_name || 'No Name';
+            userEmail = profile.email || 'No Email';
+        }
+    }
+
+    await sendAdminNotification({
+        userId,
+        userName,
+        userEmail,
+        planId,
+        amount,
+        billId
+    });
+
     return { success: true };
 }
 
