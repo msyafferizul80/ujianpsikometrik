@@ -72,7 +72,7 @@ export async function GET() {
             .slice(0, 20);
 
         // If not enough data (e.g. fresh DB), fallback to random hard questions or just first 20
-        let finalQuestions = killerQuestions;
+        let finalQuestions: any[] = killerQuestions;
         if (finalQuestions.length < 5) {
             // console.log("Not enough data, using fallback questions");
             finalQuestions = questions.slice(0, 20);
