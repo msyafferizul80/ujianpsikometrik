@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 
-interface Inconsistency {
+export interface Inconsistency {
     question1_id: number;
     question2_id: number;
     question1_text?: string;
@@ -18,10 +18,11 @@ interface Inconsistency {
 
 interface InconsistencyReportProps {
     inconsistencies: Inconsistency[];
+    score?: number;
     loading: boolean;
 }
 
-export function InconsistencyReport({ inconsistencies, loading }: InconsistencyReportProps) {
+export function InconsistencyReport({ inconsistencies, score, loading }: InconsistencyReportProps) {
     if (loading) {
         return (
             <Card className="border-blue-100 bg-blue-50/50 animate-pulse">
@@ -38,7 +39,9 @@ export function InconsistencyReport({ inconsistencies, loading }: InconsistencyR
         );
     }
 
-    if (inconsistencies.length === 0) {
+    const scoreValue = score !== undefined ? score : (inconsistencies.length === 0 ? 100 : 50);
+
+    if (inconsistencies.length === 0 && scoreValue > 90) {
         return (
             <Card className="border-green-100 bg-gradient-to-r from-green-50 to-emerald-50 shadow-sm">
                 <CardContent className="py-4 flex items-center gap-4">
@@ -55,15 +58,58 @@ export function InconsistencyReport({ inconsistencies, loading }: InconsistencyR
     }
 
     return (
-        <Card className="border-amber-200 bg-amber-50 shadow-md">
-            <CardHeader className="pb-2 border-b border-amber-100">
-                <CardTitle className="flex items-center gap-2 text-amber-800 text-lg">
-                    <AlertTriangle className="h-5 w-5 text-amber-600" />
-                    Laporan Ketidakkonsistenan
-                    <Badge variant="outline" className="ml-auto border-amber-300 text-amber-700 bg-amber-100">
-                        {inconsistencies.length} Isu Dikesan
-                    </Badge>
-                </CardTitle>
+        <Card className="border-amber-200 bg-amber-50 shadow-md overflow-hidden">
+            <CardHeader className="pb-4 border-b border-amber-100 bg-amber-100/30">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <CardTitle className="flex items-center gap-2 text-amber-900 text-lg">
+                            <AlertTriangle className="h-5 w-5 text-amber-600" />
+                            Analisis Konsistensi Jawapan
+                        </CardTitle>
+                        <p className="text-sm text-amber-700/80 mt-1">
+                            Semakan integriti jawapan untuk mengesan percanggahan.
+                        </p>
+                    </div>
+
+                    {/* Gauge Meter */}
+                    <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg shadow-sm border border-amber-200">
+                        <div className="relative h-12 w-12 flex items-center justify-center">
+                            {/* Circular Progress (Simple CSS/SVG) */}
+                            <svg className="h-full w-full transform -rotate-90">
+                                <circle
+                                    className="text-gray-200"
+                                    strokeWidth="4"
+                                    stroke="currentColor"
+                                    fill="transparent"
+                                    r="20"
+                                    cx="24"
+                                    cy="24"
+                                />
+                                <circle
+                                    className={`${(score ?? 100) > 80 ? 'text-green-500' : (score ?? 100) > 60 ? 'text-amber-500' : 'text-red-500'}`}
+                                    strokeWidth="4"
+                                    strokeDasharray={126}
+                                    strokeDashoffset={126 - ((score ?? 100) / 100) * 126}
+                                    strokeLinecap="round"
+                                    stroke="currentColor"
+                                    fill="transparent"
+                                    r="20"
+                                    cx="24"
+                                    cy="24"
+                                />
+                            </svg>
+                            <span className={`absolute text-sm font-bold ${(score ?? 100) > 80 ? 'text-green-700' : (score ?? 100) > 60 ? 'text-amber-700' : 'text-red-700'}`}>
+                                {score}%
+                            </span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Skor Konsistensi</span>
+                            <span className={`text-sm font-bold ${(score ?? 100) > 80 ? 'text-green-600' : (score ?? 100) > 60 ? 'text-amber-600' : 'text-red-600'}`}>
+                                {(score ?? 100) > 80 ? 'Sangat Konsisten' : (score ?? 100) > 60 ? 'Sederhana' : 'Bahaya'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </CardHeader>
             <CardContent className="pt-4">
                 <p className="text-sm text-amber-900 mb-4 font-medium">

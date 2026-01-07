@@ -6,19 +6,31 @@ import { Clock, AlertCircle } from "lucide-react";
 interface CountdownTimerProps {
     initialMinutes?: number;
     onTimeUp: () => void;
+    quizId?: string; // New prop for cache busting
 }
 
-export function CountdownTimer({ initialMinutes = 60, onTimeUp }: CountdownTimerProps) {
+export function CountdownTimer({ initialMinutes = 60, onTimeUp, quizId }: CountdownTimerProps) {
     const [timeLeft, setTimeLeft] = useState(initialMinutes * 60); // in seconds
     const [isWarning, setIsWarning] = useState(false);
 
     useEffect(() => {
-        // Check if there's saved time in localStorage
+        // Initialize or Restore
+        const storedQuizId = localStorage.getItem('timerQuizId');
         const savedTime = localStorage.getItem('quizTimeLeft');
-        if (savedTime) {
-            setTimeLeft(parseInt(savedTime));
-        }
+        const currentQuizId = quizId || 'default';
 
+        if (savedTime && storedQuizId === currentQuizId) {
+            // Restore only if it's the SAME quiz session
+            setTimeLeft(parseInt(savedTime));
+        } else {
+            // New session or different quiz -> Reset
+            setTimeLeft(initialMinutes * 60);
+            localStorage.setItem('timerQuizId', currentQuizId);
+            localStorage.removeItem('quizTimeLeft'); // Ensure clear start
+        }
+    }, [quizId, initialMinutes]); // Add dependencies
+
+    useEffect(() => {
         const timer = setInterval(() => {
             setTimeLeft((prev) => {
                 const newTime = prev - 1;
@@ -53,8 +65,8 @@ export function CountdownTimer({ initialMinutes = 60, onTimeUp }: CountdownTimer
 
     return (
         <div className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono text-lg font-bold transition-colors ${isWarning
-                ? 'bg-red-50 text-red-700 border-2 border-red-200 animate-pulse'
-                : 'bg-blue-50 text-blue-700 border-2 border-blue-200'
+            ? 'bg-red-50 text-red-700 border-2 border-red-200 animate-pulse'
+            : 'bg-blue-50 text-blue-700 border-2 border-blue-200'
             }`}>
             {isWarning ? (
                 <AlertCircle className="h-5 w-5 animate-pulse" />

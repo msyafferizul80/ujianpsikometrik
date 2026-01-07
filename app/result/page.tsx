@@ -11,7 +11,7 @@ import { saveQuizAttempt } from "@/utils/stats";
 import { shareResult } from "@/utils/share";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { QuestionReview } from "@/components/QuestionReview";
-import { InconsistencyReport } from "@/components/InconsistencyReport";
+import { InconsistencyReport, Inconsistency } from "@/components/InconsistencyReport";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
@@ -42,10 +42,14 @@ export default function ResultPage() {
     const [questions, setQuestions] = useState<Question[]>([]);
     const [advice, setAdvice] = useState<string>("");
     const [loadingAdvice, setLoadingAdvice] = useState(false);
-    const [inconsistencies, setInconsistencies] = useState<any[]>([]);
+    const [inconsistencies, setInconsistencies] = useState<Inconsistency[]>([]);
+    const [consistencyScore, setConsistencyScore] = useState<number | undefined>(undefined);
     const [checkingInconsistency, setCheckingInconsistency] = useState(false);
     const [prevBest, setPrevBest] = useState<number | null>(null);
     const [averageScore, setAverageScore] = useState<number | null>(null);
+    const [percentile, setPercentile] = useState<number | null>(null);
+    const [globalAverage, setGlobalAverage] = useState<number | null>(null);
+    const [totalCandidates, setTotalCandidates] = useState<number | null>(null);
     const router = useRouter();
     const [searchParams] = useState(new URLSearchParams(typeof window !== 'undefined' ? window.location.search : ''));
     const [copied, setCopied] = useState(false);
@@ -115,7 +119,7 @@ export default function ResultPage() {
                         // Recalculate Teras Scores (Score Reconstruction)
                         const terasScores: Record<string, TerasResult> = {};
 
-                        quizQuestions.forEach((q: any) => {
+                        quizQuestions.forEach((q: Question) => {
                             const selected = attempt.answers?.[q.id];
                             const correct = q.correctAnswer;
                             const isCorrect = selected === correct;
@@ -161,6 +165,23 @@ export default function ResultPage() {
                             })
                             .catch(err => setLoadingAdvice(false));
 
+                        // Fetch Analytics
+                        fetch('/api/analytics/performance', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                score: attempt.score,
+                                quizId: attempt.quiz_id
+                            })
+                        })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.percentile) setPercentile(data.percentile);
+                                if (data.averageScore) setGlobalAverage(data.averageScore);
+                                if (data.totalCandidates) setTotalCandidates(data.totalCandidates);
+                            })
+                            .catch(err => console.error("Analytics fetch error", err));
+
                         // Check Inconsistency
                         if (quizQuestions.length > 0) {
                             setCheckingInconsistency(true);
@@ -175,6 +196,7 @@ export default function ResultPage() {
                                 .then(res => res.json())
                                 .then(data => {
                                     if (data.inconsistencies) setInconsistencies(data.inconsistencies);
+                                    if (data.score !== undefined) setConsistencyScore(data.score);
                                     setCheckingInconsistency(false);
                                 })
                                 .catch(err => {
@@ -212,6 +234,25 @@ export default function ResultPage() {
 
                 // Fetch Questions Logic to get Title first if possible (async race condition fix)
                 const activeQuizId = localStorage.getItem('activeQuizId');
+
+                // Fetch Analytics (Post-Quiz)
+                if (activeQuizId && !activeQuizId.startsWith('demo-')) {
+                    fetch('/api/analytics/performance', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            score: parsed.totalScore,
+                            quizId: activeQuizId
+                        })
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.percentile) setPercentile(data.percentile);
+                            if (data.averageScore) setGlobalAverage(data.averageScore);
+                            if (data.totalCandidates) setTotalCandidates(data.totalCandidates);
+                        })
+                        .catch(err => console.error("Analytics fetch error", err));
+                }
 
                 // Helper to fetch title
                 const fetchTitleAndAdvice = async () => {
@@ -285,6 +326,7 @@ export default function ResultPage() {
                             .then(res => res.json())
                             .then(data => {
                                 if (data.inconsistencies) setInconsistencies(data.inconsistencies);
+                                if (data.score !== undefined) setConsistencyScore(data.score);
                                 setCheckingInconsistency(false);
                             })
                             .catch(err => {
@@ -330,7 +372,7 @@ export default function ResultPage() {
 
     const overallPercentage = Math.round((result.totalScore / result.maxScore) * 100);
     const improvement = prevBest !== null ? overallPercentage - prevBest : 0;
-    const percentile = overallPercentage >= 90 ? 99 : overallPercentage >= 80 ? 90 : overallPercentage >= 70 ? 75 : overallPercentage >= 60 ? 50 : 25;
+    // const percentile = overallPercentage >= 90 ? 99 : overallPercentage >= 80 ? 90 : overallPercentage >= 70 ? 75 : overallPercentage >= 60 ? 50 : 25;
 
     const comparisonData = [
         { name: 'Anda', score: overallPercentage, fill: '#2563eb' },
@@ -374,6 +416,7 @@ export default function ResultPage() {
                         <div className="relative">
                             <InconsistencyReport
                                 inconsistencies={inconsistencies}
+                                score={consistencyScore}
                                 loading={checkingInconsistency}
                             />
                             {/* LOCK: Blur Overlay for Free Users */}
@@ -393,6 +436,61 @@ export default function ResultPage() {
                     )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Performance Card (New) */}
+                        {percentile !== null && (
+                            <Card className="col-span-1 md:col-span-2 border-indigo-100 bg-gradient-to-r from-indigo-50 to-blue-50">
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg text-indigo-900 flex items-center gap-2">
+                                        <TrendingUp className="h-5 w-5 text-indigo-600" />
+                                        Analisis Prestasi
+                                    </CardTitle>
+                                    <CardDescription className="text-indigo-700">
+                                        Perbandingan skor anda dengan {totalCandidates ? `${totalCandidates} calon lain` : "calon lain"}.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                                        <div className="text-center md:text-left">
+                                            <p className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Ranking Anda</p>
+                                            <div className="flex items-baseline gap-2 justify-center md:justify-start">
+                                                <span className="text-4xl font-extrabold text-indigo-600">Top {100 - (percentile || 0)}%</span>
+                                                <span className="text-sm text-gray-500">(Lebih tinggi dari {percentile}% calon)</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex-1 w-full space-y-3">
+                                            <div className="space-y-1">
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="font-semibold text-gray-700">Skor Anda</span>
+                                                    <span className="font-bold text-indigo-600">{((result?.totalScore || 0) / (result?.maxScore || 1) * 100).toFixed(0)}%</span>
+                                                </div>
+                                                <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-indigo-500 rounded-full"
+                                                        style={{ width: `${((result?.totalScore || 0) / (result?.maxScore || 1) * 100)}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-1 opacity-75">
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="font-semibold text-gray-600">Purata Calon</span>
+                                                    <span className="font-bold text-gray-600">{globalAverage || 50}%</span>
+                                                </div>
+                                                <div className="h-3 bg-gray-200 rounded-full overflow-hidden relative">
+                                                    <div
+                                                        className="h-full bg-gray-500 rounded-full"
+                                                        style={{ width: `${globalAverage || 50}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/* Upgrade CTA for visual consistency if needed, though this card is free for now? Let's make it free as teaser */}
+                                </CardContent>
+                            </Card>
+                        )}
+
                         {/* Score Card */}
                         <Card className="border-blue-100 shadow-md">
                             <CardHeader>
@@ -413,7 +511,7 @@ export default function ResultPage() {
                                                 {improvement > 0 ? `+${improvement}%` : improvement < 0 ? `${improvement}%` : "="} vs Terbaik
                                             </span>
                                         )}
-                                        <span className="text-blue-600 font-medium">Top {100 - percentile}% Peserta</span>
+                                        <span className="text-blue-600 font-medium">Top {100 - (percentile || 0)}% Peserta</span>
                                     </div>
                                 </div>
                             </CardContent>

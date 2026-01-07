@@ -66,11 +66,12 @@ export default function PricingPage() {
             description: "Pakej paling berbaloi untuk pecutan akhir seminggu.",
             features: [
                 "Akses Bank Soalan UNLIMITED",
-                "Analisis Prestasi Penuh",
-                "Tempoh Akses: 7 Hari",
+                "🔥 Koleksi Soalan Maut (Top 20% Hardest)",
+                "⏱️ Mod Simulasi Peperiksaan (Real Exam)",
+                "📅 Penjana Jadual Belajar AI",
                 "AI Coach (Baiki Kelemahan) 🤖",
                 "Tutor AI (Penjelasan Jawapan) ✨",
-                "Analisis Konsistensi Jawapan 🆕"
+                "Analisis Konsistensi Jawapan 🧠"
             ],
             icon: Star,
             color: "text-red-600",
@@ -78,7 +79,8 @@ export default function PricingPage() {
             bg: "bg-red-50",
             recommended: true,
             buttonVariant: "default",
-            badge: "Tawaran Istimewa"
+            badge: "Tawaran Istimewa",
+            socialProof: "🔥 12 orang membeli hari ini"
         },
         {
             id: "exam_ready",
@@ -88,38 +90,20 @@ export default function PricingPage() {
             description: "Pakej LENGKAP untuk jaminan persediaan yang lebih yakin.",
             features: [
                 "Akses Bank Soalan UNLIMITED",
-                "Analisis Prestasi Penuh",
-                "Tempoh Akses: 30 Hari",
+                "🔥 Koleksi Soalan Maut (Top 20% Hardest)",
+                "⏱️ Mod Simulasi Peperiksaan (Real Exam)",
+                "📅 Penjana Jadual Belajar AI",
                 "AI Coach (Baiki Kelemahan) 🔥",
                 "Tutor AI (Penerangan Jawapan) ✨",
-                "Analisis Konsistensi Jawapan 🆕",
-                "Support Group WhatsApp Eksklusif"
+                "Support Group WhatsApp Eksklusif",
+                "🎁 Bonus: E-Book Panduan Temuduga",
+                "🛡️ Jaminan Wang Dikembalikan (30 Hari)"
             ],
             icon: ShieldCheck,
             color: "text-green-600",
             borderColor: "border-green-200",
             bg: "bg-white",
             recommended: false,
-            buttonVariant: "outline",
-            badge: null
-        },
-        {
-            id: "addon_ai",
-            name: "Add-on: AI Coach",
-            price: "RM 20",
-            originalPrice: "RM 49",
-            description: "Buka kunci ciri 'Baiki Kelemahan' secara spesifik.",
-            features: [
-                "Feature Unlock: AI Coach",
-                "Tutor AI (Penjelasan Jawapan) ✨",
-                "Analisis Konsistensi Jawapan 🆕",
-                "Baiki Kelemahan Topikal",
-                "Jana Soalan Targeted"
-            ],
-            icon: BrainCircuit,
-            color: "text-purple-600",
-            borderColor: "border-purple-200",
-            bg: "bg-white",
             buttonVariant: "outline",
             badge: null
         },
@@ -248,6 +232,13 @@ export default function PricingPage() {
                                     </div>
                                     <CardTitle className="text-xl font-bold text-gray-900">{plan.name}</CardTitle>
                                     <CardDescription className="text-gray-600 mt-2">{plan.description}</CardDescription>
+
+                                    {/* Social Proof Injection */}
+                                    {(plan as any).socialProof && (
+                                        <div className="mt-3 inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded font-medium animate-pulse">
+                                            {(plan as any).socialProof}
+                                        </div>
+                                    )}
                                 </CardHeader>
 
                                 <CardContent className="flex-1 pt-8">

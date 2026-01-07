@@ -94,6 +94,66 @@ export const quizRepository = {
         return { data, count };
     },
 
+    async updateStreak(userId: string) {
+        try {
+            // 1. Get current profile data
+            const { data: profile, error: fetchError } = await supabase
+                .from('profiles')
+                .select('streak_count, last_activity_date')
+                .eq('id', userId)
+                .single();
+
+            if (fetchError) throw fetchError;
+
+            const now = new Date();
+            const lastActivity = profile.last_activity_date ? new Date(profile.last_activity_date) : null;
+            let newStreak = profile.streak_count || 0;
+
+            // 2. Logic to calculate streak
+            if (lastActivity) {
+                const isSameDay = now.toDateString() === lastActivity.toDateString();
+
+                // If already active today, do nothing (keep streak)
+                if (isSameDay) {
+                    // Update timestamp only if you want precise last active time, 
+                    // but usually strictly for streak we don't increment.
+                    // Let's just update last_activity_date to now anyway for analytics.
+                } else {
+                    const yesterday = new Date(now);
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const isYesterday = yesterday.toDateString() === lastActivity.toDateString();
+
+                    if (isYesterday) {
+                        // Consecutive day
+                        newStreak += 1;
+                    } else {
+                        // Missed a day (or more), reset to 1 (since today is active)
+                        newStreak = 1;
+                    }
+                }
+            } else {
+                // First time ever
+                newStreak = 1;
+            }
+
+            // 3. Update DB
+            const { error: updateError } = await supabase
+                .from('profiles')
+                .update({
+                    streak_count: newStreak,
+                    last_activity_date: now.toISOString()
+                })
+                .eq('id', userId);
+
+            if (updateError) throw updateError;
+
+            return newStreak;
+        } catch (error) {
+            console.error("Streak update error:", error);
+            return null;
+        }
+    },
+
     async getQuizById(id: string) {
         const { data, error } = await supabase
             .from('quizzes')
@@ -142,7 +202,7 @@ export const quizRepository = {
 
     // --- Question Management ---
 
-    async saveQuestions(quizId: number, questions: any[]) {
+    async saveQuestions(quizId: number, questions: { question: string, options: { label: string; text: string }[], correctAnswer: string, teras: string, explanation: string }[]) {
         const formattedQuestions = questions.map(q => ({
             quiz_id: quizId,
             question_text: q.question, // Mapping 'question' -> 'question_text'
@@ -170,7 +230,7 @@ export const quizRepository = {
         if (error) throw error;
 
         // Map back to app structure
-        return data.map((q: any) => ({
+        return data.map((q: { id: number, question_text: string, options: any, correct_answer: string, teras: string, explanation: string }) => ({
             id: q.id,
             question: q.question_text,
             options: q.options,
@@ -189,7 +249,7 @@ export const quizRepository = {
 
         if (error) throw error;
 
-        return data.map((q: any) => ({
+        return data.map((q: { id: number, question_text: string, options: any, correct_answer: string, teras: string, explanation: string }) => ({
             id: q.id,
             question: q.question_text,
             options: q.options,
@@ -209,7 +269,7 @@ export const quizRepository = {
 
         if (error) throw error;
 
-        return data.map((q: any) => ({
+        return data.map((q: { id: number, question_text: string, options: any, correct_answer: string, teras: string, explanation: string }) => ({
             id: q.id,
             question: q.question_text,
             options: q.options,
@@ -221,8 +281,8 @@ export const quizRepository = {
 
     // --- Attempts / History ---
 
-    async saveAttempt(userName: string, quizId: number, score: number, answers: any, userId?: string) {
-        const payload: any = { user_name: userName, quiz_id: quizId, score, answers };
+    async saveAttempt(userName: string, quizId: number, score: number, answers: Record<string, any>, userId?: string) {
+        const payload: Record<string, any> = { user_name: userName, quiz_id: quizId, score, answers };
         if (userId) payload.user_id = userId;
 
         const { data, error } = await supabase

@@ -16,10 +16,11 @@ import {
     Lock,
     Library,
     LogOut,
-    History,
     HelpCircle,
     MessageSquare,
-    BrainCircuit
+    BrainCircuit,
+    Sparkles,
+    History
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getQuizStats } from "@/utils/stats";
@@ -53,6 +54,11 @@ const menuItems = [
         title: "Kalendar",
         icon: Calendar,
         href: "/calendar",
+    },
+    {
+        title: "Jadual Belajar AI",
+        icon: Sparkles,
+        href: "/study-plan",
     },
     {
         title: "Ai Coach",

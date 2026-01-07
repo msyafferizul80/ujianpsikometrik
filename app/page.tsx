@@ -59,16 +59,16 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <Badge variant="secondary" className="mb-8 px-4 py-1.5 text-sm font-medium bg-indigo-50 text-indigo-700 border-indigo-100 rounded-full animate-fade-in shadow-sm">
             <Sparkles className="w-3.5 h-3.5 mr-1.5 inline-block text-amber-500" />
-            Dikemaskini untuk Format 2025
+            Edisi Terkini 2026: Dikemaskini Sepenuhnya
           </Badge>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-8 leading-tight animate-slide-up">
             Lulus Ujian Psikometrik dengan <br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600">
-              Analisis AI & Keyakinan Penuh
+              Strategi Data & AI Pintar
             </span>
           </h1>
           <p className="mt-6 text-xl text-slate-600 max-w-2xl mx-auto mb-12 leading-relaxed animate-slide-up" style={{ animationDelay: "0.1s" }}>
-            Platform persediaan nombor #1 dengan 500+ soalan berkualiti tinggi dan laporan analisis personaliti dikuasakan AI untuk kejayaan kerjaya awam anda.
+            Bukan sekadar bank soalan. Kami adalah <strong>"Strategy Coach"</strong> anda yang dilengkapi AI untuk mengenal pasti kelemahan dan memastikan anda lulus.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 animate-slide-up" style={{ animationDelay: "0.2s" }}>
             <Link href="/login">
@@ -86,7 +86,7 @@ export default function Home() {
           <div className="mt-16 flex flex-wrap items-center justify-center gap-x-12 gap-y-6 text-sm font-medium text-slate-500 animate-fade-in" style={{ animationDelay: "0.4s" }}>
             <div className="flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full shadow-sm border border-slate-100">
               <Users className="h-5 w-5 text-indigo-500" />
-              <span>10,000+ Calon</span>
+              <span>12,000+ Calon</span>
             </div>
             <div className="flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full shadow-sm border border-slate-100">
               <Clock className="h-5 w-5 text-amber-500" />
@@ -94,7 +94,7 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full shadow-sm border border-slate-100">
               <Target className="h-5 w-5 text-emerald-500" />
-              <span>Format Terkini SPA</span>
+              <span>Format 2026 SPA</span>
             </div>
           </div>
         </div>
@@ -138,20 +138,26 @@ export default function Home() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <FeatureCard
               icon={<Brain className="h-6 w-6 text-white" />}
-              title="Laporan Analisis AI"
-              description="Dapatkan 'feedback' mendalam tentang personaliti anda. AI kami akan memberitahu kekuatan dan kelemahan anda berdasarkan jawapan anda."
+              title="Analisis & Jadual Belajar AI"
+              description="[BARU] AI bukan sahaja memberitahu kelemahan anda, malah menjana JADUAL BELAJAR harian yang spesifik untuk anda baiki kelemahan tersebut."
               color="bg-gradient-to-br from-violet-500 to-purple-600"
             />
             <FeatureCard
+              icon={<Sparkles className="h-6 w-6 text-white" />}
+              title="Koleksi Soalan Maut"
+              description="[BARU] Akses eksklusif kepada koleksi soalan yang mempunyai kadar kegagalan >60%. Kuasai soalan 'killer' ini untuk mendahului calon lain."
+              color="bg-gradient-to-br from-amber-500 to-orange-600"
+            />
+            <FeatureCard
               icon={<Target className="h-6 w-6 text-white" />}
-              title="Simulasi Peperiksaan Sebenar"
-              description="Rasa tekanan sebenar dengan pemasa undur dan format soalan yang menepati standard SPA terkini."
+              title="Simulasi 'Real Exam'"
+              description="[BARU] Mod peperiksaan tanpa gangguan, tanpa butang 'pause', dan masa yang rigid. Rasa tekanan sebenar sebelum hari kejadian."
               color="bg-gradient-to-br from-rose-500 to-pink-600"
             />
             <FeatureCard
-              icon={<CheckCircle2 className="h-6 w-6 text-white" />}
-              title="Pemarkahan Automatik"
-              description="Tidak perlu menyemak manual. Lihat markah anda serta-merta dan fahami di mana anda berdiri."
+              icon={<ShieldCheck className="h-6 w-6 text-white" />}
+              title="Jaminan Wang Dikembalikan"
+              description="Kami sangat yakin dengan sistem kami. Jika anda buat semua latihan dan masih gagal, kami pulangkan wang langganan anda (T&C)."
               color="bg-gradient-to-br from-emerald-500 to-teal-600"
             />
             <FeatureCard
@@ -161,15 +167,9 @@ export default function Home() {
               color="bg-gradient-to-br from-blue-500 to-cyan-600"
             />
             <FeatureCard
-              icon={<Sparkles className="h-6 w-6 text-white" />}
-              title="Bank Soalan Premium"
-              description="Soalan yang sentiasa dikemaskini mingguan untuk memastikan anda tidak ketinggalan dengan trend terbaru."
-              color="bg-gradient-to-br from-amber-500 to-orange-600"
-            />
-            <FeatureCard
-              icon={<ShieldCheck className="h-6 w-6 text-white" />}
-              title="Tips & Strategi Menjawab"
-              description="Bukan sekadar soalan, kami sediakan panduan bagaimana memilih jawapan yang 'dikehendaki' oleh ketua jabatan."
+              icon={<Trophy className="h-6 w-6 text-white" />}
+              title="Lencana & Gamifikasi"
+              description="Kekalkan momentum dengan sistem 'Streak' dan kumpul lencana pencapaian untuk kekal bermotivasi setiap hari."
               color="bg-gradient-to-br from-indigo-500 to-blue-600"
             />
           </div>
@@ -326,7 +326,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-slate-100 pt-8 text-center text-sm text-slate-400">
-            © 2025 Psikometrik Online. Hak Cipta Terpelihara.
+            © 2026 Psikometrik Online. Hak Cipta Terpelihara.
           </div>
         </div>
       </footer>

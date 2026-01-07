@@ -108,8 +108,59 @@ export default function QuizPage() {
                 }
             }
 
-            // 2. Try to load from Supabase if we have a normal ID
-            if (activeQuizId && !activeQuizId.startsWith('demo-') && activeQuizId !== 'smart-review') {
+            // 1.5 Killer Questions Mode
+            if (activeQuizId === 'killer-mode') {
+                try {
+                    const res = await fetch('/api/questions/killer-questions');
+                    const data = await res.json();
+                    if (data && data.length > 0) {
+                        await setQuestionsWithSecurity(data);
+                        setLoading(false);
+                        return;
+                    }
+                } catch (err) {
+                    console.error("Failed to load killer questions", err);
+                }
+            }
+
+            // 2. Real Exam Mode
+            if (activeQuizId && activeQuizId.startsWith('real-exam-mode')) {
+                try {
+                    const res = await fetch('/api/questions');
+                    let data = await res.json();
+
+                    if (data && data.length > 0) {
+                        // Ensure we have 170 questions
+                        let finalQuestions = [...data];
+
+                        // If less than 170, recycle questions (Shuffle & Duplicate) to simulate fatigue
+                        if (finalQuestions.length < 170) {
+                            while (finalQuestions.length < 170) {
+                                const needed = 170 - finalQuestions.length;
+                                const extra = data.sort(() => 0.5 - Math.random()).slice(0, needed);
+                                finalQuestions = [...finalQuestions, ...extra];
+                            }
+                        }
+
+                        // Final Shuffle
+                        const shuffled = finalQuestions.sort(() => 0.5 - Math.random());
+                        // Assign unique IDs to duplicates to prevent key clashes in React
+                        const remapped = shuffled.map((q: any, i: number) => ({
+                            ...q,
+                            id: i + 10000 // Temporary ID for session
+                        }));
+
+                        await setQuestionsWithSecurity(remapped.slice(0, 170));
+                        setLoading(false);
+                        return;
+                    }
+                } catch (err) {
+                    console.error("Failed to load real exam questions", err);
+                }
+            }
+
+            // 3. Try to load from Supabase if we have a normal ID
+            if (activeQuizId && !activeQuizId.startsWith('demo-') && activeQuizId !== 'smart-review' && activeQuizId !== 'killer-mode' && !activeQuizId.startsWith('real-exam-mode')) {
                 try {
                     const data = await quizRepository.getQuestionsByQuizId(activeQuizId);
                     if (data && data.length > 0) {
@@ -311,6 +362,11 @@ export default function QuizPage() {
                 // Using dynamic import to avoid any potential server-component issues
                 const { quizRepository } = await import("@/utils/supabaseRepository");
                 await quizRepository.saveAttempt(userName, parseInt(activeQuizId), totalScore, answers, userId);
+
+                // Update Streak
+                if (userId) {
+                    await quizRepository.updateStreak(userId);
+                }
             }
 
             // Save result (User context)
@@ -416,7 +472,11 @@ export default function QuizPage() {
                                 </div>
 
                                 {/* Timer */}
-                                <CountdownTimer onTimeUp={handleTimeUp} initialMinutes={60} />
+                                <CountdownTimer
+                                    onTimeUp={handleTimeUp}
+                                    initialMinutes={typeof window !== 'undefined' && localStorage.getItem('activeQuizId') === 'killer-mode' ? 30 : (localStorage.getItem('activeQuizId')?.startsWith('real-exam-mode') ? 90 : 60)}
+                                    quizId={(typeof window !== 'undefined' && localStorage.getItem('activeQuizId')) || 'default'}
+                                />
                             </div>
                         </div>
 

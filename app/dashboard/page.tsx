@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import Link from 'next/link';
-import { BookOpen, Trophy, Clock, PlayCircle, Target, Flame, CheckCircle2, BarChart3 } from "lucide-react";
+import { BookOpen, Trophy, Clock, PlayCircle, Target, Flame, CheckCircle2, BarChart3, Sparkles } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { StatCard } from "@/components/StatCard";
 import { TipsSection } from "@/components/TipsSection";
@@ -29,6 +29,8 @@ export default function Dashboard() {
     const [userName, setUserName] = useState("Calon");
     const [subscription, setSubscription] = useState<{ endDate: string | null; tier: string | null }>({ endDate: null, tier: null });
     const [featuredQuiz, setFeaturedQuiz] = useState<any>(null);
+    const [streak, setStreak] = useState(0);
+    const [todaysMission, setTodaysMission] = useState<any>(null); // New State
 
     // Import Supabase Client
     const supabase = createClient(
@@ -37,59 +39,92 @@ export default function Dashboard() {
     );
 
     useEffect(() => {
-        // Fetch User
-        const fetchUser = async () => {
+        const fetchUserData = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
-                // Try to get explicit profile name first
-                const { data: profile } = await supabase
+                setUserName(session.user.identities?.[0]?.identity_data?.full_name || session.user.email?.split('@')[0] || 'Calon');
+
+                // Load Study Plan from LocalStorage
+                const savedPlan = localStorage.getItem('studyPlan');
+                if (savedPlan) {
+                    try {
+                        const plan = JSON.parse(savedPlan);
+                        const todayStr = new Date().toDateString();
+                        const mission = plan.find((p: any) => new Date(p.date).toDateString() === todayStr);
+                        if (mission) {
+                            setTodaysMission(mission);
+                        }
+                    } catch (e) {
+                        console.error("Error parsing study plan", e);
+                    }
+                }
+
+                // Fetch Streak and Subscription
+                const { data: profile, error } = await supabase
                     .from('profiles')
-                    .select('full_name, subscription_end_date, subscription_tier')
+                    .select('full_name, streak_count, subscription_tier, role, subscription_end_date')
                     .eq('id', session.user.id)
                     .single();
 
                 if (profile) {
                     if (profile.full_name) setUserName(profile.full_name);
+                    setStreak(profile.streak_count || 0); // Set streak from profile
                     setSubscription({
                         endDate: profile.subscription_end_date,
                         tier: profile.subscription_tier
                     });
-                } else {
-                    // Fallback to name in localStorage or Email prefix
-                    const savedName = localStorage.getItem('userName');
-                    setUserName(savedName || session.user.email?.split('@')[0] || "Calon");
+
+                    if (profile.role === 'admin') {
+                        setIsPremium(true);
+                    } else if (profile.subscription_tier !== 'free') {
+                        // Check expiry
+                        if (profile.subscription_end_date) {
+                            const endDate = new Date(profile.subscription_end_date);
+                            if (endDate > new Date()) {
+                                setIsPremium(true);
+                            }
+                        } else {
+                            // Legacy or valid without date
+                            setIsPremium(true);
+                        }
+                    }
+                } else if (error) {
+                    console.error("Error fetching profile:", error);
                 }
-            }
-        };
-        fetchUser();
 
-        // Fetch Featured/Latest Quiz
-        const fetchFeaturedQuiz = async () => {
-            const { data } = await supabase
-                .from('quizzes')
-                .select('*')
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .single();
+                // Fetch Featured/Latest Quiz
+                const { data: quizData } = await supabase
+                    .from('quizzes')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .single();
 
-            if (data) {
-                setFeaturedQuiz({
-                    title: data.title,
-                    totalQuestions: data.total_questions,
-                    duration: data.duration_minutes,
-                    description: data.description
-                });
+                if (quizData) {
+                    setFeaturedQuiz({
+                        title: quizData.title,
+                        totalQuestions: quizData.total_questions,
+                        duration: quizData.duration_minutes,
+                        description: quizData.description
+                    });
+                } else {
+                    // Fallback if no quiz exists
+                    setFeaturedQuiz({
+                        title: "Ujian Psikometrik Lengkap",
+                        totalQuestions: 100,
+                        duration: 60,
+                        description: "Set soalan latihan ujian psikometrik."
+                    });
+                }
             } else {
-                // Fallback if no quiz exists
-                setFeaturedQuiz({
-                    title: "Ujian Psikometrik Lengkap",
-                    totalQuestions: 100,
-                    duration: 60,
-                    description: "Set soalan latihan ujian psikometrik."
-                });
+                // If no session, redirect to login or handle as anonymous
+                // For now, we'll just set loading to false and let the page render
+                // router.push('/login'); // Uncomment if you want to force login
             }
+            setLoading(false);
         };
-        fetchFeaturedQuiz();
+
+        fetchUserData();
 
         // Simulate network delay for verification of skeleton
         const timer = setTimeout(() => {
@@ -100,7 +135,7 @@ export default function Dashboard() {
         }, 1000);
 
         return () => clearTimeout(timer);
-    }, []);
+    }, []); // Removed router from dependency array as it's not used in this effect
 
     const getReadinessStatus = () => {
         if (stats.readinessPercentage >= 80) return "Sangat Bersedia";
@@ -134,31 +169,65 @@ export default function Dashboard() {
                 <SubscriptionCountdown expiryDate={subscription.endDate} planType={subscription.tier || 'free'} />
 
                 {/* 1. Smart Hero Section (Fokus Hari Ini) */}
-                <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <div>
+                <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                    {todaysMission && (
+                        <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                            <Sparkles className="h-48 w-48 text-indigo-500" />
+                        </div>
+                    )}
+                    <div className="z-10 relative">
                         <div className="flex items-center gap-2 mb-1">
-                            <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">
-                                Fokus Hari Ini
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${todaysMission ? 'bg-indigo-100 text-indigo-700' : 'bg-blue-100 text-blue-700'}`}>
+                                {todaysMission ? "Jadual AI Aktif" : "Fokus Hari Ini"}
                             </span>
                             <span className="text-gray-400 text-xs">|</span>
                             <span className="text-gray-500 text-xs font-medium">
                                 {new Date().toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long' })}
                             </span>
                         </div>
-                        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
-                            {getGreeting()}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">{userName}</span>.
-                        </h1>
-                        <p className="text-gray-500 mt-2 max-w-xl leading-relaxed">
-                            Momentum anda sedang meningkat! Hari ini disarankan untuk memantapkan <span className="font-semibold text-gray-700">Kompetensi Emosi</span>.
-                        </p>
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
+                            <div>
+                                <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+                                    {todaysMission ? (
+                                        <>Misi: <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">{todaysMission.topic}</span></>
+                                    ) : (
+                                        <>{getGreeting()}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">{userName}</span></>
+                                    )}
+                                </h1>
+                                <p className="text-gray-500 mt-1 max-w-xl leading-relaxed">
+                                    {todaysMission ? todaysMission.activity : "Teruskan momentum kecemerlangan anda hari ini."}
+                                </p>
+                                <div className="mt-3 flex flex-wrap gap-3">
+                                    <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-bold border transition-all ${streak > 0 ? 'bg-orange-100 text-orange-700 border-orange-200 shadow-sm' : 'bg-gray-50 text-gray-500 border-gray-200 border-dashed'}`}>
+                                        <Flame className={`h-4 w-4 ${streak > 0 ? 'fill-orange-500 text-orange-600' : 'text-gray-400'}`} />
+                                        {streak} Hari Streak
+                                    </span>
+                                    {todaysMission && (
+                                        <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-indigo-50 text-indigo-600 border border-indigo-100">
+                                            <Clock className="h-3 w-3" />
+                                            {todaysMission.duration}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className="flex gap-3">
-                        <Link href="/ai-coach">
-                            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 shadow-md hover:shadow-lg transition-all">
-                                <PlayCircle className="mr-2 h-4 w-4" />
-                                Latih Emosi
-                            </Button>
-                        </Link>
+                    <div className="flex gap-3 mt-4 md:mt-0 z-10 shrink-0">
+                        {todaysMission ? (
+                            <Link href="/study-plan">
+                                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 shadow-md hover:shadow-lg transition-all">
+                                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                                    Lihat Jadual
+                                </Button>
+                            </Link>
+                        ) : (
+                            <Link href="/ai-coach">
+                                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 shadow-md hover:shadow-lg transition-all">
+                                    <PlayCircle className="mr-2 h-4 w-4" />
+                                    Latih Emosi
+                                </Button>
+                            </Link>
+                        )}
                         <ShareButton className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm" text="Ajak Kawan" variant="outline" />
                     </div>
                 </div>
@@ -197,12 +266,12 @@ export default function Dashboard() {
                         colorClass="violet"
                         tooltip="Kedudukan anda berbanding calon-calon lain."
                     />
-                </div>
+                </div >
 
                 {/* Main Content Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                < div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8" >
                     {/* Main Quiz Card */}
-                    <div className="lg:col-span-2">
+                    < div className="lg:col-span-2" >
                         <Card className="shadow-lg border-0 ring-1 ring-gray-100 overflow-hidden">
                             {/* Hero Section with Gradient */}
                             <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
@@ -218,10 +287,6 @@ export default function Dashboard() {
                                     </div>
                                 </div>
                             </div>
-
-
-
-
 
                             <CardContent className="p-6">
                                 {/* Quiz Info */}
@@ -271,17 +336,83 @@ export default function Dashboard() {
                                 </div>
                             </CardContent>
                         </Card>
-                    </div>
+
+                        {/* NEW: Killer Questions Card */}
+                        <Card className="mt-6 shadow-lg border-0 ring-1 ring-red-100 overflow-hidden relative group cursor-pointer hover:shadow-xl transition-all"
+                            onClick={() => {
+                                localStorage.setItem('activeQuizId', 'killer-mode');
+                                localStorage.setItem('activeQuizTitle', '🔥🔥 Soalan Maut (High Failure Rate)');
+                                // For now, redirect to quiz page directly. Ideally check premium first.
+                                window.location.href = '/quiz';
+                            }}>
+                            <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-orange-600 opacity-90 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="relative p-6 flex flex-col md:flex-row items-center justify-between gap-4 text-white">
+                                <div className="flex items-center gap-4">
+                                    <div className="h-14 w-14 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-inner">
+                                        <Flame className="h-8 w-8 text-yellow-300 animate-pulse" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold flex items-center gap-2">
+                                            Koleksi Soalan Maut
+                                            <span className="bg-yellow-400 text-red-800 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">
+                                                Premium
+                                            </span>
+                                        </h3>
+                                        <p className="text-red-100 text-sm max-w-md">
+                                            Berani sahut cabaran? Himpunan 20 soalan dengan kadar kegagalan tertinggi calon tahun lepas.
+                                        </p>
+                                    </div>
+                                </div>
+                                <Button className="bg-white text-red-600 hover:bg-gray-100 font-bold border-0 shadow-md whitespace-nowrap">
+                                    <Target className="mr-2 h-4 w-4" />
+                                    Cuba Sekarang
+                                </Button>
+                            </div>
+                        </Card>
+
+                        {/* Real Exam Simulation Card */}
+                        <Card className="mt-6 shadow-lg border-0 ring-1 ring-blue-900 overflow-hidden relative group cursor-pointer hover:shadow-xl transition-all"
+                            onClick={() => {
+                                const uniqueId = `real-exam-mode-${Date.now()}`;
+                                localStorage.setItem('activeQuizId', uniqueId);
+                                localStorage.setItem('activeQuizTitle', 'MOD SIMULASI PEPERIKSAAN (PERCUBAAN)');
+                                window.location.href = '/quiz'; // Direct entry to quiz for immediate focus
+                            }}>
+                            <div className="absolute inset-0 bg-gradient-to-r from-slate-800 to-slate-900 opacity-95 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="relative p-6 flex flex-col md:flex-row items-center justify-between gap-4 text-white">
+                                <div className="flex items-center gap-4">
+                                    <div className="h-14 w-14 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center shadow-inner border border-white/20">
+                                        <Clock className="h-8 w-8 text-blue-200" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold flex items-center gap-2 text-blue-50">
+                                            Simulasi Peperiksaan
+                                            <span className="bg-blue-900 text-blue-100 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider border border-blue-700">
+                                                INTENSIF
+                                            </span>
+                                        </h3>
+                                        <p className="text-slate-300 text-sm max-w-md mt-1">
+                                            Suasana ujian sebenar. 170 Soalan. 1 Jam 30 Minit. Tiada gangguan. Uji tahap kesediaan mental anda sekarang.
+                                        </p>
+                                    </div>
+                                </div>
+                                <Button className="bg-blue-600 text-white hover:bg-blue-500 font-bold border-0 shadow-lg whitespace-nowrap ring-1 ring-blue-400">
+                                    <PlayCircle className="mr-2 h-4 w-4" />
+                                    Mula Sesi
+                                </Button>
+                            </div>
+                        </Card>
+                    </div >
 
                     {/* Recent Activity */}
-                    <div className="lg:col-span-1">
+                    < div className="lg:col-span-1" >
                         <RecentActivity />
-                    </div>
-                </div>
+                    </div >
+                </div >
 
                 {/* Tips Section */}
-                <TipsSection />
-            </div>
+                < TipsSection />
+            </div >
         </DashboardLayout >
     );
 }
