@@ -74,19 +74,9 @@ export default function Dashboard() {
                         tier: profile.subscription_tier
                     });
 
-                    if (profile.role === 'admin') {
-                        setIsPremium(true);
-                    } else if (profile.subscription_tier !== 'free') {
-                        // Check expiry
-                        if (profile.subscription_end_date) {
-                            const endDate = new Date(profile.subscription_end_date);
-                            if (endDate > new Date()) {
-                                setIsPremium(true);
-                            }
-                        } else {
-                            // Legacy or valid without date
-                            setIsPremium(true);
-                        }
+                    // Force admin to have premium tier if not set
+                    if (profile.role === 'admin' && profile.subscription_tier === 'free') {
+                        setSubscription(prev => ({ ...prev, tier: 'admin_premium' }));
                     }
                 } else if (error) {
                     console.error("Error fetching profile:", error);
