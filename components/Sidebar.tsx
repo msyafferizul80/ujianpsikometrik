@@ -34,68 +34,88 @@ import {
 } from "@/components/ui/dialog";
 import { TransactionsList } from "@/components/TransactionsList";
 
-const menuItems = [
+const menuGroups = [
     {
-        title: "Dashboard",
-        icon: LayoutDashboard,
-        href: "/dashboard",
+        label: "Menu Utama",
+        items: [
+            {
+                title: "Dashboard",
+                icon: LayoutDashboard,
+                href: "/dashboard",
+            },
+            {
+                title: "Kalendar",
+                icon: Calendar,
+                href: "/calendar",
+            },
+        ]
     },
     {
-        title: "Rekod Latihan",
-        icon: Trophy,
-        href: "/history",
+        label: "Latih Tubi & Prestasi",
+        items: [
+            {
+                title: "Bank Soalan",
+                icon: Library,
+                href: "/quiz/select",
+            },
+            {
+                title: "Jadual Belajar AI",
+                icon: Sparkles,
+                href: "/study-plan",
+            },
+            {
+                title: "Ai Coach",
+                icon: BrainCircuit,
+                href: "/ai-coach",
+                premium: true
+            },
+            {
+                title: "Rekod Latihan",
+                icon: Trophy,
+                href: "/history",
+            },
+            {
+                title: "Prestasi",
+                icon: BarChart3,
+                href: "/analytics",
+            },
+        ]
     },
     {
-        title: "Prestasi",
-        icon: BarChart3,
-        href: "/analytics",
+        label: "Sistem",
+        items: [
+            {
+                title: "Tetapan",
+                icon: Settings,
+                href: "/settings",
+            },
+            {
+                title: "Bantuan",
+                icon: HelpCircle,
+                href: "/dashboard/support",
+            },
+        ]
     },
     {
-        title: "Kalendar",
-        icon: Calendar,
-        href: "/calendar",
-    },
-    {
-        title: "Jadual Belajar AI",
-        icon: Sparkles,
-        href: "/study-plan",
-    },
-    {
-        title: "Ai Coach",
-        icon: BrainCircuit,
-        href: "/ai-coach",
-        premium: true
-    },
-    {
-        title: "Bank Soalan",
-        icon: Library,
-        href: "/quiz/select",
-    },
-    {
-        title: "Tetapan",
-        icon: Settings,
-        href: "/settings",
-    },
-    {
-        title: "Bantuan", // Added Support link
-        icon: HelpCircle,
-        href: "/dashboard/support",
-    },
-    {
-        title: "Urus Kuiz",
-        icon: BookOpen,
-        href: "/admin/quizzes",
-    },
-    {
-        title: "Admin Panel",
-        icon: Lock,
-        href: "/admin/dashboard",
-    },
-    {
-        title: "Pusat Bantuan",
-        icon: MessageSquare,
-        href: "/admin/support",
-    },
+        label: "Pentadbir",
+        items: [
+            {
+                title: "Admin Panel",
+                icon: Lock,
+                href: "/admin/dashboard",
+            },
+            {
+                title: "Urus Kuiz",
+                icon: BookOpen,
+                href: "/admin/quizzes",
+            },
+            {
+                title: "Pusat Bantuan",
+                icon: MessageSquare,
+                href: "/admin/support",
+            },
+        ]
+    }
 ];
 
 export function Sidebar() {
@@ -234,54 +254,71 @@ export function Sidebar() {
                 </div>
 
                 {/* Navigation Menu */}
-                <nav className="flex-1 p-4 overflow-y-auto">
-                    <div className="space-y-1">
-                        {menuItems.map((item) => {
-                            const Icon = item.icon;
-                            const isActive = pathname === item.href;
-
+                <nav className="flex-1 overflow-y-auto py-4">
+                    {menuGroups.map((group, groupIndex) => {
+                        // Filter items based on permissions
+                        const visibleItems = group.items.filter(item => {
                             // Hide Admin panel if not admin
                             if (item.href.startsWith('/admin') && userRole !== 'admin') {
-                                return null;
+                                return false;
                             }
-
                             // Hide Premium items if not subscribed
                             // @ts-ignore
                             if (item.premium && (!subscriptionStatus || subscriptionStatus === 'free') && userRole !== 'admin') {
-                                return null;
+                                return false;
                             }
+                            return true;
+                        });
 
-                            return (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    onClick={() => setIsOpen(false)}
-                                    className={cn(
-                                        "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
-                                        "hover:bg-gray-50",
-                                        isActive
-                                            ? "bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 font-medium shadow-sm"
-                                            : "text-gray-600 hover:text-gray-900"
-                                    )}
-                                >
-                                    <Icon className={cn(
-                                        "h-5 w-5",
-                                        isActive ? "text-blue-600" : "text-gray-400"
-                                    )} />
-                                    <span className="text-sm">{item.title}</span>
-                                    {isActive && (
-                                        <div className="ml-auto h-2 w-2 bg-blue-600 rounded-full" />
-                                    )}
-                                </Link>
-                            );
-                        })}
+                        // Don't render group if no items are visible
+                        if (visibleItems.length === 0) return null;
 
-                        {/* Upgrade Button - Only show if NOT subscribed/active */}
-                        {(!subscriptionStatus || subscriptionStatus === 'free') && (
+                        return (
+                            <div key={groupIndex} className="mb-6 px-4">
+                                <h3 className="mb-2 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                    {group.label}
+                                </h3>
+                                <div className="space-y-1">
+                                    {visibleItems.map((item) => {
+                                        const Icon = item.icon;
+                                        const isActive = pathname === item.href;
+
+                                        return (
+                                            <Link
+                                                key={item.href}
+                                                href={item.href}
+                                                onClick={() => setIsOpen(false)}
+                                                className={cn(
+                                                    "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
+                                                    "hover:bg-gray-50",
+                                                    isActive
+                                                        ? "bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 font-medium shadow-sm"
+                                                        : "text-gray-600 hover:text-gray-900"
+                                                )}
+                                            >
+                                                <Icon className={cn(
+                                                    "h-5 w-5",
+                                                    isActive ? "text-blue-600" : "text-gray-400"
+                                                )} />
+                                                <span className="text-sm">{item.title}</span>
+                                                {isActive && (
+                                                    <div className="ml-auto h-2 w-2 bg-blue-600 rounded-full" />
+                                                )}
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        );
+                    })}
+
+                    {/* Upgrade Button - Only show if NOT subscribed/active */}
+                    {(!subscriptionStatus || subscriptionStatus === 'free') && (
+                        <div className="px-4 mt-2">
                             <Link
                                 href="/pricing"
                                 onClick={() => setIsOpen(false)}
-                                className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 mt-6 mb-2 bg-gradient-to-r from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 border border-orange-200 shadow-sm group"
+                                className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 bg-gradient-to-r from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 border border-orange-200 shadow-sm group"
                             >
                                 <div className="p-1.5 bg-white rounded-md shadow-sm group-hover:scale-110 transition-transform">
                                     <Flame className="h-4 w-4 text-orange-500 fill-orange-500" />
@@ -291,8 +328,8 @@ export function Sidebar() {
                                     <span className="text-[10px] text-orange-600 font-medium">Lulus Exam Kali Ini!</span>
                                 </div>
                             </Link>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </nav>
 
                 {/* User Profile Section */}

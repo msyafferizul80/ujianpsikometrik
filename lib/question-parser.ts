@@ -51,7 +51,7 @@ export const parseTextClientSide = (text: string): ParsedQuestion[] => {
                 options: [],
                 correctAnswer: '',
                 answerPoints: {},
-                teras: currentTeras, // Use persistent Teras
+                teras: 'General', // Default, will be overridden if Teras line found
                 explanation: ''
             };
             parsingState = 'question_text';
@@ -63,12 +63,13 @@ export const parseTextClientSide = (text: string): ParsedQuestion[] => {
         // --- NEW: Detect "• Teras: ..." line inside a question block ---
         // Some formats put Teras info here. We can update currentTeras or just set it for this question.
         // ex: "• Teras: Emosi"
-        const specificTerasMatch = line.match(/^[\•\-\*]\s*Teras\s*[\:\-]\s*(.+)/i);
+        const specificTerasMatch = line.match(/^(?:[\•\-\*]\s*)?Teras\s*[\:\-]\s*(.+)/i);
         if (specificTerasMatch) {
             currentQuestion.teras = specificTerasMatch[1].trim();
             // Update global one too? Maybe not, safer to just update this question unless we want it to carry forward.
             // Let's rely on global one mostly, but if we see this, it overrides.
-            currentTeras = currentQuestion.teras;
+                        currentTeras = currentQuestion.teras;
+            console.log(` Detected Teras: "${currentQuestion.teras}" from line: "${line}"`);
             continue;
         }
 
@@ -79,7 +80,7 @@ export const parseTextClientSide = (text: string): ParsedQuestion[] => {
         // Given the example, "Soalan 1" header line had empty text, or maybe generic text. 
         // Then this line has the REAL text.
         // Matches: "* Soalan: Text...", "• Soalan: Text..."
-        const specificSoalanMatch = line.match(/^[\•\-\*]\s*Soalan\s*[\:\-]\s*(.+)/i);
+        const specificSoalanMatch = line.match(/^(?:[\•\-\*]\s*)?Soalan\s*[\:\-]\s*(.+)/i);
         if (specificSoalanMatch) {
             const realQuestionText = specificSoalanMatch[1].trim();
             // If we already have some text (from the header line), we might want to discard it if it was empty or just the number.
@@ -108,9 +109,10 @@ export const parseTextClientSide = (text: string): ParsedQuestion[] => {
         // Also handle "• Cadangan Jawapan Terbaik: A" (User format)
         if (/^(?:[\•\-\*]\s*)?(Cadangan Jawapan|Jawapan|Answer)/i.test(line)) {
             // Look for single letter A-E surrounded by boundary or whitespace/punctuation
-            const match = line.match(/[\:\-]\s*([A-E])(?=[\.\s]|$)/i) || line.match(/\s+([A-E])[\.\s]+/i);
+            const match = line.match(/([A-E])(?:\s|$)/i);
             if (match) {
-                currentQuestion.correctAnswer = match[1].toUpperCase();
+                                currentQuestion.correctAnswer = match[1].toUpperCase();
+                console.log(` Detected Correct Answer: ${currentQuestion.correctAnswer} from line: "${line}"`);
             }
             parsingState = 'meta';
             continue;

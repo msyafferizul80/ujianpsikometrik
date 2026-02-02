@@ -85,13 +85,17 @@ export async function POST(request: Request) {
                 continue;
             }
 
-            if (!currentQuestion) continue;
-
-            // 2. Detect "Teras:"
+            // 2. Detect "Teras:" BEFORE checking if currentQuestion exists
+            // This allows capturing "Teras: Kerjasama" that appears right after "Soalan 1"
             if (/^Teras\s*[\:\-]/i.test(line)) {
-                currentQuestion.teras = line.replace(/^Teras\s*[\:\-]\s*/i, '').trim();
+                if (currentQuestion) {
+                    currentQuestion.teras = line.replace(/^Teras\s*[\:\-]\s*/i, '').trim();
+                    console.log(`✓ Detected Teras: "${currentQuestion.teras}" from line: "${line}"`);
+                }
                 continue;
             }
+
+            if (!currentQuestion) continue;
 
             // 3. Detect "Soalan:" prefix (common in this format)
             if (/^Soalan\s*[\:\-]/i.test(line)) {
@@ -108,10 +112,13 @@ export async function POST(request: Request) {
             }
 
             // 5. Detect "Cadangan Jawapan Terbaik:" or "Jawapan:"
-            if (/^(Cadangan Jawapan Terbaik|Jawapan|Answer)\s*[\:\-]/i.test(line)) {
-                const match = line.match(/[\:\-]\s*([A-E])/i);
+            // More flexible pattern to handle "Cadangan Jawapan Terbaik: A" or "Cadangan Jawapan Terbaik : A"
+            if (/^(Cadangan Jawapan Terbaik|Jawapan|Answer)/i.test(line)) {
+                // Extract the letter A-E from anywhere in the line after the keyword
+                const match = line.match(/([A-E])(?:\s|$)/i);
                 if (match) {
                     currentQuestion.correctAnswer = match[1].toUpperCase();
+                    console.log(`✓ Detected Correct Answer: ${currentQuestion.correctAnswer} from line: "${line}"`);
                 }
                 parsingState = 'meta';
                 continue;
@@ -206,7 +213,19 @@ export async function POST(request: Request) {
                     points[opt.label] = 0; // Or standard distribution if we want
                 }
             });
-            return { ...q, answerPoints: points };
+
+            // 🔄 NORMALIZE FIELD NAMES FOR BACKWARD COMPATIBILITY
+            // Transform parser format (text, correctAnswer) to match existing format (question, bestAnswer)
+            return {
+                id: q.id,
+                teras: q.teras,
+                question: q.text,           // text → question
+                options: q.options,
+                bestAnswer: q.correctAnswer, // correctAnswer → bestAnswer (for questions.json compatibility)
+                correctAnswer: q.correctAnswer, // Keep correctAnswer for database save compatibility
+                explanation: q.explanation,
+                answerPoints: points
+            };
         });
 
         return NextResponse.json({
