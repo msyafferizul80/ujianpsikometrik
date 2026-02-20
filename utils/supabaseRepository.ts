@@ -17,6 +17,18 @@ export const quizRepository = {
         return data;
     },
 
+    async updateQuiz(id: string, title: string, description: string) {
+        const { data, error } = await supabase
+            .from('quizzes')
+            .update({ title, description })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    },
+
     async toggleQuizPremium(id: string, isPremium: boolean) {
         const { error } = await supabase
             .from('quizzes')

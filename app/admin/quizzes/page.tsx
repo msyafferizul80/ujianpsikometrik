@@ -8,12 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { quizRepository } from "@/utils/supabaseRepository";
-import { Loader2, BookOpen, Lock, Unlock, Trash2, Plus } from "lucide-react";
+import { Loader2, BookOpen, Lock, Unlock, Trash2, Plus, Edit2, X } from "lucide-react";
 
 export default function QuizManagementPage() {
     const router = useRouter();
     const [quizzes, setQuizzes] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [editingQuiz, setEditingQuiz] = useState<any | null>(null);
+    const [editTitle, setEditTitle] = useState("");
+    const [editDescription, setEditDescription] = useState("");
 
     const fetchQuizzes = async () => {
         setLoading(true);
@@ -54,6 +57,24 @@ export default function QuizManagementPage() {
                 console.error("Error deleting quiz:", error);
                 alert("Gagal memadam kuiz.");
             }
+        }
+    };
+
+    const handleEdit = (quiz: any) => {
+        setEditingQuiz(quiz);
+        setEditTitle(quiz.title);
+        setEditDescription(quiz.description);
+    };
+
+    const saveEdit = async () => {
+        if (!editingQuiz || !editTitle.trim()) return;
+        try {
+            await quizRepository.updateQuiz(editingQuiz.id, editTitle, editDescription);
+            setEditingQuiz(null);
+            fetchQuizzes();
+        } catch (error) {
+            console.error("Error updating quiz:", error);
+            alert("Gagal mengemaskini kuiz.");
         }
     };
 
@@ -123,8 +144,8 @@ export default function QuizManagementPage() {
                                                             <button
                                                                 onClick={() => togglePremium(quiz.id, quiz.is_premium)}
                                                                 className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${quiz.is_premium
-                                                                        ? "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
-                                                                        : "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
+                                                                    ? "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
+                                                                    : "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
                                                                     }`}
                                                             >
                                                                 {quiz.is_premium ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
@@ -138,15 +159,26 @@ export default function QuizManagementPage() {
                                                         </span>
                                                     </TableCell>
                                                     <TableCell className="text-right">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            onClick={() => handleDelete(quiz.id, quiz.title)}
-                                                            className="text-gray-400 hover:text-red-600 hover:bg-red-50"
-                                                            title="Padam Set Soalan"
-                                                        >
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
+                                                        <div className="flex justify-end gap-2">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                onClick={() => handleEdit(quiz)}
+                                                                className="text-gray-400 hover:text-blue-600 hover:bg-blue-50"
+                                                                title="Kemaskini Set Soalan"
+                                                            >
+                                                                <Edit2 className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                onClick={() => handleDelete(quiz.id, quiz.title)}
+                                                                className="text-gray-400 hover:text-red-600 hover:bg-red-50"
+                                                                title="Padam Set Soalan"
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
                                                     </TableCell>
                                                 </TableRow>
                                             ))
@@ -158,6 +190,49 @@ export default function QuizManagementPage() {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Edit Modal */}
+            {editingQuiz && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <Card className="w-full max-w-md bg-white shadow-xl">
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle>Kemaskini Kuiz</CardTitle>
+                            <Button variant="ghost" size="icon" onClick={() => setEditingQuiz(null)}>
+                                <X className="h-5 w-5" />
+                            </Button>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700">Tajuk Kuiz</label>
+                                <input
+                                    type="text"
+                                    value={editTitle}
+                                    onChange={(e) => setEditTitle(e.target.value)}
+                                    className="w-full p-2 border rounded-md"
+                                    placeholder="Masukkan tajuk kuiz"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700">Deskripsi</label>
+                                <textarea
+                                    value={editDescription}
+                                    onChange={(e) => setEditDescription(e.target.value)}
+                                    className="w-full p-2 border rounded-md min-h-[100px]"
+                                    placeholder="Masukkan deskripsi kuiz"
+                                />
+                            </div>
+                            <div className="flex justify-end gap-2 pt-4">
+                                <Button variant="outline" onClick={() => setEditingQuiz(null)}>
+                                    Batal
+                                </Button>
+                                <Button onClick={saveEdit} className="bg-blue-600 hover:bg-blue-700 text-white">
+                                    Simpan
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
         </DashboardLayout>
     );
 }
