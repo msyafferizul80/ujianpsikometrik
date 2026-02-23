@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, // Use Service Role Key in production for security!
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, // Use Service Role Key in production for security!
     // For localhost/MVP with RLS, we might need a workaround or ensure policies allow update
     // Ideally: use Service Role Key here. Since I don't have it in env, I will rely on public + policy or assume currentUser context isn't available here effectively.
     // WAIT: This is a webhook. It runs on server. It needs SERVICE ROLE to bypass RLS and update any user.

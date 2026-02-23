@@ -288,7 +288,7 @@ export default function QuizManagementPage() {
                                     Tag Jawatan (pilih semua yang berkaitan)
                                 </label>
                                 <div className="flex flex-wrap gap-2">
-                                    {JOB_ROLE_OPTIONS.map(role => {
+                                    {jobRoleOptions.map(role => {
                                         const isSelected = editTags.includes(role);
                                         return (
                                             <button
