@@ -29,6 +29,16 @@ export const quizRepository = {
         return data;
     },
 
+    async updateQuizTags(id: string, jobTags: string[]) {
+        const { error } = await supabase
+            .from('quizzes')
+            .update({ job_tags: jobTags })
+            .eq('id', id);
+
+        if (error) throw error;
+        return true;
+    },
+
     async toggleQuizPremium(id: string, isPremium: boolean) {
         const { error } = await supabase
             .from('quizzes')

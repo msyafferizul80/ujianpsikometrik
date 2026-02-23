@@ -12,9 +12,9 @@ import { TipsSection } from "@/components/TipsSection";
 import { RecentActivity } from "@/components/RecentActivity";
 import { DashboardSkeleton } from "@/components/DashboardSkeleton";
 import { ShareButton } from "@/components/ShareButton";
+import { PreExamModal } from "@/components/PreExamModal";
 import { createClient } from '@supabase/supabase-js';
 import { getQuizStats, hasInProgressQuiz } from "@/utils/stats";
-
 import { SubscriptionCountdown } from "@/components/SubscriptionCountdown";
 
 export default function Dashboard() {
@@ -30,7 +30,9 @@ export default function Dashboard() {
     const [subscription, setSubscription] = useState<{ endDate: string | null; tier: string | null }>({ endDate: null, tier: null });
     const [featuredQuiz, setFeaturedQuiz] = useState<any>(null);
     const [streak, setStreak] = useState(0);
-    const [todaysMission, setTodaysMission] = useState<any>(null); // New State
+    const [todaysMission, setTodaysMission] = useState<any>(null);
+    const [showPreExamModal, setShowPreExamModal] = useState(false);
+    const [examQuizId, setExamQuizId] = useState('');
 
     // Import Supabase Client
     const supabase = createClient(
@@ -363,10 +365,10 @@ export default function Dashboard() {
                         {/* Real Exam Simulation Card */}
                         <Card className="mt-6 shadow-lg border-0 ring-1 ring-blue-900 overflow-hidden relative group cursor-pointer hover:shadow-xl transition-all"
                             onClick={() => {
+                                // Show pre-exam briefing modal instead of navigating directly
                                 const uniqueId = `real-exam-mode-${Date.now()}`;
-                                localStorage.setItem('activeQuizId', uniqueId);
-                                localStorage.setItem('activeQuizTitle', 'MOD SIMULASI PEPERIKSAAN (PERCUBAAN)');
-                                window.location.href = '/quiz'; // Direct entry to quiz for immediate focus
+                                setExamQuizId(uniqueId);
+                                setShowPreExamModal(true);
                             }}>
                             <div className="absolute inset-0 bg-gradient-to-r from-slate-800 to-slate-900 opacity-95 group-hover:opacity-100 transition-opacity"></div>
                             <div className="relative p-6 flex flex-col md:flex-row items-center justify-between gap-4 text-white">
@@ -392,17 +394,33 @@ export default function Dashboard() {
                                 </Button>
                             </div>
                         </Card>
-                    </div >
+                    </div>
 
                     {/* Recent Activity */}
-                    < div className="lg:col-span-1" >
+                    <div className="lg:col-span-1">
                         <RecentActivity />
-                    </div >
-                </div >
+                    </div>
+                </div>
 
                 {/* Tips Section */}
-                < TipsSection />
-            </div >
-        </DashboardLayout >
+                <TipsSection />
+            </div>
+
+            {/* Pre-Exam Briefing Modal */}
+            <PreExamModal
+                open={showPreExamModal}
+                quizId={examQuizId}
+                quizTitle="Simulasi Peperiksaan SPA — 170 Soalan"
+                onExamStarted={(attemptId, endsAt) => {
+                    localStorage.setItem('activeQuizId', examQuizId);
+                    localStorage.setItem('activeQuizTitle', '📋 Simulasi Peperiksaan Sebenar');
+                    localStorage.setItem('examAttemptId', attemptId.toString());
+                    localStorage.setItem('examEndsAt', endsAt);
+                    setShowPreExamModal(false);
+                    window.location.href = '/quiz';
+                }}
+                onCancel={() => setShowPreExamModal(false)}
+            />
+        </DashboardLayout>
     );
 }

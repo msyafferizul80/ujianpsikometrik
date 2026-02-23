@@ -1,18 +1,17 @@
 "use client";
 
-
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useRouter } from 'next/navigation';
-import { Loader2, ArrowRight, ArrowLeft, Send, Save } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, Send, Save, AlertTriangle } from "lucide-react";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { AnswerOption } from "@/components/AnswerOption";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { QuizSkeleton } from "@/components/QuizSkeleton";
+import { ExamViolationBanner } from "@/components/ExamViolationBanner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-
 
 import { quizRepository } from "@/utils/supabaseRepository";
 import { createClient } from "@supabase/supabase-js";
@@ -39,6 +38,17 @@ export default function QuizPage() {
     const [autoSaving, setAutoSaving] = useState(false);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const router = useRouter();
+
+    // Server-side exam timer state
+    const [examEndsAt, setExamEndsAt] = useState<string | undefined>(undefined);
+    const [examAttemptId, setExamAttemptId] = useState<number | null>(null);
+    const [isRealExamMode, setIsRealExamMode] = useState(false);
+
+    // Anti-cheat state
+    const [tabSwitchCount, setTabSwitchCount] = useState(0);
+    const [showViolationBanner, setShowViolationBanner] = useState(false);
+    const answersRef = useRef<Record<number, string>>({});
+    const tabSwitchRef = useRef(0);
 
     // Load questions and saved progress
     // ... imports ...
@@ -213,6 +223,85 @@ export default function QuizPage() {
         loadQuizData();
     }, []);
 
+    // Keep answers ref in sync for heartbeat
+    useEffect(() => {
+        answersRef.current = answers;
+    }, [answers]);
+
+    // ─── ANTI-CHEAT EFFECTS (Real Exam Mode only) ─────────────────────────────
+    useEffect(() => {
+        const activeQuizId = localStorage.getItem('activeQuizId');
+        const realExam = activeQuizId?.startsWith('real-exam-mode');
+        setIsRealExamMode(!!realExam);
+
+        if (!realExam) return;
+
+        // 1. Disable right-click
+        const onContextMenu = (e: MouseEvent) => e.preventDefault();
+        document.addEventListener('contextmenu', onContextMenu);
+
+        // 2. Disable text selection via CSS
+        document.body.style.userSelect = 'none';
+        document.body.style.webkitUserSelect = 'none';
+
+        // 3. Tab-switch detection
+        const onVisibilityChange = () => {
+            if (document.hidden) {
+                tabSwitchRef.current += 1;
+                setTabSwitchCount(tabSwitchRef.current);
+                setShowViolationBanner(true);
+
+                // Record violation via heartbeat
+                if (examAttemptId) {
+                    fetch('/api/exam/heartbeat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            attempt_id: examAttemptId,
+                            answers: answersRef.current,
+                            tab_switches: tabSwitchRef.current,
+                            violation: { type: 'TAB_SWITCH' },
+                        }),
+                    }).catch(() => { });
+                }
+            }
+        };
+        document.addEventListener('visibilitychange', onVisibilityChange);
+
+        // 4. Disable copy-paste keyboard shortcuts
+        const onKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && ['c', 'v', 'a', 'u'].includes(e.key.toLowerCase())) {
+                e.preventDefault();
+            }
+        };
+        document.addEventListener('keydown', onKeyDown);
+
+        return () => {
+            document.removeEventListener('contextmenu', onContextMenu);
+            document.removeEventListener('visibilitychange', onVisibilityChange);
+            document.removeEventListener('keydown', onKeyDown);
+            document.body.style.userSelect = '';
+            document.body.style.webkitUserSelect = '';
+        };
+    }, [examAttemptId]);
+
+    // Check & restore server-side exam session on page load
+    useEffect(() => {
+        const storedAttemptId = localStorage.getItem('examAttemptId');
+        const storedEndsAt = localStorage.getItem('examEndsAt');
+        if (storedAttemptId && storedEndsAt) {
+            const secsLeft = Math.floor((new Date(storedEndsAt).getTime() - Date.now()) / 1000);
+            if (secsLeft > 0) {
+                setExamAttemptId(parseInt(storedAttemptId));
+                setExamEndsAt(storedEndsAt);
+            } else {
+                // Expired — clear stored session
+                localStorage.removeItem('examAttemptId');
+                localStorage.removeItem('examEndsAt');
+            }
+        }
+    }, []);
+
     // NEW: Smart Resume Effect
     useEffect(() => {
         if (questions.length > 0) {
@@ -235,20 +324,35 @@ export default function QuizPage() {
         }
     }, [questions]); // Run once when questions are loaded
 
-    // Auto-save functionality
+    // Auto-save functionality (now also syncs to server via heartbeat if in exam mode)
     useEffect(() => {
         if (questions.length === 0) return;
 
-        const autoSaveInterval = setInterval(() => {
+        const autoSaveInterval = setInterval(async () => {
             setAutoSaving(true);
             localStorage.setItem('quizAnswers', JSON.stringify(answers));
             localStorage.setItem('currentQuestion', currentIdx.toString());
 
+            // Heartbeat sync if in real exam mode
+            if (examAttemptId) {
+                try {
+                    await fetch('/api/exam/heartbeat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            attempt_id: examAttemptId,
+                            answers: answersRef.current,
+                            tab_switches: tabSwitchRef.current,
+                        }),
+                    });
+                } catch { /* silent */ }
+            }
+
             setTimeout(() => setAutoSaving(false), 1000);
-        }, 30000); // Auto-save every 30 seconds
+        }, 30000);
 
         return () => clearInterval(autoSaveInterval);
-    }, [answers, currentIdx, questions.length]);
+    }, [answers, currentIdx, questions.length, examAttemptId]);
 
     // Save on answer change
     useEffect(() => {
@@ -435,21 +539,40 @@ export default function QuizPage() {
     }
 
     const currentQ = questions[currentIdx];
-    const progress = ((currentIdx + 1) / questions.length) * 100;
     const answeredCount = Object.keys(answers).length;
+    const progress = (answeredCount / questions.length) * 100;  // Based on answers, not current position
     const allAnswered = answeredCount === questions.length;
 
     return (
         <DashboardLayout>
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 flex flex-col">
+            {/* Anti-cheat violation banner */}
+            {showViolationBanner && (
+                <ExamViolationBanner
+                    violationCount={tabSwitchCount}
+                    onDismiss={() => setShowViolationBanner(false)}
+                />
+            )}
+
+            <div
+                className={`min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 flex flex-col ${isRealExamMode ? 'select-none' : ''}`}
+                onContextMenu={(e) => { if (isRealExamMode) { e.preventDefault(); alert("Right-click is disabled during Real Exam Mode."); } }}
+                onCopy={(e) => { if (isRealExamMode) { e.preventDefault(); alert("Copying is disabled during Real Exam Mode."); } }}
+                onPaste={(e) => { if (isRealExamMode) { e.preventDefault(); } }}
+                onCut={(e) => { if (isRealExamMode) { e.preventDefault(); } }}
+            >
                 {/* Enhanced Header */}
                 <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 sm:px-6 py-4 shadow-sm sticky top-0 z-20">
                     <div className="max-w-7xl mx-auto">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-3">
                             {/* Title */}
                             <div>
-                                <h1 className="text-lg font-bold text-gray-900">
+                                <h1 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                                     {localStorage.getItem('activeQuizTitle') || "Ujian Psikometrik 2025"}
+                                    {isRealExamMode && (
+                                        <span className="text-xs font-semibold bg-red-100 text-red-700 px-2 py-0.5 rounded-full border border-red-200">
+                                            🔴 EXAM SEBENAR
+                                        </span>
+                                    )}
                                 </h1>
                                 <p className="text-sm text-gray-600">
                                     Soalan {currentIdx + 1} daripada {questions.length}
@@ -466,6 +589,15 @@ export default function QuizPage() {
                                     </div>
                                 )}
 
+                                {/* Tab violation badge (real exam only) */}
+                                {isRealExamMode && tabSwitchCount > 0 && (
+                                    <div className="flex items-center gap-1.5 text-xs font-semibold bg-red-100 text-red-700 px-2.5 py-1.5 rounded-lg border border-red-200">
+                                        <AlertTriangle className="h-3.5 w-3.5" />
+                                        {tabSwitchCount} pelanggaran
+                                    </div>
+                                )}
+
+
                                 {/* Answered count */}
                                 <div className="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-2 rounded-lg">
                                     {answeredCount}/{questions.length} dijawab
@@ -474,8 +606,28 @@ export default function QuizPage() {
                                 {/* Timer */}
                                 <CountdownTimer
                                     onTimeUp={handleTimeUp}
-                                    initialMinutes={typeof window !== 'undefined' && localStorage.getItem('activeQuizId') === 'killer-mode' ? 30 : (localStorage.getItem('activeQuizId')?.startsWith('real-exam-mode') ? 90 : 60)}
+                                    endsAt={examEndsAt}
+                                    initialMinutes={
+                                        typeof window !== 'undefined' && localStorage.getItem('activeQuizId') === 'killer-mode'
+                                            ? 30
+                                            : (localStorage.getItem('activeQuizId')?.startsWith('real-exam-mode') ? 90 : 60)
+                                    }
                                     quizId={(typeof window !== 'undefined' && localStorage.getItem('activeQuizId')) || 'default'}
+                                    onHeartbeat={examAttemptId ? async () => {
+                                        try {
+                                            const res = await fetch('/api/exam/heartbeat', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    attempt_id: examAttemptId,
+                                                    answers: answersRef.current,
+                                                    tab_switches: tabSwitchRef.current,
+                                                }),
+                                            });
+                                            const data = await res.json();
+                                            return data.seconds_remaining ?? null;
+                                        } catch { return null; }
+                                    } : undefined}
                                 />
                             </div>
                         </div>

@@ -47,17 +47,10 @@ Pastikan nada profesional, tegas, tetapi membantu. Jangan gunakan markdown (bold
 
         return NextResponse.json({ advice });
 
-    } catch (e: unknown) { // Use unknown instead of any
+    } catch (e: unknown) {
         console.error("Gemini API Error (Detailed):", JSON.stringify(e, Object.getOwnPropertyNames(e)));
-        const errorMessage = e instanceof Error ? e.message : String(e);
         const mockAdvice = generateMockAdviceContent(body as RequestBody);
-        const detailedError = `\n\n[DEBUG ERROR]: ${errorMessage}`;
-        // Only show detailed error if we are in dev/debug mode or just append it for now to solve this.
-
-        return NextResponse.json({
-            advice: mockAdvice + detailedError,
-            debug: { error: errorMessage, apiKeyStatus: apiKey ? "Present" : "Missing" }
-        });
+        return NextResponse.json({ advice: mockAdvice });
     }
 }
 

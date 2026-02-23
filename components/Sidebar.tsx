@@ -20,7 +20,8 @@ import {
     MessageSquare,
     BrainCircuit,
     Sparkles,
-    History
+    History,
+    Tag
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getQuizStats } from "@/utils/stats";
@@ -57,6 +58,11 @@ const menuGroups = [
                 title: "Bank Soalan",
                 icon: Library,
                 href: "/quiz/select",
+            },
+            {
+                title: "Pusat Ilmu",
+                icon: BookOpen,
+                href: "/learn",
             },
             {
                 title: "Jadual Belajar AI",
@@ -108,6 +114,16 @@ const menuGroups = [
                 title: "Urus Kuiz",
                 icon: BookOpen,
                 href: "/admin/quizzes",
+            },
+            {
+                title: "Urus Tag Jawatan",
+                icon: Tag,
+                href: "/admin/tags",
+            },
+            {
+                title: "Urus Artikel",
+                icon: BookOpen,
+                href: "/admin/articles",
             },
             {
                 title: "Pusat Bantuan",
