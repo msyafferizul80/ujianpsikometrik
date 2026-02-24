@@ -17,45 +17,50 @@ export async function POST(req: Request) {
         const authHeader = req.headers.get('Authorization') || '';
         const token = authHeader.replace('Bearer ', '');
 
+        if (!token) {
+            return NextResponse.json({ error: "Sila log masuk untuk memulakan temuduga." }, { status: 401 });
+        }
+
         let weakAreasContext = "Fokus pada soalan temuduga SPA yang umum.";
         let userId = null;
 
-        if (token) {
-            const { data: { user } } = await supabase.auth.getUser(token);
-            if (user) {
-                userId = user.id;
-                // Fetch recent weak areas (similar to study plan)
-                const { data: attempts } = await supabase
-                    .from('attempts')
-                    .select('teras_scores')
-                    .eq('user_id', user.id)
-                    .order('created_at', { ascending: false })
-                    .limit(5);
+        const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+        if (authError || !user) {
+            return NextResponse.json({ error: "Sesi tidak sah atau tamat." }, { status: 401 });
+        }
 
-                if (attempts && attempts.length > 0) {
-                    const terasTotal: Record<string, { sum: number; count: number }> = {};
-                    attempts.forEach(a => {
-                        const teras = a.teras_scores as Record<string, number> | null;
-                        if (teras && typeof teras === 'object') {
-                            for (const [key, val] of Object.entries(teras)) {
-                                if (!terasTotal[key]) terasTotal[key] = { sum: 0, count: 0 };
-                                terasTotal[key].sum += Number(val);
-                                terasTotal[key].count += 1;
-                            }
-                        }
-                    });
+        userId = user.id;
 
-                    const weakAreas = Object.entries(terasTotal)
-                        .map(([teras, { sum, count }]) => ({ teras, avg: Math.round(sum / count) }))
-                        .filter(t => t.avg < 70) // Stricter threshold for interviews
-                        .sort((a, b) => a.avg - b.avg)
-                        .slice(0, 2)
-                        .map(t => t.teras);
+        // Fetch recent weak areas (similar to study plan)
+        const { data: attempts } = await supabase
+            .from('attempts')
+            .select('teras_scores')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(5);
 
-                    if (weakAreas.length > 0) {
-                        weakAreasContext = `Calon mempunyai kelemahan dalam aspek Psikometrik berikut: ${weakAreas.join(', ')}. Sila tekankan soalan temuduga yang menguji kawasan ini secara tidak langsung.`;
+        if (attempts && attempts.length > 0) {
+            const terasTotal: Record<string, { sum: number; count: number }> = {};
+            attempts.forEach(a => {
+                const teras = a.teras_scores as Record<string, number> | null;
+                if (teras && typeof teras === 'object') {
+                    for (const [key, val] of Object.entries(teras)) {
+                        if (!terasTotal[key]) terasTotal[key] = { sum: 0, count: 0 };
+                        terasTotal[key].sum += Number(val);
+                        terasTotal[key].count += 1;
                     }
                 }
+            });
+
+            const weakAreas = Object.entries(terasTotal)
+                .map(([teras, { sum, count }]) => ({ teras, avg: Math.round(sum / count) }))
+                .filter(t => t.avg < 70) // Stricter threshold for interviews
+                .sort((a, b) => a.avg - b.avg)
+                .slice(0, 2)
+                .map(t => t.teras);
+
+            if (weakAreas.length > 0) {
+                weakAreasContext = `Calon mempunyai kelemahan dalam aspek Psikometrik berikut: ${weakAreas.join(', ')}. Sila tekankan soalan temuduga yang menguji kawasan ini secara tidak langsung.`;
             }
         }
 

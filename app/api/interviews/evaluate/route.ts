@@ -16,12 +16,17 @@ export async function POST(req: Request) {
 
         const authHeader = req.headers.get('Authorization') || '';
         const token = authHeader.replace('Bearer ', '');
-        let userId = null;
 
-        if (token) {
-            const { data: { user } } = await supabase.auth.getUser(token);
-            if (user) userId = user.id;
+        if (!token) {
+            return NextResponse.json({ error: "Sila log masuk untuk menilai temuduga." }, { status: 401 });
         }
+
+        const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+        if (authError || !user) {
+            return NextResponse.json({ error: "Sesi tidak sah atau tamat." }, { status: 401 });
+        }
+
+        const userId = user.id;
 
         const model = genAI.getGenerativeModel({
             model: "gemini-2.0-flash",
