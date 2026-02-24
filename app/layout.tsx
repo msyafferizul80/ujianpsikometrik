@@ -30,6 +30,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ms">
+      <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="UPsiko Pro" />
+        <link rel="apple-touch-icon" href="/icon192_rounded.png" />
+      </head>
       <body className={inter.className}>
         <PageTransition>{children}</PageTransition>
       </body>
