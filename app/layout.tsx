@@ -6,13 +6,13 @@ import { PageTransition } from "@/components/PageTransition";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Ujian Psikometrik Online",
+  title: "PsikoPro",
   description: "Sistem Latihan dan Simulasi Ujian",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "UPsiko Pro",
+    title: "PsikoPro",
   },
   icons: {
     apple: "/icon192_rounded.png",
@@ -33,7 +33,7 @@ export default function RootLayout({
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="UPsiko Pro" />
+        <meta name="apple-mobile-web-app-title" content="PsikoPro" />
         <link rel="apple-touch-icon" href="/icon192_rounded.png" />
       </head>
       <body className={inter.className}>

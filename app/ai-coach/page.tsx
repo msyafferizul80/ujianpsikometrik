@@ -207,7 +207,7 @@ export default function AICoachPage() {
                                 </CardHeader>
                                 <CardContent>
                                     <p className="text-indigo-100 text-sm italic">
-                                        "Konsistensi adalah kunci dalam ujian psikometrik. AI kami mengesan corak jawapan anda untuk memastikan anda tidak memberikan isyarat yang bercanggah."
+                                        "Konsistensi adalah kunci dalam PsikoPro. AI kami mengesan corak jawapan anda untuk memastikan anda tidak memberikan isyarat yang bercanggah."
                                     </p>
                                 </CardContent>
                             </Card>

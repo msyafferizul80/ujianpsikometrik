@@ -26,7 +26,7 @@ export async function sendAdminNotification({ userId, userName, userEmail, planI
 
     try {
         const { data, error } = await resend.emails.send({
-            from: 'Psikometrik Update <onboarding@resend.dev>', // Use default Resend testing domain or configured domain
+            from: 'PsikoPro Update <onboarding@resend.dev>', // Use default Resend testing domain or configured domain
             to: [adminEmail],
             subject: `💰 New Purchase: ${planId?.toUpperCase()}`,
             html: `

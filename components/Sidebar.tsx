@@ -275,7 +275,7 @@ export function Sidebar() {
                             <span className="text-white text-sm font-bold">UP</span>
                         </div>
                         <div>
-                            <h1 className="font-bold text-gray-800 text-base">PSIKOMETRIK Online</h1>
+                            <h1 className="font-bold text-gray-800 text-base">PsikoPro</h1>
                             <p className="text-xs text-gray-500">Sistem Latihan Digital</p>
                         </div>
                     </div>

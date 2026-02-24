@@ -438,12 +438,12 @@ export default function ResultPage() {
             ctx.fillStyle = '#ffffff';
             ctx.font = '700 22px sans-serif';
             ctx.letterSpacing = '2px';
-            ctx.fillText('ONLINE PSIKOMETRIK EXAM', 88, 84);
+            ctx.fillText('PSIKOPRO', 88, 84);
             ctx.letterSpacing = '0px';
 
             ctx.fillStyle = 'rgba(253,230,138,0.7)';
             ctx.font = '13px sans-serif';
-            ctx.fillText('Sistem Penilaian Psikometrik Penjawat Awam Malaysia', 88, 106);
+            ctx.fillText('Sistem Penilaian PsikoPro Penjawat Awam Malaysia', 88, 106);
 
             // ─── DIVIDER ──────────────────────────────────────────────────
             ctx.strokeStyle = 'rgba(255,255,255,0.08)';
@@ -454,7 +454,7 @@ export default function ResultPage() {
             ctx.fillStyle = 'rgba(165,180,252,0.6)';
             ctx.font = '700 13px sans-serif';
             ctx.letterSpacing = '3px';
-            ctx.fillText('REKOD PRESTASI UJIAN PSIKOMETRIK', 88, 165);
+            ctx.fillText('REKOD PRESTASI PSIKOPRO', 88, 165);
             ctx.letterSpacing = '0px';
 
             // ─── SCORE (GIANT) ────────────────────────────────────────────
@@ -529,7 +529,7 @@ export default function ResultPage() {
             ctx.fillStyle = 'rgba(253,230,138,0.5)';
             ctx.font = '700 14px sans-serif';
             ctx.letterSpacing = '1px';
-            ctx.fillText('www.onlinepsikometrikexam.com', 88, H - 44);
+            ctx.fillText('psikopro.my', 88, H - 44);
             ctx.letterSpacing = '0px';
 
             ctx.fillStyle = 'rgba(255,255,255,0.2)';
@@ -551,7 +551,7 @@ export default function ResultPage() {
     const handleCopyLink = () => {
         if (!result) return;
         const score = Math.round((result.totalScore / result.maxScore) * 100);
-        const text = `Skor Ujian Psikometrik: ${score}%`;
+        const text = `Skor PsikoPro: ${score}%`;
         navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
@@ -595,7 +595,7 @@ export default function ResultPage() {
                         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                             <div>
                                 <h1 className="text-3xl font-bold text-gray-900">Rekod Latihan</h1>
-                                <p className="text-gray-600">Analisis Prestasi Psikometrik Anda</p>
+                                <p className="text-gray-600">Analisis Prestasi PsikoPro Anda</p>
                             </div>
                             <div className="flex gap-2 print:hidden">
                                 <Button variant="outline" onClick={handleCopyLink}>
@@ -983,7 +983,7 @@ export default function ResultPage() {
                         >
                             <div className="flex justify-between items-center border-b border-white/10 pb-4 mb-6">
                                 <div>
-                                    <h2 className="text-2xl font-black tracking-tight text-white m-0">SISTEM <span className="text-indigo-400">PSIKOMETRIK</span></h2>
+                                    <h2 className="text-2xl font-black tracking-tight text-white m-0">SISTEM <span className="text-indigo-400">PSIKOPRO</span></h2>
                                     <p className="text-indigo-200 text-xs mt-1 opacity-80">Platform Persediaan Peperiksaan Penjawat Awam</p>
                                 </div>
                                 <span className="bg-indigo-600/30 border border-indigo-400/30 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-indigo-100">Laporan Rasmi</span>
@@ -1020,7 +1020,7 @@ export default function ResultPage() {
                             </div>
 
                             <div className="text-center pt-2 text-indigo-200/50 text-xs flex flex-col items-center justify-center border-t border-white/10 mt-2">
-                                <p className="mt-3">Ketahui kelemahan anda di: <strong className="text-white ml-1">ujianpsikometrik.my</strong></p>
+                                <p className="mt-3">Ketahui kelemahan anda di: <strong className="text-white ml-1">psikopro.my</strong></p>
                             </div>
                         </div>
                     </div>
@@ -1032,8 +1032,8 @@ export default function ResultPage() {
                 <ShareModal
                     imageDataUrl={shareImageUrl}
                     onClose={() => setShareImageUrl(null)}
-                    shareText={`Saya baru sahaja selesai Ujian Psikometrik dan mendapat ${overallPercentage}%! Cuba uji diri anda juga 🎯`}
-                    shareUrl="https://www.onlinepsikometrikexam.com/"
+                    shareText={`Saya baru sahaja melengkapkan simulasi PsikoPro dan mendapat ${overallPercentage}%! Cuba uji diri anda juga 🎯`}
+                    shareUrl="https://psikopro.my/"
                 />
             )}
         </>

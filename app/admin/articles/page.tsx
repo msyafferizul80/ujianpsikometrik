@@ -35,7 +35,7 @@ const COLOR_OPTIONS = [
 
 // ── Premium emoji picker options ──────────────────────────────
 const EMOJI_OPTIONS = [
-    // Psikometrik & Kerjaya
+    // PsikoPro & Kerjaya
     "🎯", "🏆", "💼", "📋", "🎓", "🧠", "💡", "🔑", "⭐", "🌟",
     // Emosi & Komunikasi
     "❤️", "🤝", "💬", "🗣️", "😊", "💪", "🙌", "👏", "🫶", "✨",

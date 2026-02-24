@@ -24,13 +24,13 @@ export async function POST(req: Request) {
 
         const contentTypeGuide =
             type === 'tips' ? 'Senarai tip & teknik (5-8 poin) dengan penjelasan setiap satu.' :
-                type === 'example' ? 'Contoh soalan psikometrik (3-5 soalan) dengan penjelasan jawapan terbaik.' :
+                type === 'example' ? 'Contoh soalan PsikoPro (3-5 soalan) dengan penjelasan jawapan terbaik.' :
                     'Artikel informatif yang komprehensif dengan penjelasan mendalam.';
 
         const prompt = `
-        ANDA ADALAH PENULIS KANDUNGAN PAKAR PSIKOMETRIK SPA dari EMPIRE KERJAYA.
+        ANDA ADALAH PENULIS KANDUNGAN PAKAR PSIKOPRO SPA dari EMPIRE KERJAYA.
 
-        Jana artikel yang BERKUALITI TINGGI untuk platform pembelajaran psikometrik.
+        Jana artikel yang BERKUALITI TINGGI untuk platform pembelajaran PsikoPro.
 
         TOPIK: ${topic}
         KATEGORI: ${category}

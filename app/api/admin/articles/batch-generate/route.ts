@@ -35,8 +35,8 @@ const BATCH_TOPICS: Record<string, { topic: string; type: string }[]> = {
         { topic: "Cara menghadapi situasi konflik kepentingan", type: "tips" },
     ],
     "Tips": [
-        { topic: "Strategi menjawab soalan psikometrik SPA dengan bijak", type: "tips" },
-        { topic: "Kesilapan lazim calon semasa ujian psikometrik", type: "article" },
+        { topic: "Strategi menjawab soalan PsikoPro SPA dengan bijak", type: "tips" },
+        { topic: "Kesilapan lazim calon semasa ujian PsikoPro", type: "article" },
     ],
     "Contoh Soalan": [
         { topic: "Contoh soalan teras Emosi dan cara menjawab dengan betul", type: "example" },
@@ -52,11 +52,11 @@ async function generateSingleArticle(topic: string, category: string, type: stri
 
     const contentTypeGuide =
         type === 'tips' ? 'Senarai tip dan teknik (5-8 poin) dengan penjelasan setiap satu.' :
-            type === 'example' ? 'Contoh soalan psikometrik (3-5 soalan) dengan penjelasan jawapan terbaik.' :
+            type === 'example' ? 'Contoh soalan PsikoPro (3-5 soalan) dengan penjelasan jawapan terbaik.' :
                 'Artikel informatif yang komprehensif.';
 
     const prompt = `
-    ANDA ADALAH PENULIS KANDUNGAN PAKAR PSIKOMETRIK SPA dari EMPIRE KERJAYA.
+    ANDA ADALAH PENULIS KANDUNGAN PAKAR PSIKOPRO SPA dari EMPIRE KERJAYA.
     
     Topik: ${topic}
     Kategori: ${category}

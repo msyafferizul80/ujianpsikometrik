@@ -108,10 +108,10 @@ export default function Dashboard() {
                 } else {
                     // Fallback if no quiz exists
                     setFeaturedQuiz({
-                        title: "Ujian Psikometrik Lengkap",
+                        title: "PsikoPro Lengkap",
                         totalQuestions: 100,
                         duration: 60,
-                        description: "Set soalan latihan ujian psikometrik."
+                        description: "Set soalan latihan PsikoPro."
                     });
                 }
             } else {

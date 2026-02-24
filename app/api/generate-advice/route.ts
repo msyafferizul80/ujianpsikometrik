@@ -22,8 +22,8 @@ export async function POST(request: Request) {
         const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
         const prompt = `
-Anda adalah seorang pakar penilaian psikometrik untuk jawatan kerajaan (${jobRole}). 
-Sila analisa keputusan ujian psikometrik calon berikut:
+Anda adalah seorang pakar penilaian PsikoPro untuk jawatan kerajaan (${jobRole}). 
+Sila analisa keputusan ujian PsikoPro calon berikut:
 
 Markah Mengikut Teras:
 - Kerjasama: ${scores.Kerjasama?.percentage || 0}%
@@ -71,7 +71,7 @@ function generateMockAdviceContent(body: RequestBody) {
     let advice = "";
 
     if (weakAreas.length === 0) {
-        advice = "Tahniah! Anda menunjukkan tahap kompetensi yang tinggi dalam semua aspek psikometrik. Teruskan mengekalkan momentum positif ini.";
+        advice = "Tahniah! Anda menunjukkan tahap kompetensi yang tinggi dalam semua aspek PsikoPro. Teruskan mengekalkan momentum positif ini.";
     } else {
         advice = `Berdasarkan keputusan anda, terdapat ruang penambahbaikan dalam aspek: ${weakAreas.join(', ')}. \n\n`;
 

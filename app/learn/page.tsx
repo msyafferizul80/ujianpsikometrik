@@ -51,7 +51,7 @@ export default function LearnPage() {
                         </div>
                         <h1 className="text-4xl font-extrabold mb-2">Pusat Ilmu 📚</h1>
                         <p className="text-indigo-100 max-w-lg">
-                            Nota, tip, dan contoh soalan psikometrik SPA yang dikurasi khas untuk anda berjaya dalam temuduga.
+                            Nota, tip, dan contoh soalan PsikoPro SPA yang dikurasi khas untuk anda berjaya dalam temuduga.
                         </p>
                         <div className="mt-5 flex items-center gap-3 bg-white/10 border border-white/20 rounded-xl px-4 py-3 max-w-md">
                             <Search className="h-4 w-4 text-white/60" />

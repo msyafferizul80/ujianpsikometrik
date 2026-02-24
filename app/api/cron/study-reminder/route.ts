@@ -57,15 +57,15 @@ export async function GET(req: Request) {
             // If inactive for 3 or more days, send a reminder
             if (daysInactive >= 3) {
                 const subject = daysInactive === 999
-                    ? "📢 Peperiksaan psikometrik menanti! Mula latih tubi sekarang."
-                    : `⚠️ Anda dah ${daysInactive} hari tak buat latihan psikometrik.`;
+                    ? "📢 Peperiksaan PsikoPro menanti! Mula latih tubi sekarang."
+                    : `⚠️ Anda dah ${daysInactive} hari tak buat latihan PsikoPro.`;
 
                 const html = `
                     <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto;">
                         <h2 style="color: #4F46E5;">Hai ${user.full_name || 'Calon'},</h2>
                         <p>${daysInactive === 999
                         ? "Anda telah melanggan pakej Premium Empire Kerjaya tetapi belum memulakan sebarang latih tubi. Jangan lepaskan peluang untuk bersedia lebih awal!"
-                        : `Kami dapati anda tidak melakukan sebarang latihan psikometrik sejak ${daysInactive} hari lalu. Momentum sangat penting untuk lulus cemerlang.`}</p>
+                        : `Kami dapati anda tidak melakukan sebarang latihan PsikoPro sejak ${daysInactive} hari lalu. Momentum sangat penting untuk lulus cemerlang.`}</p>
                         
                         <div style="background-color: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
                             <h3 style="margin-top: 0;">💡 Kenapa Perlu Konsisten?</h3>
@@ -82,7 +82,7 @@ export async function GET(req: Request) {
                         </a>
                         
                         <p style="margin-top: 30px; font-size: 12px; color: #9CA3AF;">
-                            Anda menerima e-mel ini kerana anda adalah pengguna aktif Empire Kerjaya Ujian Psikometrik.<br/>
+                            Anda menerima e-mel ini kerana anda adalah pengguna aktif Empire Kerjaya PsikoPro.<br/>
                             Visi kami adalah membantu anda menjawat jawatan impian.
                         </p>
                     </div>
@@ -90,7 +90,7 @@ export async function GET(req: Request) {
 
                 // Send Email via Resend
                 const { data, error } = await resend.emails.send({
-                    from: 'Empire Kerjaya <admin@psikometrik.empirekerjaya.com>',
+                    from: 'Empire Kerjaya <admin@psikopro.empirekerjaya.com>',
                     to: user.email,
                     subject: subject,
                     html: html,

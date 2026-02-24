@@ -94,7 +94,7 @@ export function ShareModal({ imageDataUrl, onClose, shareText = "", shareUrl = "
 
     const handleDownload = () => {
         const link = document.createElement("a");
-        link.download = "Keputusan-Psikometrik.png";
+        link.download = "Keputusan-PsikoPro.png";
         link.href = imageDataUrl;
         link.click();
     };
@@ -105,9 +105,9 @@ export function ShareModal({ imageDataUrl, onClose, shareText = "", shareUrl = "
             // Convert data URL to Blob for native share
             const res = await fetch(imageDataUrl);
             const blob = await res.blob();
-            const file = new File([blob], "Keputusan-Psikometrik.png", { type: "image/png" });
+            const file = new File([blob], "Keputusan-PsikoPro.png", { type: "image/png" });
             await navigator.share({
-                title: "Keputusan Ujian Psikometrik",
+                title: "Keputusan PsikoPro",
                 text: shareText,
                 files: navigator.canShare?.({ files: [file] }) ? [file] : undefined,
                 url: shareUrl,

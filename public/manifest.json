@@ -1,6 +1,5 @@
-{
-    "name": "Ujian Psikometrik Pro",
-    "short_name": "UPsiko Pro",
+    "name": "PsikoPro",
+    "short_name": "PsikoPro",
     "description": "The Complete Civil Service Career Launchpad",
     "start_url": "/dashboard",
     "display": "standalone",

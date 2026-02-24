@@ -685,7 +685,7 @@ export default function QuizPage() {
                             {/* Title */}
                             <div>
                                 <h1 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                    {localStorage.getItem('activeQuizTitle') || "Ujian Psikometrik 2025"}
+                                    {localStorage.getItem('activeQuizTitle') || "PsikoPro 2026"}
                                     {isRealExamMode && (
                                         <span className="text-xs font-semibold bg-red-100 text-red-700 px-2 py-0.5 rounded-full border border-red-200">
                                             🔴 EXAM SEBENAR

@@ -29,7 +29,7 @@ export async function POST(req: Request) {
         if (!apiKey) {
             // Mock Response for Dev/No-Key environment
             console.warn("Missing GEMINI_API_KEY, returning mock explanation.");
-            const mockExplanation = `[Mock AI] Kerana ini adalah ujian psikometrik integriti, jawapan "${correctAnswer}" menunjukkan nilai ${teras || 'positif'} yang lebih tinggi berbanding "${userAnswer}". Dalam perkhidmatan awam, pematuhan kepada peraturan dan kejujuran diutamakan.`;
+            const mockExplanation = `[Mock AI] Kerana ini adalah ujian PsikoPro integriti, jawapan "${correctAnswer}" menunjukkan nilai ${teras || 'positif'} yang lebih tinggi berbanding "${userAnswer}". Dalam perkhidmatan awam, pematuhan kepada peraturan dan kejujuran diutamakan.`;
             return NextResponse.json({ explanation: mockExplanation, source: 'mock' });
         }
 
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 
         try {
             const prompt = `
-            You are a Mentor for the Malaysian Government Entry Exam (Psikometrik).
+            You are a Mentor for the Malaysian Government Entry Exam (PsikoPro).
             
             Context:
             - Teras: ${teras}
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
             }
 
             // Soften the user message - Removed "Ralat API" to reduce panic
-            explanation = `[AI Simulasi] Maaf, sambungan ke server AI terganggu sebentar. Jawapan contoh: Kerana ini adalah ujian psikometrik integriti, jawapan "${correctAnswer}" menunjukkan nilai ${teras || 'positif'} yang lebih tinggi berbanding "${userAnswer}". Dalam perkhidmatan awam, pematuhan kepada peraturan dan kejujuran diutamakan.`;
+            explanation = `[AI Simulasi] Maaf, sambungan ke server AI terganggu sebentar. Jawapan contoh: Kerana ini adalah ujian PsikoPro integriti, jawapan "${correctAnswer}" menunjukkan nilai ${teras || 'positif'} yang lebih tinggi berbanding "${userAnswer}". Dalam perkhidmatan awam, pematuhan kepada peraturan dan kejujuran diutamakan.`;
         }
 
         // 4. Save to Cache

@@ -67,7 +67,7 @@ export async function POST(req: Request) {
         );
 
         const prompt = `
-        ANDA ADALAH PAKAR STRATEGI PEPERIKSAAN PSIKOMETRIK SPA MALAYSIA.
+        ANDA ADALAH PAKAR STRATEGI PEPERIKSAAN PSIKOPRO SPA MALAYSIA.
         
         Jana jadual ulangkaji yang PERSONAL dan PRAKTIKAL berdasarkan maklumat berikut:
         
@@ -83,7 +83,7 @@ export async function POST(req: Request) {
         ANALISIS KELEMAHAN DARI SEJARAH KUIZ:
         ${weakAreasContext}
         
-        TOPIK PSIKOMETRIK SPA:
+        TOPIK PSIKOPRO SPA:
         1. Emosi — Kestabilan emosi, kawalan diri, kejujuran
         2. Sosial — Interaksi, empati, kerja berpasukan
         3. Komunikasi — Penyampaian, mendengar, asertif

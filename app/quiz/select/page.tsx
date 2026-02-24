@@ -71,7 +71,7 @@ function QuizSelectContent() {
                 const formatted = data.map((q: any) => ({
                     id: q.id,
                     title: q.title,
-                    description: q.description || "Set soalan latihan ujian psikometrik.",
+                    description: q.description || "Set soalan latihan PsikoPro.",
                     totalQuestions: q.total_questions,
                     duration: q.duration_minutes || Math.ceil(q.total_questions * 0.8),
                     isNew: new Date(q.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
@@ -158,8 +158,8 @@ function QuizSelectContent() {
                                 key={role}
                                 onClick={() => setActiveJob(role)}
                                 className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold border transition-all bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 ${activeJob === role
-                                        ? 'ring-2 ring-offset-1 ring-blue-400 shadow-md scale-105'
-                                        : 'opacity-80'
+                                    ? 'ring-2 ring-offset-1 ring-blue-400 shadow-md scale-105'
+                                    : 'opacity-80'
                                     }`}
                             >
                                 {role}

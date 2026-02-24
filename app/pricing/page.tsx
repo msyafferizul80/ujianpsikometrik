@@ -64,7 +64,7 @@ export default function PricingPage() {
             name: "Pas Momentum (7 Hari) ⭐",
             price: "RM 40",
             originalPrice: "RM 89",
-            description: "Pilihan paling bijak untuk kuasai corak soalan psikometrik dalam masa seminggu.",
+            description: "Pilihan paling bijak untuk kuasai corak soalan PsikoPro dalam masa seminggu.",
             features: [
                 "Semua Ciri Pas Pecutan.",
                 "Consistency Gauge (Meter Ketekalan): Sistem AI akan mengesan jika jawapan anda \"berpura-pura baik\" (Social Desirability Bias) sebelum dikesan oleh sistem SPA.",

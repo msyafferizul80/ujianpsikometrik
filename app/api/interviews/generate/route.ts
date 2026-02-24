@@ -60,7 +60,7 @@ export async function POST(req: Request) {
                 .map(t => t.teras);
 
             if (weakAreas.length > 0) {
-                weakAreasContext = `Calon mempunyai kelemahan dalam aspek Psikometrik berikut: ${weakAreas.join(', ')}. Sila tekankan soalan temuduga yang menguji kawasan ini secara tidak langsung.`;
+                weakAreasContext = `Calon mempunyai kelemahan dalam aspek PsikoPro berikut: ${weakAreas.join(', ')}. Sila tekankan soalan temuduga yang menguji kawasan ini secara tidak langsung.`;
             }
         }
 
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
         JAWATAN DISASARKAN: ${jobRole || "Pegawai Tadbir dan Diplomatik (PTD)"}
         JENIS TEMUDUGA: ${scenarioType || "Tingkah Laku & Situasi (Behavioral)"}
         
-        DATA PSIKOMETRIK BERBAYANG:
+        DATA PSIKOPRO BERBAYANG:
         ${weakAreasContext}
         
         ARAHAN: 

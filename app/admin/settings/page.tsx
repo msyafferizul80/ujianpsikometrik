@@ -69,7 +69,7 @@ export default function AdminSettingsPage() {
                         <Calendar className="h-8 w-8 text-blue-600" />
                         Tetapan Sistem
                     </h1>
-                    <p className="text-gray-600">Konfigurasi global untuk Ujian Psikometrik.</p>
+                    <p className="text-gray-600">Konfigurasi global untuk PsikoPro.</p>
                 </div>
 
                 <div className="grid gap-6">

@@ -121,7 +121,7 @@ export default function HistoryPage() {
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "sejarah_ujian_psikometrik.csv");
+        link.setAttribute("download", "sejarah_psikopro.csv");
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -193,7 +193,7 @@ export default function HistoryPage() {
                                                 {/* Text Details */}
                                                 <div>
                                                     <h3 className="font-bold text-gray-900 text-lg">
-                                                        {attempt.title || "Ujian Psikometrik"} {/* New: Show Quiz Title */}
+                                                        {attempt.title || "PsikoPro"} {/* New: Show Quiz Title */}
                                                     </h3>
                                                     <p className="font-medium text-gray-600">
                                                         {new Date(attempt.date).toLocaleDateString('ms-MY', {

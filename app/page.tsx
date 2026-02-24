@@ -30,7 +30,7 @@ export default function Home() {
                 <Brain className="h-6 w-6 text-white" />
               </div>
               <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-700">
-                Psikometrik Online
+                PsikoPro
               </span>
             </div>
             <div className="flex items-center gap-4">
@@ -62,7 +62,7 @@ export default function Home() {
             Edisi Terkini 2026: Dikemaskini Sepenuhnya
           </Badge>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-8 leading-tight animate-slide-up">
-            Lulus Ujian Psikometrik dengan <br className="hidden md:block" />
+            Lulus PsikoPro dengan <br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600">
               Strategi Data & AI Pintar
             </span>
@@ -197,7 +197,7 @@ export default function Home() {
               {
                 name: "Sarah Lim",
                 role: "Penolong Pegawai Kastam",
-                content: "Saya gagal 2 kali sebelum ni. Lepas guna Psikometrik Online dan faham apa yang panel nak cari melalui 'AI Report', alhamdulillah kali ketiga lulus!",
+                content: "Saya gagal 2 kali sebelum ni. Lepas guna PsikoPro dan faham apa yang panel nak cari melalui 'AI Report', alhamdulillah kali ketiga lulus!",
                 initial: "SL",
                 color: "bg-pink-100 text-pink-700"
               },
@@ -292,7 +292,7 @@ export default function Home() {
                 <div className="bg-indigo-600 p-2 rounded-xl">
                   <Brain className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-xl font-bold text-slate-900">Psikometrik Online</span>
+                <span className="text-xl font-bold text-slate-900">PsikoPro</span>
               </div>
               <p className="text-slate-500 max-w-sm leading-relaxed">
                 Membantu calon peperiksaan kerajaan lulus dengan cemerlang melalui teknologi, data, dan persediaan yang sistematik.
@@ -326,7 +326,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-slate-100 pt-8 text-center text-sm text-slate-400">
-            © 2026 Psikometrik Online. Hak Cipta Terpelihara.
+            © 2026 PsikoPro. Hak Cipta Terpelihara.
           </div>
         </div>
       </footer>
