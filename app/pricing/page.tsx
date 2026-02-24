@@ -45,11 +45,12 @@ export default function PricingPage() {
             name: "Pas Pecutan (24 Jam)",
             price: "RM 15",
             originalPrice: "RM 39",
-            description: "Akses pantas untuk ulangkaji saat akhir.",
+            description: "Sesuai untuk ulangkaji kilat malam sebelum peperiksaan.",
             features: [
-                "Akses Bank Soalan Penuh (24 Jam)",
-                "Analisis Prestasi Penuh",
-                "Tiada Komitmen Bulanan"
+                "Akses Bank Soalan Penuh (24 Jam): Latih tubi tanpa had untuk semua modul.",
+                "PWA Mobile-Ready: Pasang terus ke skrin utama telefon anda untuk latihan pantas di mana-mana.",
+                "Analisis Prestasi Asas: Lihat skor anda secara sepintas lalu selepas ujian.",
+                "Server-Side Persistence: Masa ujian anda selamat walaupun browser terpadam atau internet terputus."
             ],
             icon: Zap,
             color: "text-orange-500",
@@ -60,18 +61,17 @@ export default function PricingPage() {
         },
         {
             id: "momentum_7d",
-            name: "Pas Momentum (7 Hari) 🔥",
+            name: "Pas Momentum (7 Hari) ⭐",
             price: "RM 40",
             originalPrice: "RM 89",
-            description: "Pakej paling berbaloi untuk pecutan akhir seminggu.",
+            description: "Pilihan paling bijak untuk kuasai corak soalan psikometrik dalam masa seminggu.",
             features: [
-                "Akses Bank Soalan UNLIMITED",
-                "🔥 Koleksi Soalan Maut (Top 20% Hardest)",
-                "⏱️ Mod Simulasi Peperiksaan (Real Exam)",
-                "📅 Penjana Jadual Belajar AI",
-                "AI Coach (Baiki Kelemahan) 🤖",
-                "Tutor AI (Penjelasan Jawapan) ✨",
-                "Analisis Konsistensi Jawapan 🧠"
+                "Semua Ciri Pas Pecutan.",
+                "Consistency Gauge (Meter Ketekalan): Sistem AI akan mengesan jika jawapan anda \"berpura-pura baik\" (Social Desirability Bias) sebelum dikesan oleh sistem SPA.",
+                "Enjin Pembelajaran Adaptif: AI melaraskan tahap kesukaran soalan secara masa nyata mengikut prestasi anda.",
+                "Predictive Success Score: AI meramal peratusan kebarangkalian anda untuk lulus peperiksaan sebenar berdasarkan data semasa.",
+                "Mod Simulasi Peperiksaan Sebenar: Hadapi tekanan masa sebenar dengan pemasa tegar dan sistem anti-penipuan.",
+                "Penjana Jadual Belajar AI: Pelan latihan harian yang disusun khas mengikut kelemahan dan tarikh peperiksaan anda."
             ],
             icon: Star,
             color: "text-red-600",
@@ -79,25 +79,23 @@ export default function PricingPage() {
             bg: "bg-red-50",
             recommended: true,
             buttonVariant: "default",
-            badge: "Tawaran Istimewa",
+            badge: "⭐ TERLARIS",
             socialProof: "🔥 12 orang membeli hari ini"
         },
         {
             id: "exam_ready",
-            name: "Pas Exam-Ready (1 Bulan)",
+            name: "Pas Career Launchpad (1 Bulan)",
             price: "RM 79",
             originalPrice: "RM 159",
-            description: "Pakej LENGKAP untuk jaminan persediaan yang lebih yakin.",
+            description: "Persediaan komprehensif: Dari penguasaan ujian bertulis sehingga kejayaan temuduga.",
             features: [
-                "Akses Bank Soalan UNLIMITED",
-                "🔥 Koleksi Soalan Maut (Top 20% Hardest)",
-                "⏱️ Mod Simulasi Peperiksaan (Real Exam)",
-                "📅 Penjana Jadual Belajar AI",
-                "AI Coach (Baiki Kelemahan) 🔥",
-                "Tutor AI (Penerangan Jawapan) ✨",
-                "Support Group WhatsApp Eksklusif",
-                "🎁 Bonus: E-Book Panduan Temuduga",
-                "🛡️ Jaminan Wang Dikembalikan (30 Hari)"
+                "Semua Ciri Pas Momentum.",
+                "AI Mock Interview Simulation: Simulasi temuduga interaktif yang menjana soalan berdasarkan profil personaliti dan jawatan sasaran anda.",
+                "Analisis Jawapan & Nada Suara: AI memberikan maklum balas tentang cara anda mengendalikan soalan sukar semasa temuduga.",
+                "Koleksi Soalan \"Killer\": Akses eksklusif kepada Top 20% soalan paling sukar yang kerap menggagalkan calon.",
+                "Resource Center Premium: Hub ilmu yang mengandungi tip, strategi \"cheat sheet\", dan video panduan pakar.",
+                "Support Group WhatsApp Eksklusif: Bimbingan terus bersama komuniti dan admin.",
+                "🎁 BONUS: E-Book Panduan Temuduga"
             ],
             icon: ShieldCheck,
             color: "text-green-600",
@@ -175,10 +173,10 @@ export default function PricingPage() {
                     {/* Header Section */}
                     <div className="text-center mb-16 space-y-4">
                         <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl">
-                            Labur Untuk Masa Depan Kerjaya Anda
+                            Ubah Peluang Anda Menjadi Kepastian.
                         </h2>
                         <p className="max-w-2xl mx-auto text-xl text-gray-600">
-                            Jangan ambil risiko gagal. Dapatkan akses penuh kepada sistem simulasi peperiksaan sebenar hari ini.
+                            Bukan sekadar bank soalan biasa. Ini adalah Enjin Simulasi Pintar yang mengenali kelemahan anda dan membimbing anda sehingga lulus temuduga.
                         </p>
 
                         {/* Trust Badges */}
