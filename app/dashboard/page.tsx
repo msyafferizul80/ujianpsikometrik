@@ -51,13 +51,19 @@ export default function Dashboard() {
                 if (savedPlan) {
                     try {
                         const plan = JSON.parse(savedPlan);
-                        const todayStr = new Date().toDateString();
-                        const mission = plan.find((p: any) => new Date(p.date).toDateString() === todayStr);
-                        if (mission) {
-                            setTodaysMission(mission);
+                        if (Array.isArray(plan)) {
+                            const todayStr = new Date().toDateString();
+                            const mission = plan.find((p: any) => new Date(p.date).toDateString() === todayStr);
+                            if (mission) {
+                                setTodaysMission(mission);
+                            }
+                        } else {
+                            // If it's malformed or the wrong format, we clear it out to avoid persistent crashes.
+                            localStorage.removeItem('studyPlan');
                         }
                     } catch (e) {
                         console.error("Error parsing study plan", e);
+                        localStorage.removeItem('studyPlan');
                     }
                 }
 
