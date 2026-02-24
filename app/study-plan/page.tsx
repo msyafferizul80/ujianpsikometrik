@@ -56,8 +56,10 @@ interface StudyPlan {
     totalSessions?: number;
     plan: PlanItem[];
 }
+import { useRouter } from "next/navigation";
 
 export default function StudyPlanPage() {
+    const router = useRouter();
     const [date, setDate] = useState<Date>();
     const [loading, setLoading] = useState(false);
     const [plan, setPlan] = useState<StudyPlan | null>(null);
@@ -177,6 +179,17 @@ export default function StudyPlanPage() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleStartAdaptiveSession = (teras: string | undefined) => {
+        localStorage.setItem('activeQuizId', 'adaptive-mode');
+        localStorage.setItem('activeQuizTitle', `Latihan Adaptif: ${teras || 'Umum'}`);
+        if (teras) {
+            localStorage.setItem('activeTeras', teras); // The API uses this to filter
+        } else {
+            localStorage.removeItem('activeTeras');
+        }
+        router.push('/quiz');
     };
 
     const doneCount = plan ? plan.plan.filter(s => completedSessions.has(s.date)).length : 0;
@@ -428,10 +441,22 @@ export default function StudyPlanPage() {
                                                         <p className="text-sm text-gray-600 mb-3">{item.activity}</p>
 
                                                         {item.tips && (
-                                                            <div className="flex gap-2 text-xs bg-indigo-50 text-indigo-700 p-2 rounded-lg border border-indigo-100">
+                                                            <div className="flex gap-2 text-xs bg-indigo-50 text-indigo-700 p-2 rounded-lg border border-indigo-100 mb-3">
                                                                 <ChevronRight className="h-3 w-3 flex-shrink-0 mt-0.5" />
                                                                 {item.tips}
                                                             </div>
+                                                        )}
+
+                                                        {/* Action Buttons */}
+                                                        {!isDone && (item.type === "Quiz" || item.type === "Simulation") && (
+                                                            <Button
+                                                                size="sm"
+                                                                variant="default"
+                                                                className="mt-2 text-xs bg-indigo-600 hover:bg-indigo-700 text-white"
+                                                                onClick={() => handleStartAdaptiveSession(item.teras)}
+                                                            >
+                                                                <Brain className="w-3 h-3 mr-1.5" /> Mula Sesi Adaptif
+                                                            </Button>
                                                         )}
                                                     </div>
 

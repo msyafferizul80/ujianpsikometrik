@@ -8,6 +8,12 @@ interface DashboardLayoutProps {
     children: React.ReactNode;
 }
 
+// Initialize Supabase client securely outside the effect logic
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
 export function DashboardLayout({ children }: DashboardLayoutProps) {
     const router = useRouter();
     const pathname = usePathname();
@@ -17,10 +23,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     useEffect(() => {
         const checkAuth = async () => {
             // 1. Check Supabase Session
-            const supabase = createClient(
-                process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-            );
             const { data: { session } } = await supabase.auth.getSession();
 
             if (session) {

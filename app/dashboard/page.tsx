@@ -17,6 +17,12 @@ import { createClient } from '@supabase/supabase-js';
 import { getQuizStats, hasInProgressQuiz } from "@/utils/stats";
 import { SubscriptionCountdown } from "@/components/SubscriptionCountdown";
 
+// Import Supabase Client outside for singleton stability
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
 export default function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({
@@ -33,12 +39,6 @@ export default function Dashboard() {
     const [todaysMission, setTodaysMission] = useState<any>(null);
     const [showPreExamModal, setShowPreExamModal] = useState(false);
     const [examQuizId, setExamQuizId] = useState('');
-
-    // Import Supabase Client
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
 
     useEffect(() => {
         const fetchUserData = async () => {

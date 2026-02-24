@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useRouter } from 'next/navigation';
-import { Loader2, ArrowRight, ArrowLeft, Send, Save, AlertTriangle } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, Send, Save, AlertTriangle, Wifi, WifiOff } from "lucide-react";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { AnswerOption } from "@/components/AnswerOption";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { QuizSkeleton } from "@/components/QuizSkeleton";
 import { ExamViolationBanner } from "@/components/ExamViolationBanner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useScreenWakeLock } from "@/utils/useScreenWakeLock";
+import { DiscussionBoard } from "@/components/DiscussionBoard";
 
 import { quizRepository } from "@/utils/supabaseRepository";
 import { createClient } from "@supabase/supabase-js";
@@ -49,6 +51,13 @@ export default function QuizPage() {
     const [showViolationBanner, setShowViolationBanner] = useState(false);
     const answersRef = useRef<Record<number, string>>({});
     const tabSwitchRef = useRef(0);
+
+    // Offline / PWA state
+    const [isOffline, setIsOffline] = useState(false);
+    const [pendingSync, setPendingSync] = useState(false);
+
+    // Apply Screen Wake Lock
+    useScreenWakeLock(isRealExamMode);
 
     // Load questions and saved progress
     // ... imports ...
@@ -169,8 +178,31 @@ export default function QuizPage() {
                 }
             }
 
+            // 2.5 Adaptive Learning Mode
+            if (activeQuizId === 'adaptive-mode') {
+                try {
+                    const token = (await supabase.auth.getSession()).data.session?.access_token || ''; // Pass token to API for user perf context
+                    const teras = localStorage.getItem('activeTeras');
+                    const url = teras ? `/api/questions/adaptive?teras=${encodeURIComponent(teras)}` : `/api/questions/adaptive`;
+
+                    const res = await fetch(url, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    const data = await res.json();
+                    if (data && data.length > 0) {
+                        await setQuestionsWithSecurity(data);
+                        setLoading(false);
+                        return;
+                    }
+                } catch (err) {
+                    console.error("Failed to load adaptive questions", err);
+                }
+            }
+
             // 3. Try to load from Supabase if we have a normal ID
-            if (activeQuizId && !activeQuizId.startsWith('demo-') && activeQuizId !== 'smart-review' && activeQuizId !== 'killer-mode' && !activeQuizId.startsWith('real-exam-mode')) {
+            if (activeQuizId && !activeQuizId.startsWith('demo-') && activeQuizId !== 'smart-review' && activeQuizId !== 'killer-mode' && activeQuizId !== 'adaptive-mode' && !activeQuizId.startsWith('real-exam-mode')) {
                 try {
                     const data = await quizRepository.getQuestionsByQuizId(activeQuizId);
                     if (data && data.length > 0) {
@@ -302,6 +334,72 @@ export default function QuizPage() {
         }
     }, []);
 
+    // NEW: Network Status & Offline Queue Listener
+    useEffect(() => {
+        const handleOnline = () => setIsOffline(false);
+        const handleOffline = () => setIsOffline(true);
+
+        // Initial check
+        if (typeof window !== 'undefined') {
+            setIsOffline(!navigator.onLine);
+            if (localStorage.getItem('offlinePendingQueue')) {
+                setPendingSync(true);
+            }
+        }
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
+
+    // Process Offline Queue when back online
+    useEffect(() => {
+        const processOfflineQueue = async () => {
+            if (!isOffline && pendingSync) {
+                const queueStr = localStorage.getItem('offlinePendingQueue');
+                if (queueStr) {
+                    try {
+                        const tasks = JSON.parse(queueStr);
+                        // In a real scenario, process all tasks. 
+                        // Here we assume a single exam attempt pending.
+                        for (const task of tasks) {
+                            const activeQuizId = task.quizId;
+                            const userName = localStorage.getItem('userName') || 'Anonymous Candidate';
+
+                            const { createClient } = require('@supabase/supabase-js');
+                            const supabase = createClient(
+                                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                            );
+                            const { data: { session } } = await supabase.auth.getSession();
+                            const userId = session?.user?.id;
+
+                            const { quizRepository } = await import("@/utils/supabaseRepository");
+                            await quizRepository.saveAttempt(userName, parseInt(activeQuizId), task.totalScore, task.answers, userId);
+
+                            if (userId) {
+                                await quizRepository.updateStreak(userId);
+                            }
+                        }
+
+                        // Clear queue
+                        localStorage.removeItem('offlinePendingQueue');
+                        setPendingSync(false);
+                        console.log("✅ Offline sync completed successfully.");
+                    } catch (e) {
+                        console.error("Failed to sync offline queue", e);
+                        // Keep queue if failed
+                    }
+                }
+            }
+        };
+        processOfflineQueue();
+    }, [isOffline, pendingSync]);
+
     // NEW: Smart Resume Effect
     useEffect(() => {
         if (questions.length > 0) {
@@ -354,13 +452,16 @@ export default function QuizPage() {
         return () => clearInterval(autoSaveInterval);
     }, [answers, currentIdx, questions.length, examAttemptId]);
 
-    // Save on answer change
+    // Save on answer change (Ensures progress survives sudden shutdown)
     useEffect(() => {
         if (Object.keys(answers).length > 0) {
+            setAutoSaving(true);
             localStorage.setItem('quizAnswers', JSON.stringify(answers));
             localStorage.setItem('currentQuestion', currentIdx.toString());
             // Reinforce persistent flag
             localStorage.setItem('quizInProgress', 'true');
+            // Instant feedback for save
+            setTimeout(() => setAutoSaving(false), 500);
         }
     }, [answers, currentIdx]);
 
@@ -449,34 +550,51 @@ export default function QuizPage() {
                 answers // Save answers for review
             };
 
-            // 2. Save to Supabase
+            // 2. Save to Supabase OR local offline queue
             const activeQuizId = localStorage.getItem('activeQuizId');
             if (activeQuizId && !activeQuizId.startsWith('demo-')) {
-                const userName = localStorage.getItem('userName') || 'Anonymous Candidate';
+                if (navigator.onLine) {
+                    // Online: Save directly
+                    const userName = localStorage.getItem('userName') || 'Anonymous Candidate';
 
-                // Fetch User ID
-                const { createClient } = require('@supabase/supabase-js');
-                const supabase = createClient(
-                    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-                );
-                const { data: { session } } = await supabase.auth.getSession();
-                const userId = session?.user?.id;
+                    // Fetch User ID
+                    const { createClient } = require('@supabase/supabase-js');
+                    const supabase = createClient(
+                        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                    );
+                    const { data: { session } } = await supabase.auth.getSession();
+                    const userId = session?.user?.id;
 
-                // Using dynamic import to avoid any potential server-component issues
-                const { quizRepository } = await import("@/utils/supabaseRepository");
-                await quizRepository.saveAttempt(userName, parseInt(activeQuizId), totalScore, answers, userId);
+                    // Using dynamic import to avoid any potential server-component issues
+                    const { quizRepository } = await import("@/utils/supabaseRepository");
+                    await quizRepository.saveAttempt(userName, parseInt(activeQuizId), totalScore, answers, userId);
 
-                // Update Streak
-                if (userId) {
-                    await quizRepository.updateStreak(userId);
+                    // Update Streak
+                    if (userId) {
+                        await quizRepository.updateStreak(userId);
+                    }
+                } else {
+                    // Offline: Queue to localStorage
+                    console.log("Device offline. Queuing attempt for later sync.");
+                    const existingQueueStr = localStorage.getItem('offlinePendingQueue');
+                    const queue = existingQueueStr ? JSON.parse(existingQueueStr) : [];
+                    queue.push({
+                        quizId: activeQuizId,
+                        totalScore,
+                        answers,
+                        timestamp: Date.now()
+                    });
+                    localStorage.setItem('offlinePendingQueue', JSON.stringify(queue));
+                    setPendingSync(true);
+                    alert("Peranti anda kini di luar talian (offline). Jawapan telah disimpan di dalam peranti. Ia akan dihantar secara automatik apabila internet kembali pulih.");
                 }
             }
 
             // Save result (User context)
             localStorage.setItem('quizResult', JSON.stringify(resultWithAnswers));
 
-            // Clean up
+            // Clean up temporary local progress (DO NOT cleanup offlinePendingQueue)
             localStorage.removeItem('quizAnswers');
             localStorage.removeItem('currentQuestion');
             localStorage.removeItem('quizTimeLeft');
@@ -581,11 +699,29 @@ export default function QuizPage() {
 
                             {/* Timer and Stats */}
                             <div className="flex items-center gap-3">
+                                {/* Network Status indicator */}
+                                {isOffline ? (
+                                    <div className="flex items-center gap-1.5 text-xs font-semibold bg-red-50 text-red-600 px-2.5 py-1.5 rounded-lg border border-red-100">
+                                        <WifiOff className="h-3.5 w-3.5" />
+                                        <span className="hidden sm:inline">Offline</span>
+                                    </div>
+                                ) : pendingSync ? (
+                                    <div className="flex items-center gap-1.5 text-xs font-semibold bg-blue-50 text-blue-600 px-2.5 py-1.5 rounded-lg border border-blue-100 animate-pulse">
+                                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                        <span className="hidden sm:inline">Menyegerak...</span>
+                                    </div>
+                                ) : (
+                                    <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold bg-emerald-50 text-emerald-600 px-2.5 py-1.5 rounded-lg border border-emerald-100">
+                                        <Wifi className="h-3.5 w-3.5" />
+                                        Online
+                                    </div>
+                                )}
+
                                 {/* Auto-save indicator */}
                                 {autoSaving && (
                                     <div className="flex items-center gap-2 text-xs text-green-600">
                                         <Save className="h-4 w-4" />
-                                        <span>Disimpan</span>
+                                        <span className="hidden md:inline">Tersimpan</span>
                                     </div>
                                 )}
 
@@ -675,6 +811,13 @@ export default function QuizPage() {
                                             />
                                         ))}
                                     </div>
+
+                                    {/* Discussion Board Integration */}
+                                    {!isRealExamMode && (typeof window !== 'undefined' ? localStorage.getItem('activeQuizId') : '') !== 'killer-mode' && (
+                                        <div className="mt-8 pt-6 border-t border-gray-100">
+                                            <DiscussionBoard questionId={currentQ.id} />
+                                        </div>
+                                    )}
                                 </CardContent>
 
                                 <CardFooter className="flex justify-between items-center pt-6 bg-gray-50 border-t">

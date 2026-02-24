@@ -8,6 +8,8 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Ujian Psikometrik Online",
   description: "Sistem Latihan dan Simulasi Ujian",
+  manifest: "/manifest.json",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({

@@ -21,7 +21,9 @@ import {
     BrainCircuit,
     Sparkles,
     History,
-    Tag
+    Tag,
+    Mic,
+    Target
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getQuizStats } from "@/utils/stats";
@@ -49,10 +51,36 @@ const menuGroups = [
                 icon: Calendar,
                 href: "/calendar",
             },
+            {
+                title: "Prestasi Semasa",
+                icon: BarChart3,
+                href: "/analytics",
+            },
         ]
     },
     {
-        label: "Latih Tubi & Prestasi",
+        label: "Pembelajaran Pintar (AI)",
+        items: [
+            {
+                title: "Jadual Belajar AI",
+                icon: Sparkles,
+                href: "/study-plan",
+            },
+            {
+                title: "Jurulatih Peribadi (AI Coach)",
+                icon: BrainCircuit,
+                href: "/ai-coach",
+                premium: true
+            },
+            {
+                title: "Simulasi Temuduga AI",
+                icon: Mic,
+                href: "/interviews",
+            },
+        ]
+    },
+    {
+        label: "Latihan & Rekod",
         items: [
             {
                 title: "Bank Soalan",
@@ -60,30 +88,14 @@ const menuGroups = [
                 href: "/quiz/select",
             },
             {
-                title: "Pusat Ilmu",
+                title: "Pusat Ilmu & Nota",
                 icon: BookOpen,
                 href: "/learn",
             },
             {
-                title: "Jadual Belajar AI",
-                icon: Sparkles,
-                href: "/study-plan",
-            },
-            {
-                title: "Ai Coach",
-                icon: BrainCircuit,
-                href: "/ai-coach",
-                premium: true
-            },
-            {
-                title: "Rekod Latihan",
+                title: "Sejarah Percubaan",
                 icon: Trophy,
                 href: "/history",
-            },
-            {
-                title: "Prestasi",
-                icon: BarChart3,
-                href: "/analytics",
             },
         ]
     },
@@ -91,12 +103,12 @@ const menuGroups = [
         label: "Sistem",
         items: [
             {
-                title: "Tetapan",
+                title: "Tetapan Profil",
                 icon: Settings,
                 href: "/settings",
             },
             {
-                title: "Bantuan",
+                title: "Bantuan & Sokongan",
                 icon: HelpCircle,
                 href: "/dashboard/support",
             },
@@ -111,7 +123,7 @@ const menuGroups = [
                 href: "/admin/dashboard",
             },
             {
-                title: "Urus Kuiz",
+                title: "Urus Kuiz & Soalan",
                 icon: BookOpen,
                 href: "/admin/quizzes",
             },
@@ -121,18 +133,25 @@ const menuGroups = [
                 href: "/admin/tags",
             },
             {
-                title: "Urus Artikel",
+                title: "Urus Nota & Artikel",
                 icon: BookOpen,
                 href: "/admin/articles",
             },
             {
-                title: "Pusat Bantuan",
+                title: "Pusat Sokongan",
                 icon: MessageSquare,
                 href: "/admin/support",
             },
         ]
     }
 ];
+
+// Import Supabase Client securely outside scope
+import { createClient } from '@supabase/supabase-js';
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export function Sidebar() {
     // ... existing hooks ...
@@ -144,13 +163,6 @@ export function Sidebar() {
     const [userRole, setUserRole] = useState("user");
     const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
     const [mounted, setMounted] = useState(false);
-
-    // Import Supabase Client
-    const { createClient } = require('@supabase/supabase-js');
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
 
     // ... existing useEffect ... (Omitted for brevity in edit, but must be careful not to delete logic. 
     // Since I'm replacing a huge chunk, I should be careful. 
