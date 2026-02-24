@@ -9,7 +9,9 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Required for Netlify to bypass Next 15's default Turbopack build assertion
+  // when using Webpack-based plugins like next-pwa.
+  turbopack: {},
 };
 
 export default withPWA(nextConfig);
