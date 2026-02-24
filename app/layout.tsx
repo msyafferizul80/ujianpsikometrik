@@ -9,6 +9,17 @@ export const metadata: Metadata = {
   title: "Ujian Psikometrik Online",
   description: "Sistem Latihan dan Simulasi Ujian",
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "UPsiko Pro",
+  },
+  icons: {
+    apple: "/icon192_rounded.png",
+  },
+};
+
+export const viewport = {
   themeColor: "#ffffff",
 };
 
