@@ -27,14 +27,29 @@ export function PreExamModal({ open, quizId, quizTitle, onExamStarted, onCancel 
                 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
             );
             const { data: { session } } = await supabase.auth.getSession();
-            const userId = session?.user?.id;
-            const userName = session?.user?.user_metadata?.full_name || 'Calon';
+
+            // Guard: redirect to login if session has expired
+            if (!session?.user?.id) {
+                alert('Sesi anda telah tamat. Sila log masuk semula.');
+                window.location.href = '/login';
+                return;
+            }
+
+            const userId = session.user.id;
+            const userName = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Calon';
+
+            if (!quizId) {
+                throw new Error('Quiz ID tidak dijumpai. Sila muat semula halaman.');
+            }
 
             const res = await fetch('/api/exam/start', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`, // Pass JWT so server RLS works
+                },
                 body: JSON.stringify({
-                    quiz_id: quizId,
+                    quiz_id: parseInt(quizId, 10),
                     user_id: userId,
                     user_name: userName,
                     duration_minutes: 90,
@@ -42,12 +57,12 @@ export function PreExamModal({ open, quizId, quizTitle, onExamStarted, onCancel 
             });
 
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error);
+            if (!res.ok) throw new Error(data.error || 'Ralat tidak diketahui dari pelayan.');
 
             onExamStarted(data.attempt_id, data.ends_at);
-        } catch (e) {
+        } catch (e: any) {
             console.error('Failed to start exam', e);
-            alert('Gagal memulakan sesi peperiksaan. Sila cuba lagi.');
+            alert(`Gagal memulakan sesi peperiksaan: ${e?.message || 'Sila cuba lagi.'}`);
         } finally {
             setStarting(false);
         }

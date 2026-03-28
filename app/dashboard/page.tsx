@@ -39,6 +39,7 @@ export default function Dashboard() {
     const [todaysMission, setTodaysMission] = useState<any>(null);
     const [showPreExamModal, setShowPreExamModal] = useState(false);
     const [examQuizId, setExamQuizId] = useState('');
+    const [realExamQuizId, setRealExamQuizId] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -99,6 +100,7 @@ export default function Dashboard() {
                     .single();
 
                 if (quizData) {
+                    setRealExamQuizId(quizData.id); // Store actual DB quiz ID
                     setFeaturedQuiz({
                         title: quizData.title,
                         totalQuestions: quizData.total_questions,
@@ -371,11 +373,14 @@ export default function Dashboard() {
                         {/* Real Exam Simulation Card */}
                         <Card className="mt-6 shadow-lg border-0 ring-1 ring-blue-900 overflow-hidden relative group cursor-pointer hover:shadow-xl transition-all"
                             onClick={() => {
-                                // Show pre-exam briefing modal instead of navigating directly
-                                const uniqueId = `real-exam-mode-${Date.now()}`;
-                                setExamQuizId(uniqueId);
-                                setShowPreExamModal(true);
-                            }}>
+                // Use the actual quiz ID from DB (required for FK constraint on attempts table)
+                if (!realExamQuizId) {
+                    alert('Sesi peperiksaan tidak dapat dimulakan. Sila muat semula halaman dan cuba lagi.');
+                    return;
+                }
+                setExamQuizId(realExamQuizId.toString());
+                setShowPreExamModal(true);
+            }}>
                             <div className="absolute inset-0 bg-gradient-to-r from-slate-800 to-slate-900 opacity-95 group-hover:opacity-100 transition-opacity"></div>
                             <div className="relative p-6 flex flex-col md:flex-row items-center justify-between gap-4 text-white">
                                 <div className="flex items-center gap-4">
@@ -418,10 +423,11 @@ export default function Dashboard() {
                 quizId={examQuizId}
                 quizTitle="Simulasi Peperiksaan SPA — 170 Soalan"
                 onExamStarted={(attemptId, endsAt) => {
-                    localStorage.setItem('activeQuizId', examQuizId);
+                    localStorage.setItem('activeQuizId', 'real-exam-mode'); // Keep magic key for quiz page detection
                     localStorage.setItem('activeQuizTitle', '📋 Simulasi Peperiksaan Sebenar');
                     localStorage.setItem('examAttemptId', attemptId.toString());
                     localStorage.setItem('examEndsAt', endsAt);
+                    localStorage.setItem('examRealQuizId', examQuizId); // Store actual DB quiz ID separately
                     setShowPreExamModal(false);
                     window.location.href = '/quiz';
                 }}

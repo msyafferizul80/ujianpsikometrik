@@ -1,14 +1,24 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-// Use service role to bypass RLS for server-side writes
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
 export async function POST(req: Request) {
     try {
+        // Extract user's JWT token from Authorization header
+        // This makes auth.uid() work correctly on the server, satisfying RLS policies
+        const authHeader = req.headers.get('Authorization');
+        const token = authHeader?.replace('Bearer ', '');
+
+        // Use service role key if available (bypasses RLS entirely),
+        // otherwise use anon key + user's JWT token via Authorization header
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+        const supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            supabaseKey,
+            token && !process.env.SUPABASE_SERVICE_ROLE_KEY
+                ? { global: { headers: { Authorization: `Bearer ${token}` } } }
+                : {}
+        );
+
         const { quiz_id, user_id, user_name, duration_minutes = 90 } = await req.json();
 
         if (!quiz_id || !user_id) {
@@ -16,13 +26,12 @@ export async function POST(req: Request) {
         }
 
         // Check if there's already an active (unsubmitted) session for this user + quiz
-        // to prevent multiple sessions
         const { data: existing } = await supabase
             .from('attempts')
             .select('id, started_at, duration_minutes')
             .eq('quiz_id', quiz_id)
             .eq('user_id', user_id)
-            .is('score', null)  // Not yet submitted
+            .is('score', null)
             .not('started_at', 'is', null)
             .order('started_at', { ascending: false })
             .limit(1)
@@ -47,7 +56,7 @@ export async function POST(req: Request) {
             // Session expired — fall through to create a new one
         }
 
-        // Create a new attempt row with started_at = now
+        // Create a new attempt row
         const startedAt = new Date();
         const endsAt = new Date(startedAt.getTime() + duration_minutes * 60 * 1000);
 
@@ -59,7 +68,7 @@ export async function POST(req: Request) {
                 user_name: user_name || 'Calon',
                 started_at: startedAt.toISOString(),
                 duration_minutes,
-                score: null,     // Will be set on submit
+                score: null,
                 answers: {},
                 tab_switches: 0,
                 violations: [],
@@ -77,8 +86,9 @@ export async function POST(req: Request) {
             resumed: false,
         });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Exam start error:', error);
-        return NextResponse.json({ error: 'Failed to start exam session' }, { status: 500 });
+        const msg = error?.message || 'Failed to start exam session';
+        return NextResponse.json({ error: msg }, { status: 500 });
     }
 }
