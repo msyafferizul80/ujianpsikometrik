@@ -9,9 +9,9 @@ const supabaseAdmin = createClient(
 // GET a single question by ID
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    const { id } = params;
+    const { id } = await params;
 
     const { data, error } = await supabaseAdmin
         .from('questions')
@@ -29,15 +29,14 @@ export async function GET(
 // PATCH - Update a single question
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
-    const { id } = params;
+    const { id } = await params;
 
     try {
         const body = await request.json();
         const { question_text, options, correct_answer, teras, explanation } = body;
 
-        // Build update payload - only include provided fields
         const updatePayload: Record<string, any> = {};
         if (question_text !== undefined) updatePayload.question_text = question_text;
         if (options !== undefined) updatePayload.options = options;

@@ -4,11 +4,10 @@ import { createClient } from '@supabase/supabase-js';
 // GET all questions for a quiz
 export async function GET(
     request: NextRequest,
-    { params }: { params: { quizId: string } }
+    { params }: { params: Promise<{ quizId: string }> }
 ) {
-    const { quizId } = params;
+    const { quizId } = await params;
 
-    // Validate quizId
     if (!quizId) {
         return NextResponse.json({ error: 'Quiz ID diperlukan' }, { status: 400 });
     }
@@ -23,7 +22,6 @@ export async function GET(
     try {
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        // Try both string and integer comparison to handle different column types
         const numericId = parseInt(quizId, 10);
         const useNumeric = !isNaN(numericId);
 
