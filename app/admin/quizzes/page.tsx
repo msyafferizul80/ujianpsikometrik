@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { quizRepository } from "@/utils/supabaseRepository";
-import { Loader2, BookOpen, Lock, Unlock, Trash2, Plus, Edit2, X, Tag, Check } from "lucide-react";
+import { Loader2, BookOpen, Lock, Unlock, Trash2, Plus, Edit2, X, Tag, Check, FileText } from "lucide-react";
 
 export default function QuizManagementPage() {
     const router = useRouter();
@@ -219,6 +219,19 @@ export default function QuizManagementPage() {
                                                         </TableCell>
                                                         <TableCell className="text-right">
                                                             <div className="flex justify-end gap-2">
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() => {
+                                                                        sessionStorage.setItem(`quiz_${quiz.id}`, JSON.stringify({ id: quiz.id, title: quiz.title, total_questions: quiz.total_questions }));
+                                                                        router.push(`/admin/quizzes/${quiz.id}/questions`);
+                                                                    }}
+                                                                    className="text-gray-400 hover:text-purple-600 hover:bg-purple-50 gap-1.5 text-xs"
+                                                                    title="Lihat & Edit Soalan"
+                                                                >
+                                                                    <FileText className="h-3.5 w-3.5" />
+                                                                    Soalan
+                                                                </Button>
                                                                 <Button
                                                                     variant="ghost"
                                                                     size="icon"

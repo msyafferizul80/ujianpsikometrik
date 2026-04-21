@@ -92,7 +92,18 @@ export function AdminLiveFeed() {
                                             RM {(event.amount / 100).toFixed(2)}
                                         </Badge>
                                         <span className="text-xs text-gray-400">
-                                            {new Date(event.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {(() => {
+                                                const d = new Date(event.time);
+                                                const today = new Date();
+                                                const yesterday = new Date();
+                                                yesterday.setDate(today.getDate() - 1);
+                                                const isToday = d.toDateString() === today.toDateString();
+                                                const isYesterday = d.toDateString() === yesterday.toDateString();
+                                                const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                                if (isToday) return `Hari ini, ${timeStr}`;
+                                                if (isYesterday) return `Semalam, ${timeStr}`;
+                                                return d.toLocaleDateString('ms-MY', { day: '2-digit', month: 'short' }) + `, ${timeStr}`;
+                                            })()}
                                         </span>
                                     </div>
                                 </div>

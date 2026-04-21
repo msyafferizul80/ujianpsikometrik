@@ -15,11 +15,16 @@ export function AdminSalesChart() {
                 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
             );
 
-            // Fetch paid transactions
+            // Fetch paid transactions — last 30 days only
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const isoFrom = thirtyDaysAgo.toISOString();
+
             const { data: transactions } = await supabase
                 .from('transactions')
                 .select('amount, created_at')
                 .eq('status', 'paid')
+                .gte('created_at', isoFrom)
                 .order('created_at', { ascending: true });
 
             if (transactions) {
@@ -39,7 +44,6 @@ export function AdminSalesChart() {
                     total: grouped[date]
                 }));
 
-                // Fill missing days if needed (optional optimization)
                 setData(chartData);
             }
         };

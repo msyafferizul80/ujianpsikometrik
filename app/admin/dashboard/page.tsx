@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, FileText, Trash2, User, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, FileText, Trash2, User, Search, ChevronLeft, ChevronRight, Edit2 } from "lucide-react";
 import Link from "next/link";
 import { quizRepository } from "@/utils/supabaseRepository";
 import { createClient } from '@supabase/supabase-js';
@@ -58,12 +58,16 @@ export default function AdminDashboard() {
 
             try {
                 // 2. Fetch Stats
-                const { data: profiles } = await supabase.from('profiles').select('id, subscription_status, subscription_tier');
+                const { data: profiles } = await supabase.from('profiles').select('id, subscription_tier, subscription_end_date');
                 const { data: transactions } = await supabase.from('transactions').select('amount, status').eq('status', 'paid');
 
                 // Calculate Stats
+                const now = new Date();
                 const totalUsers = profiles?.length || 0;
-                const activeSubs = profiles?.filter(p => p.subscription_status === 'active').length || 0;
+                // Active = has a subscription_end_date that is in the future
+                const activeSubs = profiles?.filter(p =>
+                    p.subscription_end_date && new Date(p.subscription_end_date) > now
+                ).length || 0;
                 const totalRevenue = transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
                 const conversionRate = totalUsers > 0 ? ((activeSubs / totalUsers) * 100).toFixed(1) : "0";
 
@@ -298,6 +302,19 @@ export default function AdminDashboard() {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        sessionStorage.setItem(`quiz_${quiz.id}`, JSON.stringify({ id: quiz.id, title: quiz.title, total_questions: quiz.totalQuestions }));
+                                                        router.push(`/admin/quizzes/${quiz.id}/questions`);
+                                                    }}
+                                                    className="text-xs h-8 text-purple-600 border-purple-200 hover:bg-purple-50 gap-1.5"
+                                                    title="Edit soalan dalam set ini"
+                                                >
+                                                    <Edit2 className="h-3.5 w-3.5" />
+                                                    Edit Soalan
+                                                </Button>
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
