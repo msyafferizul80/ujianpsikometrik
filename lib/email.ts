@@ -20,7 +20,7 @@ export async function sendWelcomeEmail({ toEmail, fullName, tempPassword, planNa
 
     try {
         const { data, error } = await resend.emails.send({
-            from: 'PsikoPro <onboarding@resend.dev>',
+            from: 'PsikoPro <psikopro@resend.ujianpsikometrikonline.com>',
             to: [toEmail],
             subject: '🎉 Akaun PsikoPro Anda Telah Berjaya Didaftarkan!',
             html: `
@@ -118,7 +118,7 @@ export async function sendAdminNotification({ userId, userName, userEmail, planI
 
     try {
         const { data, error } = await resend.emails.send({
-            from: 'PsikoPro Update <onboarding@resend.dev>', // Use default Resend testing domain or configured domain
+            from: 'PsikoPro Update <psikopro@resend.ujianpsikometrikonline.com>',
             to: [adminEmail],
             subject: `💰 New Purchase: ${planId?.toUpperCase()}`,
             html: `
