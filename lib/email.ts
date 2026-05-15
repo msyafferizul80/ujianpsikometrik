@@ -16,7 +16,7 @@ export async function sendWelcomeEmail({ toEmail, fullName, tempPassword, planNa
         return { success: false, error: 'No API key' };
     }
 
-    const loginUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://psikopro.my';
+    const loginUrl = 'https://psikopro.com';
 
     try {
         const { data, error } = await resend.emails.send({
@@ -47,14 +47,8 @@ export async function sendWelcomeEmail({ toEmail, fullName, tempPassword, planNa
             <td style="padding:8px 0;color:#64748b;font-size:14px;width:130px;">📧 Emel:</td>
             <td style="padding:8px 0;color:#1e293b;font-size:14px;font-weight:600;">${toEmail}</td>
           </tr>
-          <tr>
-            <td style="padding:8px 0;color:#64748b;font-size:14px;">🔑 Kata Laluan:</td>
-            <td style="padding:8px 0;">
-              <span style="background:#e0f2fe;color:#0369a1;font-family:monospace;font-size:15px;font-weight:700;padding:4px 10px;border-radius:6px;letter-spacing:1px;">${tempPassword}</span>
-            </td>
-          </tr>
         </table>
-        <p style="margin:16px 0 0;font-size:12px;color:#94a3b8;">⚠️ Sila tukar kata laluan anda selepas log masuk pertama.</p>
+        <p style="margin:16px 0 0;font-size:13px;line-height:1.5;color:#0369a1;">Sistem kami menggunakan ciri <b>Magic Link (OTP)</b>. Anda tidak memerlukan kata laluan. Hanya masukkan emel di atas dan kami akan hantarkan kod/pautan log masuk terus ke emel anda.</p>
       </div>
 
       <!-- Plan Badge -->
