@@ -72,19 +72,46 @@ export const quizRepository = {
     },
 
     async getAllQuizzes(onlyActive: boolean = false) {
+        // Try ordering by display_order first; fall back to created_at if column doesn't exist yet
         let query = supabase
             .from('quizzes')
-            .select('*')
-            .order('created_at', { ascending: false });
+            .select('*');
 
         if (onlyActive) {
             query = query.eq('is_active', true);
         }
 
-        const { data, error } = await query;
+        // Attempt with display_order
+        let { data, error } = await query
+            .order('display_order', { ascending: true, nullsFirst: false })
+            .order('created_at', { ascending: false });
+
+        // If display_order column doesn't exist yet, fall back gracefully
+        if (error && error.code === '42703') {
+            const fallback = await supabase
+                .from('quizzes')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (fallback.error) throw fallback.error;
+            return fallback.data;
+        }
 
         if (error) throw error;
         return data;
+    },
+
+    async updateQuizOrder(orderedIds: string[]) {
+        // Update display_order for each quiz in bulk using individual updates
+        const updates = orderedIds.map((id, index) =>
+            supabase
+                .from('quizzes')
+                .update({ display_order: index + 1 })
+                .eq('id', id)
+        );
+        const results = await Promise.all(updates);
+        const failed = results.find(r => r.error);
+        if (failed?.error) throw failed.error;
+        return true;
     },
 
     async getQuizzesPaginated({ page = 1, limit = 10, search = '', status = 'all' }) {
@@ -108,7 +135,9 @@ export const quizRepository = {
         const from = (page - 1) * limit;
         const to = from + limit - 1;
 
-        query = query.range(from, to).order('created_at', { ascending: false });
+        query = query.range(from, to)
+            .order('display_order', { ascending: true, nullsFirst: false })
+            .order('created_at', { ascending: false });
 
         const { data, error, count } = await query;
 
