@@ -11,11 +11,11 @@ const supabaseAdmin = createClient(
     { auth: { autoRefreshToken: false, persistSession: false } }
 );
 
-// Career Launchpad plan configuration (1 month)
+// Career Launchpad plan configuration (3 months)
 const CAREER_LAUNCHPAD_PLAN = {
     tier: 'career_launchpad',
-    name: 'Pas Career Launchpad (1 Bulan)',
-    durationDays: 30,
+    name: 'Pas Career Launchpad (3 Bulan)',
+    durationDays: 90,
     features: ['full_bank', 'analytics_pro', 'ai_coach'],
 };
 
@@ -96,7 +96,7 @@ async function createSingleUser(user: UserRow): Promise<CreateResult> {
         })
         .eq('id', userId);
 
-    // 3. Activate Career Launchpad subscription (30 days)
+    // 3. Activate Career Launchpad subscription (90 days)
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + CAREER_LAUNCHPAD_PLAN.durationDays);
 

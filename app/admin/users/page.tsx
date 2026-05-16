@@ -102,7 +102,7 @@ function BulkUploadModal({ onClose, onDone }: { onClose: () => void; onDone: () 
                         <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                             <Users className="h-6 w-6 text-blue-600" /> Bulk Upload Pengguna
                         </h2>
-                        <p className="text-sm text-gray-500 mt-0.5">Cipta akaun & aktifkan Pas Career Launchpad (30 hari) secara automatik</p>
+                        <p className="text-sm text-gray-500 mt-0.5">Cipta akaun & aktifkan Pas Career Launchpad (90 hari) secara automatik</p>
                     </div>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X className="h-5 w-5" /></button>
                 </div>
@@ -155,7 +155,7 @@ function BulkUploadModal({ onClose, onDone }: { onClose: () => void; onDone: () 
                                 <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
                                 <div>
                                     <p className="text-sm font-semibold text-green-800">Semua pengguna akan mendapat:</p>
-                                    <p className="text-sm text-green-700 mt-0.5">✅ Akaun PsikoPro &nbsp;·&nbsp; ✅ <strong>Pas Career Launchpad (30 hari)</strong> &nbsp;·&nbsp; ✅ Email selamat datang + kata laluan sementara</p>
+                                    <p className="text-sm text-green-700 mt-0.5">✅ Akaun PsikoPro &nbsp;·&nbsp; ✅ <strong>Pas Career Launchpad (90 hari)</strong> &nbsp;·&nbsp; ✅ Email selamat datang + kata laluan sementara</p>
                                 </div>
                             </div>
 

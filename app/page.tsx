@@ -62,7 +62,7 @@ export default function Home() {
             Edisi Terkini 2026: Dikemaskini Sepenuhnya
           </Badge>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-8 leading-tight animate-slide-up">
-            Lulus PsikoPro dengan <br className="hidden md:block" />
+            Lulus Ujian Psikometrik dengan <br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600">
               Strategi Data & AI Pintar
             </span>
