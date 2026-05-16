@@ -11,13 +11,15 @@ const supabaseAdmin = createClient(
     { auth: { autoRefreshToken: false, persistSession: false } }
 );
 
-// Career Launchpad plan configuration (3 months)
-const CAREER_LAUNCHPAD_PLAN = {
-    tier: 'career_launchpad',
-    name: 'Pas Career Launchpad (3 Bulan)',
-    durationDays: 90,
-    features: ['full_bank', 'analytics_pro', 'ai_coach'],
-};
+function getPlanConfig(durationDays: number = 90) {
+    const months = Math.round(durationDays / 30);
+    return {
+        tier: 'career_launchpad',
+        name: `Pas Career Launchpad (${months} Bulan)`,
+        durationDays: durationDays,
+        features: ['full_bank', 'analytics_pro', 'ai_coach'],
+    };
+}
 
 // Generate a secure random password
 function generatePassword(length = 10): string {
@@ -46,6 +48,7 @@ interface UserRow {
     email: string;
     full_name?: string;
     whatsapp?: string;
+    duration?: number;
 }
 
 interface CreateResult {
@@ -55,7 +58,7 @@ interface CreateResult {
     reason?: string;
 }
 
-async function createSingleUser(user: UserRow): Promise<CreateResult> {
+async function createSingleUser(user: UserRow, defaultDuration: number): Promise<CreateResult> {
     const email = user.email?.trim().toLowerCase();
     const fullName = user.full_name?.trim() || email.split('@')[0];
     const whatsapp = user.whatsapp?.trim() || null;
@@ -96,15 +99,18 @@ async function createSingleUser(user: UserRow): Promise<CreateResult> {
         })
         .eq('id', userId);
 
-    // 3. Activate Career Launchpad subscription (90 days)
+    // 3. Activate Career Launchpad subscription
+    const userDuration = user.duration || defaultDuration || 90;
+    const planConfig = getPlanConfig(userDuration);
+
     const endDate = new Date();
-    endDate.setDate(endDate.getDate() + CAREER_LAUNCHPAD_PLAN.durationDays);
+    endDate.setDate(endDate.getDate() + planConfig.durationDays);
 
     const { error: subError } = await supabaseAdmin.rpc('activate_subscription', {
         p_user_id: userId,
-        p_tier: CAREER_LAUNCHPAD_PLAN.tier,
+        p_tier: planConfig.tier,
         p_end_date: endDate.toISOString(),
-        p_features: CAREER_LAUNCHPAD_PLAN.features,
+        p_features: planConfig.features,
         p_bill_id: null,
         p_amount: 0,
     });
@@ -123,7 +129,7 @@ async function createSingleUser(user: UserRow): Promise<CreateResult> {
         toEmail: email,
         fullName,
         tempPassword,
-        planName: CAREER_LAUNCHPAD_PLAN.name,
+        planName: planConfig.name,
         planExpiry: expiryFormatted,
     });
 
@@ -135,7 +141,7 @@ export async function POST(req: Request) {
         // Verify admin (basic check — in production use proper auth middleware)
         // We rely on Supabase RLS + admin role check on the frontend side
         const body = await req.json();
-        const { users }: { users: UserRow[] } = body;
+        const { users, defaultDuration = 90 }: { users: UserRow[], defaultDuration?: number } = body;
 
         if (!users || !Array.isArray(users) || users.length === 0) {
             return NextResponse.json({ error: 'Tiada data pengguna diterima' }, { status: 400 });
@@ -148,7 +154,7 @@ export async function POST(req: Request) {
         // Process users sequentially to avoid rate limits
         const results: CreateResult[] = [];
         for (const user of users) {
-            const result = await createSingleUser(user);
+            const result = await createSingleUser(user, defaultDuration);
             results.push(result);
             // Small delay to avoid Supabase Auth rate limits
             await new Promise(r => setTimeout(r, 200));

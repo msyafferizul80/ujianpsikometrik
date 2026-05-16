@@ -22,12 +22,13 @@ const supabase = createClient(
 // ─── Bulk Upload Modal ────────────────────────────────────────────────────────
 function BulkUploadModal({ onClose, onDone }: { onClose: () => void; onDone: () => void }) {
     const fileRef = useRef<HTMLInputElement>(null);
-    const [rows, setRows] = useState<{ email: string; full_name: string; whatsapp: string }[]>([]);
+    const [rows, setRows] = useState<{ email: string; full_name: string; whatsapp: string; duration?: number }[]>([]);
     const [parseError, setParseError] = useState("");
     const [uploading, setUploading] = useState(false);
     const [results, setResults] = useState<any[] | null>(null);
     const [summary, setSummary] = useState<any | null>(null);
     const [dragOver, setDragOver] = useState(false);
+    const [selectedDuration, setSelectedDuration] = useState<number>(90);
 
     const parseCSV = (text: string) => {
         setParseError("");
@@ -38,6 +39,7 @@ function BulkUploadModal({ onClose, onDone }: { onClose: () => void; onDone: () 
         const emailIdx = header.findIndex(h => h.includes("email"));
         const nameIdx = header.findIndex(h => h.includes("name") || h.includes("nama"));
         const waIdx = header.findIndex(h => h.includes("whatsapp") || h.includes("phone") || h.includes("no"));
+        const durationIdx = header.findIndex(h => h.includes("tempoh") || h.includes("duration"));
 
         if (emailIdx === -1) { setParseError("Kolum 'email' tidak dijumpai dalam CSV."); return; }
 
@@ -47,6 +49,7 @@ function BulkUploadModal({ onClose, onDone }: { onClose: () => void; onDone: () 
                 email: cols[emailIdx] || "",
                 full_name: nameIdx >= 0 ? cols[nameIdx] || "" : "",
                 whatsapp: waIdx >= 0 ? cols[waIdx] || "" : "",
+                duration: durationIdx >= 0 && cols[durationIdx] ? parseInt(cols[durationIdx]) || undefined : undefined,
             };
         }).filter(r => r.email);
 
@@ -68,7 +71,7 @@ function BulkUploadModal({ onClose, onDone }: { onClose: () => void; onDone: () 
     };
 
     const downloadTemplate = () => {
-        const csv = "email,full_name,whatsapp\njohnsmith@gmail.com,John Smith,0123456789\nalihassan@gmail.com,Ali Hassan,0198765432";
+        const csv = "email,full_name,whatsapp,tempoh_hari\njohnsmith@gmail.com,John Smith,0123456789,90\nalihassan@gmail.com,Ali Hassan,0198765432,30";
         const blob = new Blob([csv], { type: "text/csv" });
         saveAs(blob, "template_bulk_users.csv");
     };
@@ -80,7 +83,7 @@ function BulkUploadModal({ onClose, onDone }: { onClose: () => void; onDone: () 
             const res = await fetch("/api/admin/bulk-create-users", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ users: rows }),
+                body: JSON.stringify({ users: rows, defaultDuration: selectedDuration }),
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Ralat semasa upload");
@@ -102,7 +105,7 @@ function BulkUploadModal({ onClose, onDone }: { onClose: () => void; onDone: () 
                         <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                             <Users className="h-6 w-6 text-blue-600" /> Bulk Upload Pengguna
                         </h2>
-                        <p className="text-sm text-gray-500 mt-0.5">Cipta akaun & aktifkan Pas Career Launchpad (90 hari) secara automatik</p>
+                        <p className="text-sm text-gray-500 mt-0.5">Cipta akaun & aktifkan Pas Career Launchpad secara automatik</p>
                     </div>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X className="h-5 w-5" /></button>
                 </div>
@@ -153,9 +156,19 @@ function BulkUploadModal({ onClose, onDone }: { onClose: () => void; onDone: () 
                             {/* Plan info */}
                             <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-xl">
                                 <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
-                                <div>
-                                    <p className="text-sm font-semibold text-green-800">Semua pengguna akan mendapat:</p>
-                                    <p className="text-sm text-green-700 mt-0.5">✅ Akaun PsikoPro &nbsp;·&nbsp; ✅ <strong>Pas Career Launchpad (90 hari)</strong> &nbsp;·&nbsp; ✅ Email selamat datang + kata laluan sementara</p>
+                                <div className="w-full">
+                                    <p className="text-sm font-semibold text-green-800">Tetapan Langganan (Default):</p>
+                                    <div className="flex gap-4 mt-2 mb-2">
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="radio" name="duration" checked={selectedDuration === 90} onChange={() => setSelectedDuration(90)} className="text-blue-600 w-4 h-4" />
+                                            <span className="text-sm font-medium text-green-900">90 Hari (3 Bulan)</span>
+                                        </label>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="radio" name="duration" checked={selectedDuration === 30} onChange={() => setSelectedDuration(30)} className="text-blue-600 w-4 h-4" />
+                                            <span className="text-sm font-medium text-green-900">30 Hari (1 Bulan)</span>
+                                        </label>
+                                    </div>
+                                    <p className="text-xs text-green-700 leading-relaxed">✅ Semua pengguna akan mendapat Akaun Ujian Psikometrik, Pas Career Launchpad, dan Email Selamat Datang.<br/>ℹ️ Anda juga boleh ubah tempoh untuk pengguna spesifik dengan menambah kolum <code>tempoh_hari</code> dalam fail CSV.</p>
                                 </div>
                             </div>
 
@@ -191,7 +204,7 @@ function BulkUploadModal({ onClose, onDone }: { onClose: () => void; onDone: () 
                                     <div className="rounded-lg border overflow-hidden max-h-52 overflow-y-auto">
                                         <Table>
                                             <TableHeader><TableRow className="bg-gray-50">
-                                                <TableHead>#</TableHead><TableHead>Emel</TableHead><TableHead>Nama</TableHead><TableHead>WhatsApp</TableHead>
+                                                <TableHead>#</TableHead><TableHead>Emel</TableHead><TableHead>Nama</TableHead><TableHead>WhatsApp</TableHead><TableHead>Tempoh</TableHead>
                                             </TableRow></TableHeader>
                                             <TableBody>
                                                 {rows.slice(0, 50).map((r, i) => (
@@ -200,9 +213,10 @@ function BulkUploadModal({ onClose, onDone }: { onClose: () => void; onDone: () 
                                                         <TableCell className="text-sm">{r.email}</TableCell>
                                                         <TableCell className="text-sm text-gray-600">{r.full_name || "-"}</TableCell>
                                                         <TableCell className="text-sm text-gray-600">{r.whatsapp || "-"}</TableCell>
+                                                        <TableCell className="text-sm font-medium text-blue-600">{r.duration || selectedDuration} Hari</TableCell>
                                                     </TableRow>
                                                 ))}
-                                                {rows.length > 50 && <TableRow><TableCell colSpan={4} className="text-center text-xs text-gray-400 py-2">...dan {rows.length - 50} lagi</TableCell></TableRow>}
+                                                {rows.length > 50 && <TableRow><TableCell colSpan={5} className="text-center text-xs text-gray-400 py-2">...dan {rows.length - 50} lagi</TableCell></TableRow>}
                                             </TableBody>
                                         </Table>
                                     </div>
